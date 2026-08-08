@@ -628,7 +628,7 @@ function App() {
       showNotice('success', 'تم تسجيل الدخول بنجاح.')
     } catch (error) {
       if (error instanceof TypeError) {
-        setLoginError('تعذر الاتصال بالخادم. تأكد أن API يعمل على المنفذ 5018.')
+        setLoginError('تعذر الاتصال بالخادم. تأكد أن API متاحة على judimensucat.runasp.net وأن الخادم يسمح بطلبات CORS.')
       } else {
         setLoginError(error.message || 'حدث خطأ غير متوقع.')
       }
