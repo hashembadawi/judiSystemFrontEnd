@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://judimensucat.runasp.net'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://judimensucat.runasp.net'
 
 const buildApiUrl = (url) =>
   url.startsWith('http://') || url.startsWith('https://') ? url : `${API_BASE_URL}${url}`
