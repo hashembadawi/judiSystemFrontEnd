@@ -1,7 +1,10 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://judimensucat.runasp.net'
+const NORMALIZED_API_BASE_URL = API_BASE_URL.startsWith('http://judimensucat.runasp.net')
+  ? API_BASE_URL.replace('http://', 'https://')
+  : API_BASE_URL
 
 const buildApiUrl = (url) =>
-  url.startsWith('http://') || url.startsWith('https://') ? url : `${API_BASE_URL}${url}`
+  url.startsWith('http://') || url.startsWith('https://') ? url : `${NORMALIZED_API_BASE_URL}${url}`
 
 export const requestApi = async ({ url, options = {}, token, withLoading }) => {
   return withLoading(async () => {
