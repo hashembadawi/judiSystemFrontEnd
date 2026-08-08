@@ -1,0 +1,5 @@
+Pre-edit check: applying header and CSS updates for Kumaş Türü -> Kumaş Cinsi and width changes.
+Files to modify:
+- src\features\fabrics\AddFabricTransactionModal.jsx
+- src\features\fabrics\FabricsSection.jsx
+- src\App.css
