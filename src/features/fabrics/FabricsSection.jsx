@@ -42,7 +42,7 @@ function FabricsSection({ apiRequest, showNotice, isActive, currentUserName = ''
         setPageSize(size)
       } catch (requestError) {
         if (requestError instanceof TypeError) {
-          setError('Sunucuya bağlanılamadı. API 5018 portunda çalışıyor mu kontrol edin.')
+          setError('تعذر الاتصال بالخادم. تأكد أن API متاحة على judimensucat.runasp.net وأن الخادم يسمح بطلبات CORS.')
         } else {
           setError(requestError.message || 'Günlük kumaş hareketleri alınırken bir hata oluştu.')
         }

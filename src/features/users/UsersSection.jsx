@@ -79,7 +79,7 @@ function UsersSection({ apiRequest, showNotice, isActive }) {
       setTotalCount(data.totalCount || 0)
     } catch (requestError) {
       if (requestError instanceof TypeError) {
-        setError('تعذر الاتصال بالخادم. تأكد أن API يعمل على المنفذ 5018.')
+        setError('تعذر الاتصال بالخادم. تأكد أن API متاحة على judimensucat.runasp.net وأن الخادم يسمح بطلبات CORS.')
       } else {
         setError(requestError.message || 'تعذر جلب المستخدمين.')
       }

@@ -1,3 +1,8 @@
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://judimensucat.runasp.net'
+
+const buildApiUrl = (url) =>
+  url.startsWith('http://') || url.startsWith('https://') ? url : `${API_BASE_URL}${url}`
+
 export const requestApi = async ({ url, options = {}, token, withLoading }) => {
   return withLoading(async () => {
     const headers = {
@@ -8,7 +13,7 @@ export const requestApi = async ({ url, options = {}, token, withLoading }) => {
       headers.Authorization = `Bearer ${token}`
     }
 
-    const response = await fetch(url, {
+    const response = await fetch(buildApiUrl(url), {
       ...options,
       headers,
     })
@@ -25,7 +30,7 @@ export const requestApi = async ({ url, options = {}, token, withLoading }) => {
 
 export const loginRequest = async ({ userName, password, withLoading }) => {
   return withLoading(async () => {
-    const response = await fetch('/api/auth/login', {
+    const response = await fetch(buildApiUrl('/api/auth/login'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
