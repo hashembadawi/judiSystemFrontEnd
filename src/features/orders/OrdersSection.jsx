@@ -605,7 +605,7 @@ function OrdersSection({ apiRequest, showNotice, isActive, currentUserName = '' 
 
       {error ? <p className="error-box inline-error">{error}</p> : null}
 
-      <div className="table-wrap" style={{ direction: 'rtl' }}>
+      <div className="table-wrap orders-table-wrap" style={{ direction: 'rtl' }}>
         <table style={{ direction: 'rtl' }}>
           <thead>
             <tr>

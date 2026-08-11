@@ -428,6 +428,12 @@ button:disabled {
   direction: ltr;
 }
 
+/* Orders-specific scrolling so expanded rows remain visible */
+.orders-table-wrap {
+  max-height: calc(100vh - 300px);
+  overflow: auto;
+}
+
 .fabrics-section {
   direction: ltr;
   text-align: left;
