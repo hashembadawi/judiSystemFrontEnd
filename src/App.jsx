@@ -754,6 +754,13 @@ function App() {
             </button>
             <button
               type="button"
+              className={activeOperation === 'depoHamFabric' ? 'menu-item active' : 'menu-item'}
+              onClick={() => setActiveOperation('depoHamFabric')}
+            >
+              HAM KUMAŞ DEPO
+            </button>
+            <button
+              type="button"
               className={activeOperation === 'weavingOrders' ? 'menu-item active' : 'menu-item'}
               onClick={() => setActiveOperation('weavingOrders')}
             >
@@ -781,7 +788,7 @@ function App() {
               className={activeOperation === 'depoHamFabric' ? 'menu-item active' : 'menu-item'}
               onClick={() => setActiveOperation('depoHamFabric')}
             >
-              مخزون القماش الخام
+              HAM KUMAŞ DEPO
             </button>
             <button
               type="button"
@@ -905,6 +912,8 @@ function App() {
             />
           ) : activeOperation === 'weavingOrders' ? (
             <WeavingOrdersSection apiRequest={apiRequest} showNotice={showNotice} isActive />
+           ) : activeOperation === 'depoHamFabric' ? (
+            <DepoHamFabricSection apiRequest={apiRequest} showNotice={showNotice} isActive />
           ) : null
         ) : activeOperation === 'users' ? (
           <UsersSection apiRequest={apiRequest} showNotice={showNotice} isActive />
