@@ -657,9 +657,10 @@ function OrdersSection({ apiRequest, showNotice, isActive, currentUserName = '' 
 
                   try {
                     const idForRequest = orderObj?.id || orderObj?.orderId || key
+
                     const response = await apiRequest(`${CUSTOMER_ORDERS_URL}/expand/${idForRequest}`)
                     const data = response.data || {}
-                    const fabrics = (data.data && Array.isArray(data.data.fabrics)) ? data.data.fabrics : []
+                    const fabrics = Array.isArray(data.fabrics) ? data.fabrics : []
 
                     setExpandedData((prev) => ({
                       ...prev,
