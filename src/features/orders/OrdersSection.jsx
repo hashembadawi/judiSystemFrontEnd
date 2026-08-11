@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import OrderModal from './OrderModal'
 
 const CUSTOMER_ORDERS_URL = '/api/customer-orders'
@@ -638,37 +638,45 @@ function OrdersSection({ apiRequest, showNotice, isActive, currentUserName = '' 
                 const remainingWeight = getOrderValue(order, ['remainingWeight', 'remaining'])
                 const orderKey = order.id || order.orderId || order.orderNumber || index
 
-                const toggleExpand = async (id) => {
-                  if (!id) return
+                const toggleExpand = async (orderObj, key) => {
+                  // collapse if already loaded and not currently loading
+                  if (expandedData[key] && !expandedData[key].isLoading) {
+                    setExpandedData((prev) => {
+                      const next = { ...prev }
+                      delete next[key]
+                      return next
+                    })
+                    return
+                  }
 
+                  // start loading
                   setExpandedData((prev) => ({
                     ...prev,
-                    [id]: { ...(prev[id] || {}), isLoading: true, error: '' },
+                    [key]: { ...(prev[key] || {}), isLoading: true, error: '' },
                   }))
 
                   try {
-                    const response = await apiRequest(`${CUSTOMER_ORDERS_URL}/expand/${id}`)
+                    const idForRequest = orderObj?.id || orderObj?.orderId || key
+                    const response = await apiRequest(`${CUSTOMER_ORDERS_URL}/expand/${idForRequest}`)
                     const data = response.data || {}
                     const fabrics = (data.data && Array.isArray(data.data.fabrics)) ? data.data.fabrics : []
 
                     setExpandedData((prev) => ({
                       ...prev,
-                      [id]: { isLoading: false, fabrics, error: '' },
+                      [key]: { isLoading: false, fabrics, error: '' },
                     }))
                   } catch (err) {
                     setExpandedData((prev) => ({
                       ...prev,
-                      [id]: { isLoading: false, fabrics: [], error: err?.message || 'تعذر جلب تفاصيل الطلبية.' },
+                      [key]: { isLoading: false, fabrics: [], error: err?.message || 'تعذر جلب تفاصيل الطلبية.' },
                     }))
                     showNotice('error', err?.message || 'تعذر جلب تفاصيل الطلبية.')
                   }
                 }
 
-                const isExpanded = Boolean(expandedData[orderKey] && (expandedData[orderKey].isLoading || (expandedData[orderKey].fabrics && expandedData[orderKey].fabrics.length)))
-
                 return (
-                  <>
-                    <tr key={orderKey} onClick={() => toggleExpand(order.id)} style={{ cursor: 'pointer' }}>
+                  <React.Fragment key={orderKey}>
+                    <tr onClick={() => toggleExpand(order, orderKey)} style={{ cursor: 'pointer' }}>
                       <td>{getOrderValue(order, ['orderNo', 'orderNumber', 'code'])}</td>
                       <td>{getOrderValue(order, ['customerName', 'clientName'])}</td>
                       <td>{getOrderValue(order, ['orderDate', 'createdAt'])}</td>
@@ -709,11 +717,11 @@ function OrdersSection({ apiRequest, showNotice, isActive, currentUserName = '' 
                     </tr>
 
                     {expandedData[orderKey] && expandedData[orderKey].isLoading ? (
-                      <tr key={`${orderKey}-loading`}>
+                      <tr>
                         <td colSpan={11} className="table-state">جاري تحميل تفاصيل الطلبية...</td>
                       </tr>
                     ) : expandedData[orderKey] && expandedData[orderKey].fabrics && expandedData[orderKey].fabrics.length ? (
-                      <tr key={`${orderKey}-expanded`}>
+                      <tr>
                         <td colSpan={11}>
                           <table className="inner-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
                             <thead>
@@ -746,7 +754,7 @@ function OrdersSection({ apiRequest, showNotice, isActive, currentUserName = '' 
                         </td>
                       </tr>
                     ) : null}
-                  </>
+                  </React.Fragment>
                 )
               })
             )}
