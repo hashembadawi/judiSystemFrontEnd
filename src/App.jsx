@@ -133,7 +133,7 @@ function App() {
     }
 
     if (isProductionManagerUser) {
-      if (!['fabrics', 'weavingOrders'].includes(activeOperation)) {
+      if (!['fabrics', 'weavingOrders', 'depoHamFabric'].includes(activeOperation)) {
         setActiveOperation('fabrics')
       }
       return
