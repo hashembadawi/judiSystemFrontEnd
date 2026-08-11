@@ -532,6 +532,16 @@ td {
 .nested-table td {
   border: 1px solid #dce8ef;
   padding: 8px 10px;
+  text-align: left;
+  direction: ltr;
+  unicode-bidi: embed;
+  font-size: 0.86rem;
+  white-space: nowrap;
+}
+
+.nested-table th {
+  border: 1px solid #dce8ef;
+  padding: 8px 10px;
   text-align: right;
   font-size: 0.86rem;
   white-space: nowrap;
