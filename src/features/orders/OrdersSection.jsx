@@ -151,6 +151,7 @@ function OrdersSection({ apiRequest, showNotice, isActive, currentUserName = '' 
   const [modalError, setModalError] = useState('')
   const [form, setForm] = useState(createEmptyOrderForm())
   const [fabricOptions, setFabricOptions] = useState([])
+  const [expandedData, setExpandedData] = useState({})
 
   const totalPages = useMemo(() => {
     const rawPages = Math.ceil(totalCount / pageSize)
@@ -635,47 +636,117 @@ function OrdersSection({ apiRequest, showNotice, isActive, currentUserName = '' 
                 const progressPercent = calculateOrderProgressPercent(order)
                 const producedWeight = getOrderValue(order, ['producedWeight', 'produced'])
                 const remainingWeight = getOrderValue(order, ['remainingWeight', 'remaining'])
+                const orderKey = order.id || order.orderId || order.orderNumber || index
+
+                const toggleExpand = async (id) => {
+                  if (!id) return
+
+                  setExpandedData((prev) => ({
+                    ...prev,
+                    [id]: { ...(prev[id] || {}), isLoading: true, error: '' },
+                  }))
+
+                  try {
+                    const response = await apiRequest(`${CUSTOMER_ORDERS_URL}/expand/${id}`)
+                    const data = response.data || {}
+                    const fabrics = (data.data && Array.isArray(data.data.fabrics)) ? data.data.fabrics : []
+
+                    setExpandedData((prev) => ({
+                      ...prev,
+                      [id]: { isLoading: false, fabrics, error: '' },
+                    }))
+                  } catch (err) {
+                    setExpandedData((prev) => ({
+                      ...prev,
+                      [id]: { isLoading: false, fabrics: [], error: err?.message || 'تعذر جلب تفاصيل الطلبية.' },
+                    }))
+                    showNotice('error', err?.message || 'تعذر جلب تفاصيل الطلبية.')
+                  }
+                }
+
+                const isExpanded = Boolean(expandedData[orderKey] && (expandedData[orderKey].isLoading || (expandedData[orderKey].fabrics && expandedData[orderKey].fabrics.length)))
 
                 return (
-                  <tr key={order.id || order.orderId || order.orderNumber || index}>
-                    <td>{getOrderValue(order, ['orderNo', 'orderNumber', 'code'])}</td>
-                    <td>{getOrderValue(order, ['customerName', 'clientName'])}</td>
-                    <td>{getOrderValue(order, ['orderDate', 'createdAt'])}</td>
-                    <td>{getOrderStatusLabel(order.status)}</td>
-                    <td>{getOrderValue(order, ['detailsCount'])}</td>
-                    <td>{formatDisplayNumber(getOrderValue(order, ['totalWeight']))}</td>
-                    <td>{formatDisplayNumber(producedWeight)}</td>
-                    <td>{formatDisplayNumber(remainingWeight)}</td>
-                    <td>
-                      <div className="progress-cell">
-                        <div className="progress-track" aria-label={`نسبة التقدم ${progressPercent.toFixed(1)}%`}>
-                          <div className="progress-fill" style={{ width: `${progressPercent}%` }} />
+                  <>
+                    <tr key={orderKey} onClick={() => toggleExpand(order.id)} style={{ cursor: 'pointer' }}>
+                      <td>{getOrderValue(order, ['orderNo', 'orderNumber', 'code'])}</td>
+                      <td>{getOrderValue(order, ['customerName', 'clientName'])}</td>
+                      <td>{getOrderValue(order, ['orderDate', 'createdAt'])}</td>
+                      <td>{getOrderStatusLabel(order.status)}</td>
+                      <td>{getOrderValue(order, ['detailsCount'])}</td>
+                      <td>{formatDisplayNumber(getOrderValue(order, ['totalWeight']))}</td>
+                      <td>{formatDisplayNumber(producedWeight)}</td>
+                      <td>{formatDisplayNumber(remainingWeight)}</td>
+                      <td>
+                        <div className="progress-cell">
+                          <div className="progress-track" aria-label={`نسبة التقدم ${progressPercent.toFixed(1)}%`}>
+                            <div className="progress-fill" style={{ width: `${progressPercent}%` }} />
+                          </div>
+                          <span className="progress-text">{progressPercent.toFixed(1)}%</span>
                         </div>
-                        <span className="progress-text">{progressPercent.toFixed(1)}%</span>
-                      </div>
-                    </td>
-                    <td>{getOrderValue(order, ['notes'])}</td>
-                    <td>
-                      <div className="row-actions">
-                        <button
-                          type="button"
-                          className="action-btn edit"
-                          disabled={!order.id}
-                          onClick={() => openEditModal(order.id)}
-                        >
-                          تعديل
-                        </button>
-                        <button
-                          type="button"
-                          className="action-btn delete"
-                          disabled={!order.id}
-                          onClick={() => deleteOrder(order.id)}
-                        >
-                          حذف
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+                      </td>
+                      <td>{getOrderValue(order, ['notes'])}</td>
+                      <td>
+                        <div className="row-actions">
+                          <button
+                            type="button"
+                            className="action-btn edit"
+                            disabled={!order.id}
+                            onClick={(e) => { e.stopPropagation(); openEditModal(order.id) }}
+                          >
+                            تعديل
+                          </button>
+                          <button
+                            type="button"
+                            className="action-btn delete"
+                            disabled={!order.id}
+                            onClick={(e) => { e.stopPropagation(); deleteOrder(order.id) }}
+                          >
+                            حذف
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+
+                    {expandedData[orderKey] && expandedData[orderKey].isLoading ? (
+                      <tr key={`${orderKey}-loading`}>
+                        <td colSpan={11} className="table-state">جاري تحميل تفاصيل الطلبية...</td>
+                      </tr>
+                    ) : expandedData[orderKey] && expandedData[orderKey].fabrics && expandedData[orderKey].fabrics.length ? (
+                      <tr key={`${orderKey}-expanded`}>
+                        <td colSpan={11}>
+                          <table className="inner-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+                            <thead>
+                              <tr>
+                                <th>النوع</th>
+                                <th>GSM</th>
+                                <th>الوصف</th>
+                                <th>الوزن المطلوب</th>
+                                <th>الوزن المحاك</th>
+                                <th>الوزن المنتج</th>
+                                <th>الوزن المتبقي</th>
+                                <th>التقدم %</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {expandedData[orderKey].fabrics.map((fab, i) => (
+                                <tr key={i}>
+                                  <td>{fab.fabricGender || '-'}</td>
+                                  <td>{fab.fabricGSM ?? '-'}</td>
+                                  <td>{fab.description || '-'}</td>
+                                  <td>{formatDisplayNumber(fab.requiredWeight)}</td>
+                                  <td>{formatDisplayNumber(fab.wovenWeight)}</td>
+                                  <td>{formatDisplayNumber(fab.producedWeight)}</td>
+                                  <td>{formatDisplayNumber(fab.remainingWeight)}</td>
+                                  <td>{(Number(fab.progressPercent) || 0).toFixed(2)}%</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </td>
+                      </tr>
+                    ) : null}
+                  </>
                 )
               })
             )}
