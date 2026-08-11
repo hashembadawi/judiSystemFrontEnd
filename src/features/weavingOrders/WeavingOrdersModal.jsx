@@ -41,7 +41,7 @@ function WeavingOrdersModal({
 
   return (
     <div className="modal-backdrop" role="dialog" aria-modal="true">
-      <section className="modal-card order-modal-card">
+      <section className="modal-card order-modal-card" dir="ltr">
         <h4>{isEditMode ? 'Dokuma hareketini düzenle' : 'Yeni dokuma hareketi ekle'}</h4>
 
         {isLoading ? (
