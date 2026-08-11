@@ -731,25 +731,21 @@ function OrdersSection({ apiRequest, showNotice, isActive, currentUserName = '' 
                           <div className="nested-table-wrapper">
                             <table className="nested-table">
                               <thead>
-                                <tr>
-                                  <th>النوع</th>
-                                  <th>GSM</th>
-                                  <th>الوصف</th>
-                                  <th>الوزن المطلوب</th>
-                                  <th>الوزن المحاك</th>
-                                  <th>الوزن المنتج</th>
-                                  <th>الوزن المتبقي</th>
-                                  <th>التقدم %</th>
-                                </tr>
+                                  <tr>
+                                    <th>النوع</th>
+                                    <th>GSM</th>
+                                    <th>الوزن المطلوب</th>
+                                    <th>الوزن المنتج</th>
+                                    <th>الوزن المتبقي</th>
+                                    <th>التقدم %</th>
+                                  </tr>
                               </thead>
                               <tbody>
                                 {expandedData[orderKey].fabrics.map((fab, i) => (
                                   <tr key={i}>
                                     <td>{fab.fabricGender || '-'}</td>
                                     <td>{fab.fabricGSM ?? '-'}</td>
-                                    <td>{fab.description || '-'}</td>
                                     <td>{formatDisplayNumber(fab.requiredWeight)}</td>
-                                    <td>{formatDisplayNumber(fab.wovenWeight)}</td>
                                     <td>{formatDisplayNumber(fab.producedWeight)}</td>
                                     <td>{formatDisplayNumber(fab.remainingWeight)}</td>
                                     <td>{(Number(fab.progressPercent) || 0).toFixed(2)}%</td>

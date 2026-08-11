@@ -430,8 +430,19 @@ button:disabled {
 
 /* Orders-specific scrolling so expanded rows remain visible */
 .orders-table-wrap {
-  max-height: calc(100vh - 300px);
+  max-height: calc(100vh - 160px);
   overflow: auto;
+}
+
+/* compact table styles for orders to fit more rows */
+.orders-table-wrap table th,
+.orders-table-wrap table td {
+  padding: 6px 6px;
+  font-size: 0.82rem;
+}
+
+.orders-table-wrap table {
+  min-width: 640px;
 }
 
 .fabrics-section {
@@ -525,7 +536,7 @@ td {
 .nested-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 480px;
+  min-width: 420px;
 }
 
 .nested-table th,
