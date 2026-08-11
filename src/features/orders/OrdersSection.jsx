@@ -676,7 +676,11 @@ function OrdersSection({ apiRequest, showNotice, isActive, currentUserName = '' 
 
                 return (
                   <React.Fragment key={orderKey}>
-                    <tr onClick={() => toggleExpand(order, orderKey)} style={{ cursor: 'pointer' }}>
+                    <tr
+                      className={`expandable-row ${expandedData[orderKey] ? 'expanded-parent' : ''}`}
+                      onClick={() => toggleExpand(order, orderKey)}
+                      style={{ cursor: 'pointer' }}
+                    >
                       <td>{getOrderValue(order, ['orderNo', 'orderNumber', 'code'])}</td>
                       <td>{getOrderValue(order, ['customerName', 'clientName'])}</td>
                       <td>{getOrderValue(order, ['orderDate', 'createdAt'])}</td>
@@ -717,40 +721,42 @@ function OrdersSection({ apiRequest, showNotice, isActive, currentUserName = '' 
                     </tr>
 
                     {expandedData[orderKey] && expandedData[orderKey].isLoading ? (
-                      <tr>
+                      <tr className="expanded-row">
                         <td colSpan={11} className="table-state">جاري تحميل تفاصيل الطلبية...</td>
                       </tr>
                     ) : expandedData[orderKey] && expandedData[orderKey].fabrics && expandedData[orderKey].fabrics.length ? (
-                      <tr>
+                      <tr className="expanded-row">
                         <td colSpan={11}>
-                          <table className="inner-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
-                            <thead>
-                              <tr>
-                                <th>النوع</th>
-                                <th>GSM</th>
-                                <th>الوصف</th>
-                                <th>الوزن المطلوب</th>
-                                <th>الوزن المحاك</th>
-                                <th>الوزن المنتج</th>
-                                <th>الوزن المتبقي</th>
-                                <th>التقدم %</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {expandedData[orderKey].fabrics.map((fab, i) => (
-                                <tr key={i}>
-                                  <td>{fab.fabricGender || '-'}</td>
-                                  <td>{fab.fabricGSM ?? '-'}</td>
-                                  <td>{fab.description || '-'}</td>
-                                  <td>{formatDisplayNumber(fab.requiredWeight)}</td>
-                                  <td>{formatDisplayNumber(fab.wovenWeight)}</td>
-                                  <td>{formatDisplayNumber(fab.producedWeight)}</td>
-                                  <td>{formatDisplayNumber(fab.remainingWeight)}</td>
-                                  <td>{(Number(fab.progressPercent) || 0).toFixed(2)}%</td>
+                          <div className="nested-table-wrapper">
+                            <table className="nested-table">
+                              <thead>
+                                <tr>
+                                  <th>النوع</th>
+                                  <th>GSM</th>
+                                  <th>الوصف</th>
+                                  <th>الوزن المطلوب</th>
+                                  <th>الوزن المحاك</th>
+                                  <th>الوزن المنتج</th>
+                                  <th>الوزن المتبقي</th>
+                                  <th>التقدم %</th>
                                 </tr>
-                              ))}
-                            </tbody>
-                          </table>
+                              </thead>
+                              <tbody>
+                                {expandedData[orderKey].fabrics.map((fab, i) => (
+                                  <tr key={i}>
+                                    <td>{fab.fabricGender || '-'}</td>
+                                    <td>{fab.fabricGSM ?? '-'}</td>
+                                    <td>{fab.description || '-'}</td>
+                                    <td>{formatDisplayNumber(fab.requiredWeight)}</td>
+                                    <td>{formatDisplayNumber(fab.wovenWeight)}</td>
+                                    <td>{formatDisplayNumber(fab.producedWeight)}</td>
+                                    <td>{formatDisplayNumber(fab.remainingWeight)}</td>
+                                    <td>{(Number(fab.progressPercent) || 0).toFixed(2)}%</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
                         </td>
                       </tr>
                     ) : null}
