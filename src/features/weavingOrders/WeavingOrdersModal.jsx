@@ -182,28 +182,6 @@ function WeavingOrdersModal({
                     </div>
 
                     <div className="field-group">
-                      <label htmlFor={`iplikUzunu-${detailIndex}`}>İplik Uzunluğu</label>
-                      <input
-                        id={`iplikUzunu-${detailIndex}`}
-                        type="number"
-                        value={detail.Iplik_Uzunu ?? detail.iplik_Uzunu ?? detail.IplikUzunu ?? ''}
-                        onChange={(event) => onDetailChange(detailIndex, 'iplik_Uzunu', event.target.value)}
-                        style={{ direction: 'ltr', textAlign: 'left' }}
-                      />
-                    </div>
-
-                    <div className="field-group">
-                      <label htmlFor={`denye-${detailIndex}`}>Denye</label>
-                      <input
-                        id={`denye-${detailIndex}`}
-                        type="number"
-                        value={detail.Denye ?? detail.denye ?? ''}
-                        onChange={(event) => onDetailChange(detailIndex, 'denye', event.target.value)}
-                        style={{ direction: 'ltr', textAlign: 'left' }}
-                      />
-                    </div>
-
-                    <div className="field-group">
                       <label htmlFor={`weight-${detailIndex}`}>Ağırlık</label>
                       <input
                         id={`weight-${detailIndex}`}

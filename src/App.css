@@ -907,33 +907,48 @@ tbody tr:hover {
 
 .order-details-list {
   display: grid;
-  gap: 8px;
-}
-
-.order-detail-card {
-  border: 1px solid #d6e6f0;
-  border-radius: 14px;
-  padding: 10px;
-  background: rgba(247, 252, 255, 0.8);
-}
-
-.order-detail-grid {
-  display: grid;
-  grid-template-columns: 1.8fr 1fr 1fr 1.2fr 1.4fr;
-  gap: 8px;
-  align-items: end;
-}
-
-.detail-description-field {
-  margin-top: 8px;
-}
-
-.order-detail-actions {
-  margin-top: 6px;
-  display: flex;
-  justify-content: flex-end;
-}
-
+   gap: 6px;
+ }
+ 
+ .order-detail-card {
+   border: 1px solid #d6e6f0;
+   border-radius: 12px;
+   padding: 8px;
+   background: rgba(247, 252, 255, 0.88);
+ }
+ 
+ .order-detail-grid {
+   display: grid;
+   grid-auto-flow: column;
+   grid-auto-columns: minmax(140px, 1fr);
+   gap: 6px;
+   align-items: end;
+   overflow-x: auto;
+ }
+ 
+ .order-detail-grid .field-group {
+   min-width: 130px;
+ }
+ 
+ .detail-description-field {
+   margin-top: 6px;
+ }
+ 
+ .order-detail-actions {
+   margin-top: 6px;
+   display: flex;
+   justify-content: flex-end;
+ }
+ 
+ .order-detail-card input,
+ .order-detail-card select {
+   padding: 6px 8px;
+   font-size: 0.84rem;
+ }
+ 
+ .order-detail-card label {
+   font-size: 0.8rem;
+   margin-bottom: 4px;
 .remove-detail-btn {
   margin: 0;
   background: #fdeef1;
