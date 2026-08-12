@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import './YarnsSection.css'
 import YarnModal from './YarnModal'
 
 const YARNS_URL = '/api/yarns'
@@ -466,17 +467,6 @@ function YarnsSection({ apiRequest, showNotice, isActive, currentUserName = '' }
           <button
             type="button"
             className="pager-btn"
-            disabled={pageNumber <= 1 || isLoading}
-            onClick={() => setPageNumber((prev) => Math.max(prev - 1, 1))}
-          >
-            السابق
-          </button>
-          <span>
-            الصفحة {pageNumber} من {Math.max(Math.ceil(totalCount / pageSize), 1)}
-          </span>
-          <button
-            type="button"
-            className="pager-btn"
             disabled={pageNumber >= Math.max(Math.ceil(totalCount / pageSize), 1) || isLoading}
             onClick={() =>
               setPageNumber((prev) =>
@@ -485,6 +475,17 @@ function YarnsSection({ apiRequest, showNotice, isActive, currentUserName = '' }
             }
           >
             التالي
+          </button>
+          <span>
+            الصفحة {pageNumber} من {Math.max(Math.ceil(totalCount / pageSize), 1)}
+          </span>
+          <button
+            type="button"
+            className="pager-btn"
+            disabled={pageNumber <= 1 || isLoading}
+            onClick={() => setPageNumber((prev) => Math.max(prev - 1, 1))}
+          >
+            السابق
           </button>
         </div>
       </footer>

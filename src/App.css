@@ -443,25 +443,6 @@ button:disabled {
   text-align: left;
 }
 
-.yarns-section {
-  direction: rtl;
-  text-align: right;
-}
-
-.yarns-section .table-wrap {
-  direction: rtl;
-}
-
-.yarns-section table {
-  direction: rtl;
-}
-
-.yarns-section th,
-.yarns-section td {
-  direction: ltr;
-  text-align: left;
-}
-
 table {
   width: 100%;
   border-collapse: collapse;

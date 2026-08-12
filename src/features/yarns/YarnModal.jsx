@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import './YarnModal.css'
 
 const getTodayDate = () => new Date().toISOString().slice(0, 10)
 
@@ -33,10 +34,10 @@ function YarnModal({
 
   return (
     <div className="modal-backdrop" role="dialog" aria-modal="true">
-      <section className="modal-card order-modal-card">
+      <section className="yarn-modal-card">
         <h4>{form.id ? 'تعديل خيط' : 'اضافة خيط جديد'}</h4>
 
-        <div className="modal-form-grid order-form-grid">
+        <div className="yarn-modal-form-grid">
           <div className="field-group">
             <label htmlFor="yarnGender">نوع الخيط</label>
             <input
@@ -141,7 +142,7 @@ function YarnModal({
 
         {error ? <p className="error-box inline-error">{error}</p> : null}
 
-        <div className="modal-actions">
+        <div className="yarn-modal-actions">
           <button type="button" className="ghost-btn" onClick={onClose}>
             الغاء
           </button>
