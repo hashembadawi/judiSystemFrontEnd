@@ -1,0 +1,136 @@
+.depo-ham-fabric-section {
+  display: grid;
+  gap: 12px;
+  direction: ltr;
+  text-align: left;
+}
+
+.depo-ham-fabric-section .content-header {
+  margin-bottom: 8px;
+}
+
+.depo-ham-fabric-section .content-header h3 {
+  margin: 0;
+  color: #17394f;
+  font: 700 1.3rem/1.2 var(--heading-font);
+}
+
+.depo-ham-fabric-section .content-header p {
+  margin: 4px 0 0;
+  color: #4a6274;
+}
+
+.depo-ham-fabric-section .filters-panel {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(180px, 240px);
+  gap: 10px;
+  padding: 12px;
+  background: #f7fbff;
+  border: 1px solid #d8e9f4;
+  border-radius: 16px;
+}
+
+.depo-ham-fabric-section .filters-panel label {
+  display: block;
+  font-size: 0.92rem;
+  color: #33475b;
+  margin-bottom: 4px;
+}
+
+.depo-ham-fabric-section .filters-panel input,
+.depo-ham-fabric-section .filters-panel select {
+  width: 100%;
+  min-height: 34px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid #cddbe7;
+  background: #ffffff;
+  color: #22303d;
+  font: 0.95rem var(--body-font);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.depo-ham-fabric-section .filters-panel input:focus,
+.depo-ham-fabric-section .filters-panel select:focus {
+  outline: none;
+  border-color: #6aabd9;
+  box-shadow: 0 0 0 3px rgba(106, 171, 217, 0.15);
+}
+
+.depo-ham-fabric-section .date-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.depo-ham-fabric-section .table-wrap {
+  overflow: auto;
+  border: 1px solid #d8e9f4;
+  border-radius: 18px;
+  background: rgba(248, 252, 255, 0.95);
+  box-shadow: 0 10px 22px rgba(18, 57, 92, 0.05);
+}
+
+.depo-ham-fabric-section table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+.depo-ham-fabric-section th,
+.depo-ham-fabric-section td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e5eff6;
+  text-align: left;
+  font-size: 0.91rem;
+  color: #1f3f52;
+}
+
+.depo-ham-fabric-section thead th {
+  background: #eef6fb;
+  color: #16425d;
+  font-weight: 700;
+}
+
+.depo-ham-fabric-section tbody tr:hover {
+  background: rgba(229, 242, 251, 0.8);
+}
+
+.depo-ham-fabric-section .table-footer {
+  display: grid;
+  gap: 8px;
+  padding-top: 10px;
+  color: #4f6b7d;
+}
+
+.depo-ham-fabric-section .table-footer-summary {
+  display: grid;
+  gap: 8px;
+}
+
+.depo-ham-fabric-section .pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.depo-ham-fabric-section .pager-btn {
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid #cddbe7;
+  background: #ffffff;
+  color: #1f4d70;
+  cursor: pointer;
+}
+
+.depo-ham-fabric-section .pager-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+  .depo-ham-fabric-section .filters-panel {
+    grid-template-columns: 1fr;
+  }
+}

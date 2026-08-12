@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import './DepoHamFabricSection.css'
 
 const DEPOT_HAM_FABRIC_URL = '/api/DepoHamFabric/getDepoFabrics'
 
@@ -87,7 +88,7 @@ function DepoHamFabricSection({ apiRequest, showNotice, isActive }) {
   }, [items])
 
   return (
-    <div className="fabrics-section" dir="ltr">
+    <div className="depo-ham-fabric-section" dir="ltr">
       <header className="content-header">
         <div>
           <h3>DEPO HAM KUMAŞ</h3>
