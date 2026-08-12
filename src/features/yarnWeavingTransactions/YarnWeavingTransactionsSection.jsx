@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import YarnWeavingTransactionsModal from './YarnWeavingTransactionsModal'
+import './YarnWeavingTransactions.css'
 
 const YARN_WEAVING_TRANSACTIONS_URL = '/api/yarn-weaving-transactions'
 const YARN_WEAVING_UPSERT_URL = '/api/yarn-weaving-transactions/upsert'

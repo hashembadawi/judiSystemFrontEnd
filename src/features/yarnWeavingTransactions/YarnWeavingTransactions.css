@@ -1,0 +1,243 @@
+/* Scoped styles for Yarn Weaving Transactions */
+
+.weaving-filters {
+  grid-template-columns: 1.2fr 1fr 1fr 120px;
+  gap: 8px;
+}
+
+.weaving-orders-filters {
+  grid-template-columns: 1.2fr 0.9fr 0.8fr 1fr 1fr 120px;
+  align-items: end;
+}
+
+/* Compact order detail cards inside modal */
+.order-detail-card,
+.order-detail-grid {
+  width: 100%;
+}
+
+.order-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  align-items: center;
+}
+
+.order-detail-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+
+.remove-detail-btn {
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: #fff2f4;
+  border: 1px solid #f2c7cc;
+  color: #b82f3a;
+  cursor: pointer;
+}
+
+.remove-detail-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Make modal top fields more compact */
+.modal-card.order-modal-card .modal-form-grid.order-form-grid {
+  gap: 8px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: center;
+}
+
+/* Compact modal tweaks for better UX and reduced vertical spacing */
+.yarn-weaving-modal {
+  width: min(1280px, 100%);
+  max-height: 92vh;
+  overflow: auto;
+  padding: 18px 20px 18px;
+  background: rgba(255, 255, 255, 0.98);
+  direction: rtl;
+}
+
+.yarn-weaving-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.yarn-weaving-modal-tag {
+  display: inline-flex;
+  margin-bottom: 4px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font: 700 0.78rem/1 var(--heading-font);
+  letter-spacing: 0.02em;
+  color: #1f5f81;
+  background: #ecf5fb;
+}
+
+.yarn-weaving-modal-header h4 {
+  margin: 0;
+  font: 700 1.2rem/1.2 var(--heading-font);
+}
+
+.yarn-weaving-close-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #d6e6f0;
+  background: #ffffff;
+  color: #1f4f69;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 160ms ease, background 160ms ease;
+}
+
+.yarn-weaving-close-btn:hover {
+  transform: translateY(-1px);
+  background: #f4fbff;
+}
+
+.yarn-weaving-card-section {
+  border: 1px solid #dbeaf3;
+  border-radius: 18px;
+  background: #fbfdff;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+.yarn-weaving-section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.yarn-weaving-section-title h5 {
+  margin: 0;
+  font: 700 1rem/1.2 var(--heading-font);
+  color: var(--title-color);
+}
+
+.yarn-weaving-modal-form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.yarn-weaving-field-group {
+  display: grid;
+  gap: 4px;
+}
+
+.yarn-weaving-modal input,
+.yarn-weaving-modal select,
+.yarn-weaving-modal textarea {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid #d3e2ea;
+  border-radius: 14px;
+  padding: 10px 12px;
+  font: 0.95rem var(--body-font);
+  color: #132a3e;
+  background: #ffffff;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+/* force numeric inputs to LTR for easier number entry */
+.yarn-weaving-modal input[type="number"],
+.yarn-weaving-modal input[type="date"] {
+  direction: ltr;
+  text-align: left;
+}
+
+.yarn-weaving-modal input:focus,
+.yarn-weaving-modal select:focus,
+.yarn-weaving-modal textarea:focus {
+  outline: none;
+  border-color: #7abce5;
+  box-shadow: 0 0 0 4px rgba(122, 188, 229, 0.14);
+}
+
+.yarn-weaving-input-compact {
+  max-width: 120px;
+}
+
+.yarn-weaving-order-details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.yarn-weaving-order-details-header h5 {
+  margin: 0;
+  font: 700 1rem/1.2 var(--heading-font);
+  color: #1c495e;
+}
+
+.yarn-weaving-add-detail-btn {
+  padding: 9px 12px;
+}
+
+.yarn-weaving-order-detail-card {
+  border: 1px solid #d3e7f3;
+  border-radius: 16px;
+  padding: 13px;
+  background: #ffffff;
+  box-shadow: 0 8px 18px rgba(16, 55, 91, 0.05);
+}
+
+.yarn-weaving-order-detail-grid {
+  display: grid;
+  grid-template-columns: 3fr 1fr 0.8fr 0.9fr 0.8fr 0.8fr;
+  gap: 12px;
+  align-items: end;
+}
+
+.yarn-weaving-order-detail-actions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.yarn-weaving-modal-actions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.yarn-weaving-modal-actions button {
+  min-width: 104px;
+}
+
+@media (max-width: 980px) {
+  .yarn-weaving-modal {
+    padding: 18px 16px 16px;
+  }
+
+  .yarn-weaving-modal-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .yarn-weaving-order-detail-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .yarn-weaving-order-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .yarn-weaving-order-detail-card {
+    padding: 14px;
+  }
+}

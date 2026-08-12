@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import './WeavingOrdersModal.css'
 
 function WeavingOrdersModal({
   isOpen,
@@ -41,8 +42,14 @@ function WeavingOrdersModal({
 
   return (
     <div className="modal-backdrop" role="dialog" aria-modal="true">
-      <section className="modal-card order-modal-card" dir="ltr">
-        <h4>{isEditMode ? 'Dokuma hareketini düzenle' : 'Yeni dokuma hareketi ekle'}</h4>
+      <section className="modal-card order-modal-card weaving-modal" dir="ltr">
+        <div className="weaving-modal-header">
+          <div>
+            <span className="weaving-modal-tag">Dokuma</span>
+            <h4>{isEditMode ? 'Dokuma hareketini düzenle' : 'Yeni dokuma hareketi ekle'}</h4>
+          </div>
+          <button type="button" className="weaving-close-btn" onClick={onClose} aria-label="Kapat">×</button>
+        </div>
 
         {isLoading ? (
           <p className="table-state">Seçenekler yükleniyor...</p>

@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import './YarnWeavingTransactions.css'
 
 const getTodayDate = () => new Date().toISOString().slice(0, 10)
 
@@ -39,8 +40,14 @@ function YarnWeavingTransactionsModal({
 
   return (
     <div className="modal-backdrop" role="dialog" aria-modal="true">
-      <section className="modal-card order-modal-card">
-        <h4>إضافة حركة جديدة</h4>
+      <section className="modal-card order-modal-card yarn-weaving-modal" dir="rtl">
+        <div className="yarn-weaving-modal-header">
+          <div>
+            <span className="yarn-weaving-modal-tag">حركة غزل</span>
+            <h4>إضافة حركة جديدة</h4>
+          </div>
+          <button type="button" className="yarn-weaving-close-btn" onClick={onClose} aria-label="إغلاق">×</button>
+        </div>
 
         {isLoading ? (
           <p className="table-state">جاري تحميل الخيارات...</p>
