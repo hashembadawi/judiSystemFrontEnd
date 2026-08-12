@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import OrderFactoryTransactionsModal from './OrderFactoryTransactionsModal'
+import './OrderFactoryTransactions.css'
 
 const ORDER_FACTORY_TRANSACTIONS_URL = '/api/order-factory-transactions'
 const getTodayDate = () => new Date().toISOString().slice(0, 10)
@@ -449,15 +450,19 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
                         type="button"
                         className="action-btn edit"
                         onClick={() => openEditModal(transaction.id)}
+                        title="Düzenle"
+                        aria-label={`Düzenle ${transaction.orderNo ?? ''}`}
                       >
-                        Düzenle
+                        ✏️
                       </button>
                       <button
                         type="button"
                         className="action-btn delete"
                         onClick={() => deleteTransaction(transaction.id)}
+                        title="Sil"
+                        aria-label={`Sil ${transaction.orderNo ?? ''}`}
                       >
-                        Sil
+                        🗑️
                       </button>
                     </div>
                   </td>

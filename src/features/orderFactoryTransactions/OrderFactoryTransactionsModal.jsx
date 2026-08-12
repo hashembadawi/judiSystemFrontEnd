@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import './OrderFactoryTransactions.css'
 
 function OrderFactoryTransactionsModal({
   isOpen,
