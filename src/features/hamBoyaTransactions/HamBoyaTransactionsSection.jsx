@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import HamBoyaTransactionsModal from './HamBoyaTransactionsModal'
+import './HamBoyaTransactionsSection.css'
 
 const HAM_BOYA_TRANSACTIONS_URL = '/api/ham-boya-transactions'
 
@@ -63,6 +64,7 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
         FabricWeight: '',
         FabricTopCount: '',
         FabricLot: '',
+        FabricGr: '',
       },
     ],
   })
@@ -151,10 +153,10 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
           FabricWeight: '',
           FabricTopCount: '',
           FabricLot: '',
+          FabricGr: '',
         },
       ],
     })
-
     try {
       const response = await apiRequest('/api/fill-options?requestedValues=1')
       const data = response.data || {}
@@ -211,7 +213,8 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
                 FabricGender: detail.fabricGender ?? detail.FabricGender ?? '',
                 FabricWeight: detail.fabricWeight ?? '',
                 FabricTopCount: detail.fabricTopCount ?? '',
-                FabricLot: detail.FabricLot ?? detail.fabricLot ?? detail.lot ?? '',
+                FabricLot: detail.FabricLot ?? detail.fabricLot ?? detail.lot ?? detail.Lot ?? '',
+                FabricGr: detail.fabricGr ?? detail.FabricGr ?? '',
               }))
             : [
                 {
@@ -221,6 +224,7 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
                   FabricWeight: '',
                   FabricTopCount: '',
                   FabricLot: '',
+                  FabricGr: '',
                 },
               ],
         })
@@ -272,6 +276,7 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
           FabricWeight: '',
           FabricTopCount: '',
           FabricLot: '',
+          FabricGr: '',
         },
       ],
     }))
@@ -304,6 +309,7 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
           FabricWeight: Number(detail.FabricWeight) || 0,
           FabricTopCount: Number(detail.FabricTopCount) || 0,
           FabricLot: String(detail.FabricLot ?? detail.fabricLot ?? detail.lot ?? '').trim(),
+          FabricGr: Number(detail.FabricGr ?? detail.fabricGr ?? 0) || 0,
         })),
       }
 
@@ -449,7 +455,7 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
   }, [currentUserName, showNotice, totalCount, totalWeight, transactions])
 
   return (
-    <>
+    <div className="ham-boya-section">
       <header className="content-header">
         <div>
           <h3>ادارة خام مرسل للمصابغ</h3>
@@ -460,7 +466,7 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
         </button>
       </header>
 
-      <section className="filters-panel" aria-label="بحث حركة خام المرسل للمصابغ">
+      <section className="ham-boya-filters-panel" aria-label="بحث حركة خام المرسل للمصابغ">
         <div className="field-group">
           <label htmlFor="hamBoyaSearch">بحث</label>
           <input
@@ -498,7 +504,7 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
 
       {error ? <p className="error-box inline-error">{error}</p> : null}
 
-      <div className="table-wrap">
+      <div className="ham-boya-table-wrap">
         <table>
           <thead>
             <tr>
@@ -540,7 +546,7 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
                   <td>{transaction.totalWeight ?? '-'}</td>
                   <td>{transaction.totalTopCount ?? '-'}</td>
                   <td>
-                    <div className="row-actions">
+                    <div className="ham-boya-order-actions">
                       <button
                         type="button"
                         className="action-btn edit"
@@ -564,7 +570,7 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
         </table>
       </div>
 
-      <footer className="table-footer">
+      <footer className="ham-boya-table-footer">
         <div className="table-footer-summary">
           <p>
             عدد النتائج: <strong>{totalCount}</strong> | الوزن الكلي: <strong>{totalWeight}</strong>
@@ -573,7 +579,7 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
             طباعة
           </button>
         </div>
-        <div className="pagination-controls">
+        <div className="ham-boya-pagination-controls">
           <button
             type="button"
             className="pager-btn"
@@ -614,7 +620,7 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
         onClose={closeModal}
         onSave={saveTransaction}
       />
-    </>
+    </div>
   )
 }
 

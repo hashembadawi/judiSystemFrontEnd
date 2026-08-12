@@ -1,0 +1,189 @@
+.ham-boya-modal-card {
+  width: min(1280px, 100%);
+  max-height: 92vh;
+  overflow: auto;
+  padding: 18px 20px 18px;
+  background: rgba(255, 255, 255, 0.98);
+}
+
+.ham-boya-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.ham-boya-modal-tag {
+  display: inline-flex;
+  margin-bottom: 4px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font: 700 0.78rem/1 var(--heading-font);
+  letter-spacing: 0.02em;
+  color: #1f5f81;
+  background: #ecf5fb;
+}
+
+.ham-boya-modal-header h4 {
+  margin: 0;
+  font: 700 1.2rem/1.2 var(--heading-font);
+}
+
+.ham-boya-close-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #d6e6f0;
+  background: #ffffff;
+  color: #1f4f69;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 160ms ease, background 160ms ease;
+}
+
+.ham-boya-close-btn:hover {
+  transform: translateY(-1px);
+  background: #f4fbff;
+}
+
+.ham-boya-card-section {
+  border: 1px solid #dbeaf3;
+  border-radius: 18px;
+  background: #fbfdff;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+.ham-boya-section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.ham-boya-section-title h5 {
+  margin: 0;
+  font: 700 1rem/1.2 var(--heading-font);
+  color: var(--title-color);
+}
+
+.ham-boya-modal-form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.ham-boya-field-group {
+  display: grid;
+  gap: 4px;
+}
+
+.ham-boya-field-group label {
+  font-size: 0.9rem;
+  color: #3a4e60;
+}
+
+.ham-boya-field-input {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid #d3e2ea;
+  border-radius: 14px;
+  padding: 10px 12px;
+  font: 0.95rem var(--body-font);
+  color: #132a3e;
+  background: #ffffff;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+  direction: ltr;
+  text-align: left;
+}
+
+.ham-boya-field-input:focus {
+  outline: none;
+  border-color: #7abce5;
+  box-shadow: 0 0 0 4px rgba(122, 188, 229, 0.14);
+}
+
+.ham-boya-input-compact {
+  max-width: 120px;
+}
+
+.ham-boya-details-section {
+  padding-top: 20px;
+}
+
+.ham-boya-order-details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.ham-boya-order-details-header h5 {
+  margin: 0;
+  font: 700 1rem/1.2 var(--heading-font);
+  color: #1c495e;
+}
+
+.ham-boya-add-detail-btn {
+  padding: 9px 12px;
+}
+
+.ham-boya-order-detail-card {
+  border: 1px solid #d3e7f3;
+  border-radius: 16px;
+  padding: 13px;
+  background: #ffffff;
+  box-shadow: 0 8px 18px rgba(16, 55, 91, 0.05);
+}
+
+.ham-boya-order-detail-grid {
+  display: grid;
+  grid-template-columns: 3fr 1fr 0.8fr 0.9fr 0.8fr 0.8fr;
+  gap: 12px;
+  align-items: end;
+}
+
+.ham-boya-order-detail-actions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.ham-boya-modal-actions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.ham-boya-modal-actions button {
+  min-width: 104px;
+}
+
+@media (max-width: 980px) {
+  .ham-boya-modal-card {
+    padding: 18px 16px 16px;
+  }
+
+  .ham-boya-modal-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ham-boya-order-detail-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .ham-boya-order-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ham-boya-order-detail-card {
+    padding: 14px;
+  }
+}
