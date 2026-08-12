@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import JsBarcode from 'jsbarcode'
+import './AddFabricTransactionModal.css'
 
 function AddFabricTransactionModal({
   isOpen,

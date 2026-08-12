@@ -301,55 +301,6 @@ button:disabled {
   margin-bottom: 14px;
 }
 
-.filters-panel.fabrics-filters {
-  grid-template-columns: 1.45fr minmax(320px, 420px) 120px;
-}
-
-.filters-panel.fabrics-filters .date-row {
-  display: grid;
-  grid-template-columns: auto minmax(120px, 1fr) minmax(120px, 1.1fr);
-  gap: 8px;
-  align-items: end;
-}
-
-.filters-panel.fabrics-filters .date-row .field-group {
-  margin: 0;
-}
-
-.filters-panel.fabrics-filters .date-row .field-group:first-child {
-  min-width: 110px;
-  max-width: 140px;
-}
-
-.filters-panel.fabrics-filters .field-group label {
-  font-size: 0.86rem;
-  margin-bottom: 4px;
-  white-space: nowrap;
-}
-
-.filters-panel.fabrics-filters .field-group {
-  font-size: 0.92rem;
-}
-
-.filters-panel.fabrics-filters .field-group input,
-.filters-panel.fabrics-filters .field-group select {
-  min-height: 32px;
-  padding: 6px 8px;
-  font-size: 0.92rem;
-}
-
-.filters-panel.fabrics-filters .field-group input[type="text"],
-.filters-panel.fabrics-filters .field-group select,
-.filters-panel.fabrics-filters .field-group input[type="date"] {
-  width: 100%;
-  max-width: 100%;
-}
-
-.filters-panel.fabrics-filters .field-group input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-  margin-top: 6px;
-}
 
 .boyali-controls {
   display: grid;
@@ -431,17 +382,6 @@ button:disabled {
 /* Orders-specific scrolling so expanded rows remain visible */
 /* compact table styles for orders to fit more rows are moved to OrdersSection.css */
 
-.fabrics-section {
-  direction: ltr;
-  text-align: left;
-}
-
-.fabrics-section table,
-.fabrics-section th,
-.fabrics-section td {
-  direction: ltr;
-  text-align: left;
-}
 
 table {
   width: 100%;

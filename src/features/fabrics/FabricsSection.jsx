@@ -1,4 +1,5 @@
 ﻿import React, { useCallback, useEffect, useState } from 'react'
+import './FabricsSection.css'
 
 const DAILY_FABRICS_URL = '/api/DailyHamFabricsTransaction'
 
