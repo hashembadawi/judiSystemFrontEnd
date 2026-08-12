@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import './FasonFabricTransactionModal.css'
 
 function FasonFabricTransactionModal({
   isOpen,
@@ -43,7 +44,7 @@ function FasonFabricTransactionModal({
 
   return (
     <div className="modal-backdrop" role="dialog" aria-modal="true">
-      <section className="modal-card order-modal-card">
+      <section className="modal-card order-modal-card fason-modal">
         <h4>FASON KUMAŞ HAREKETİ EKLE</h4>
 
         {isLoading ? (
@@ -57,8 +58,6 @@ function FasonFabricTransactionModal({
                   id="fasonShift"
                   value={form.Shift ?? 'A'}
                   onChange={(event) => onFieldChange('Shift', event.target.value)}
-                  dir="ltr"
-                  style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
                 >
                   <option value="A">A</option>
                   <option value="B">B</option>
@@ -72,8 +71,6 @@ function FasonFabricTransactionModal({
                   type="date"
                   value={form.Date ?? ''}
                   onChange={(event) => onFieldChange('Date', event.target.value)}
-                  dir="ltr"
-                  style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
                 />
               </div>
 
@@ -84,8 +81,6 @@ function FasonFabricTransactionModal({
                   type="text"
                   value={form.Personal ?? ''}
                   onChange={(event) => onFieldChange('Personal', event.target.value)}
-                  dir="ltr"
-                  style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
                 />
               </div>
             </div>
@@ -123,8 +118,6 @@ function FasonFabricTransactionModal({
                             value={detail.FactoryId ?? ''}
                             onChange={(event) => onFactorySelect(index, event.target.value)}
                             className="input-small"
-                            dir="ltr"
-                            style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
                           >
                             <option value="">Fabrika seçin</option>
                             {factoryOptions.map((factory) => (
@@ -140,8 +133,6 @@ function FasonFabricTransactionModal({
                             onChange={(event) => onWeavingOrderSelect(index, event.target.value)}
                             disabled={!detail.FactoryId}
                             className="input-small"
-                            dir="ltr"
-                            style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
                           >
                             <option value="">Sipariş seçin</option>
                             {(weavingOrdersByRow[index] ?? []).map((order) => (
@@ -157,8 +148,6 @@ function FasonFabricTransactionModal({
                             onChange={(event) => onFabricSelect(index, event.target.value)}
                             disabled={!detail.OrderId}
                             className="input-small"
-                            dir="ltr"
-                            style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
                           >
                             <option value="">Kumaş seçin</option>
                             {(fabricsByRow[index] ?? []).map((item, itemIndex) => {
@@ -177,8 +166,6 @@ function FasonFabricTransactionModal({
                             value={detail.FabricGSM ?? ''}
                             onChange={(event) => onDetailFieldChange(index, 'FabricGSM', event.target.value)}
                             className="input-small"
-                            dir="ltr"
-                            style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
                           />
                         </td>
                         <td>
@@ -187,8 +174,6 @@ function FasonFabricTransactionModal({
                             value={detail.FabricLot ?? ''}
                             onChange={(event) => onDetailFieldChange(index, 'FabricLot', event.target.value)}
                             className="input-small"
-                            dir="ltr"
-                            style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
                           />
                         </td>
                         <td>
@@ -197,8 +182,6 @@ function FasonFabricTransactionModal({
                             value={detail.Count ?? ''}
                             onChange={(event) => onDetailFieldChange(index, 'Count', event.target.value)}
                             className="input-small"
-                            dir="ltr"
-                            style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
                           />
                         </td>
                         <td>
@@ -208,8 +191,6 @@ function FasonFabricTransactionModal({
                             value={detail.Weight ?? ''}
                             onChange={(event) => onDetailFieldChange(index, 'Weight', event.target.value)}
                             className="input-small"
-                            dir="ltr"
-                            style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
                           />
                         </td>
                         <td>
@@ -217,8 +198,6 @@ function FasonFabricTransactionModal({
                             value={detail.FabricType ?? 1}
                             onChange={(event) => onDetailFieldChange(index, 'FabricType', Number(event.target.value))}
                             className="input-small"
-                            dir="ltr"
-                            style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
                           >
                             {(fabricTypeOptions ?? []).map((option) => (
                               <option key={option.id ?? option.value ?? option.text} value={option.id ?? option.value ?? option.text}>

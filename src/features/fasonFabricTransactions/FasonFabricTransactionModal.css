@@ -1,0 +1,119 @@
+.fason-modal {
+  direction: ltr;
+  padding: 12px; /* slightly denser than default */
+}
+
+.fason-modal .order-form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.fason-modal .order-form-grid .field-group {
+  display: grid;
+  gap: 2px;
+}
+
+.fason-modal .order-form-grid label {
+  font-size: 0.9rem;
+  color: #33475b;
+  margin-bottom: 0;
+}
+
+.fason-modal .order-form-grid input,
+.fason-modal .order-form-grid select,
+.fason-modal .order-details-table select,
+.fason-modal .order-details-table input {
+  min-height: 30px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  border: 1px solid #cbd8e5;
+  background: #ffffff;
+  color: #1f3848;
+  font: 0.93rem var(--body-font);
+  text-align: left;
+  unicode-bidi: plaintext;
+}
+
+.fason-modal .order-details-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 820px;
+}
+
+/* Narrower Dokuma Siparişi (col 2) and wider Kumaş Cinsi (col 3) */
+.fason-modal .order-details-table th:nth-child(2),
+.fason-modal .order-details-table td:nth-child(2) {
+  min-width: 90px;
+  width: 120px;
+}
+
+.fason-modal .order-details-table th:nth-child(3),
+.fason-modal .order-details-table td:nth-child(3) {
+  min-width: 420px;
+  width: 440px;
+}
+
+/* Narrow LOT/Count/Weight columns */
+.fason-modal .order-details-table th:nth-child(5),
+.fason-modal .order-details-table td:nth-child(5) {
+  min-width: 70px;
+  width: 80px;
+}
+
+.fason-modal .order-details-table th:nth-child(6),
+.fason-modal .order-details-table td:nth-child(6) {
+  min-width: 60px;
+  width: 70px;
+}
+
+.fason-modal .order-details-table th:nth-child(7),
+.fason-modal .order-details-table td:nth-child(7) {
+  min-width: 80px;
+  width: 90px;
+}
+
+.fason-modal .order-details-table th,
+.fason-modal .order-details-table td {
+  padding: 5px 6px;
+  border-bottom: 1px solid #eef4f8;
+  text-align: left;
+  font-size: 0.88rem;
+  color: #1f3f52;
+}
+
+.fason-modal .order-details-table td .input-small {
+  width: 100%;
+  min-height: 28px;
+  padding: 5px 6px;
+  border-radius: 10px;
+  border: 1px solid #cbd8e5;
+  background: #ffffff;
+  color: #1f3848;
+}
+
+.fason-modal .row-actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+.fason-modal .row-actions .action-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  border: 1px solid #cddbe7;
+  background: #ffffff;
+  color: #1f4d70;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.9rem;
+}
+
+.fason-modal .order-details-table td:last-child {
+  white-space: nowrap;
+  vertical-align: middle;
+}
+}
