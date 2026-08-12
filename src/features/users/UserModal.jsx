@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import './UserModal.css'
 
 const USER_TYPE_OPTIONS = [
   { value: 1, label: 'مدير عام' },
@@ -56,13 +57,13 @@ function UserModal({
 
   return (
     <div className="modal-backdrop" role="dialog" aria-modal="true">
-      <section className="modal-card">
+      <section className="user-modal-card">
         <h4>{form.id ? 'تعديل بيانات المستخدم' : 'اضافة مستخدم جديد'}</h4>
 
         {isLoading ? (
           <p className="table-state">جاري تحميل بيانات المستخدم...</p>
         ) : (
-          <div className="modal-form-grid">
+          <div className="user-modal-form-grid">
             <div className="field-group">
               <label htmlFor="realName">الاسم الحقيقي</label>
               <input
@@ -137,7 +138,7 @@ function UserModal({
 
         {error ? <p className="error-box inline-error">{error}</p> : null}
 
-        <div className="modal-actions">
+        <div className="user-modal-actions">
           <button type="button" className="ghost-btn" onClick={onClose}>
             الغاء
           </button>

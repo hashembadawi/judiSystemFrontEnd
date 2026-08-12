@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import './UsersSection.css'
 import UserModal from './UserModal'
 
 const USERS_URL = '/api/users'

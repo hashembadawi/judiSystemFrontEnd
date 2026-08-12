@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import './OrdersSection.css'
 import OrderModal from './OrderModal'
 
 const CUSTOMER_ORDERS_URL = '/api/customer-orders'

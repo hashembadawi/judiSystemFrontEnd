@@ -1,0 +1,41 @@
+.orders-table-wrap {
+  max-height: calc(100vh - 160px);
+  overflow: auto;
+}
+
+.orders-table-wrap table th,
+.orders-table-wrap table td {
+  padding: 6px 6px;
+  font-size: 0.82rem;
+}
+
+.orders-table-wrap table {
+  min-width: 640px;
+}
+
+.print-report-header {
+  display: none;
+}
+
+@media print {
+  .print-report-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+    font-weight: 700;
+    color: #1f5f81;
+  }
+
+  .print-report-title {
+    flex: 1;
+    text-align: center;
+    font-size: 1.1rem;
+  }
+
+  .print-report-user {
+    font-size: 0.95rem;
+    white-space: nowrap;
+  }
+}
