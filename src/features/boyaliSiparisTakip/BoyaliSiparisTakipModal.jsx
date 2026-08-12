@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import './BoyaliSiparisTakip.css'
 
 function BoyaliSiparisTakipModal({
   isOpen,
@@ -189,11 +190,9 @@ function BoyaliSiparisTakipModal({
 
   return (
     <div className="modal-backdrop" role="dialog" aria-modal="true">
-      <section className="modal-card order-modal-card" style={{ maxWidth: '1400px', width: '98%', maxHeight: '95vh', overflowY: 'auto' }}>
-        <div className="content-header" style={{ marginBottom: '12px', justifyContent: 'center', textAlign: 'center' }}>
-          <div>
-            <p style={{ margin: '6px auto 0', fontSize: '1rem', fontWeight: 700 }}>{orderForm.orderNo || 'Sipariş Detayı'}</p>
-          </div>
+      <section className="modal-card order-modal-card boyali-modal">
+        <div className="modal-header">
+          <p className="modal-title">{orderForm.orderNo || 'Sipariş Detayı'}</p>
         </div>
 
         {isLoading ? (
@@ -202,33 +201,24 @@ function BoyaliSiparisTakipModal({
           <>
             {error ? <p className="inline-error error-box">{error}</p> : null}
 
-            <div style={{ marginTop: '8px', direction: 'ltr', maxWidth: '100%' }}>
-              <div
-                className="table-wrapper"
-                style={{
-                  overflowX: 'auto',
-                  overflowY: 'auto',
-                  maxHeight: '320px',
-                  borderTop: '1px solid #e1e8ef',
-                  borderBottom: '1px solid #e1e8ef',
-                }}
-              >
-                <table className="boyali-orders-table" style={{ direction: 'ltr', minWidth: '1200px', fontSize: '0.8rem' }}>
+            <div style={{ marginTop: '8px', maxWidth: '100%' }}>
+              <div className="table-wrapper">
+                <table className="boyali-orders-table">
                   <thead>
                     <tr>
-                      <th style={{ padding: '4px 6px', lineHeight: '1.2' }}>Etiket Başlığı</th>
-                      <th style={{ padding: '4px 6px', lineHeight: '1.2' }}>Kumaş Cinsi</th>
-                      <th style={{ padding: '4px 6px', lineHeight: '1.2' }}>LOT</th>
-                      <th style={{ padding: '4px 6px', lineHeight: '1.2' }}>En</th>
-                      <th style={{ padding: '4px 6px', lineHeight: '1.2' }}>Gr</th>
-                      <th style={{ padding: '4px 6px', lineHeight: '1.2' }}>Renk</th>
-                      <th style={{ padding: '4px 6px', lineHeight: '1.2' }}>Renk Kodu</th>
-                      <th style={{ padding: '4px 6px', lineHeight: '1.2' }}>Sipariş Miktarı</th>
-                      <th style={{ padding: '4px 6px', lineHeight: '1.2' }}>Parti No</th>
-                      <th style={{ padding: '4px 6px', lineHeight: '1.2' }}>Kazan Giriş (Kg)</th>
-                      <th style={{ padding: '4px 6px', lineHeight: '1.2' }}>DURUM</th>
-                      <th style={{ padding: '4px 6px', lineHeight: '1.2' }}>SEVKE HAZIR</th>
-                      <th style={{ padding: '4px 6px', lineHeight: '1.2' }}>İşlemler</th>
+                      <th>Etiket Başlığı</th>
+                      <th>Kumaş Cinsi</th>
+                      <th>LOT</th>
+                      <th>En</th>
+                      <th>Gr</th>
+                      <th>Renk</th>
+                      <th>Renk Kodu</th>
+                      <th>Sipariş Miktarı</th>
+                      <th>Parti No</th>
+                      <th>Kazan Giriş (Kg)</th>
+                      <th>DURUM</th>
+                      <th>SEVKE HAZIR</th>
+                      <th>İşlemler</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -239,7 +229,8 @@ function BoyaliSiparisTakipModal({
                             type="text"
                             value={detail.etiket_Basligi ?? ''}
                             onChange={(event) => onDetailFieldChange(index, 'etiket_Basligi', event.target.value)}
-                            style={{ textAlign: 'left', direction: 'ltr', width: '85px', padding: '2px 4px', fontSize: '0.8rem', lineHeight: '1.1' }}
+                            className="compact-input"
+                            style={{ width: '85px' }}
                           />
                         </td>
                         <td style={{ textAlign: 'left', padding: '4px 4px', fontSize: '0.8rem' }}>{detail.fabricGender ?? '-'}</td>
@@ -248,7 +239,8 @@ function BoyaliSiparisTakipModal({
                             type="text"
                             value={detail.lot ?? detail.LOT ?? detail.fabricLot ?? detail.FabricLot ?? ''}
                             onChange={(event) => onDetailFieldChange(index, 'lot', event.target.value)}
-                            style={{ textAlign: 'left', direction: 'ltr', width: '70px', padding: '2px 4px', fontSize: '0.8rem', lineHeight: '1.1' }}
+                            className="compact-input"
+                            style={{ width: '70px' }}
                           />
                         </td>
                         <td style={{ textAlign: 'left', padding: '4px 4px', fontSize: '0.8rem' }}>{detail.en ?? '-'}</td>
@@ -261,7 +253,8 @@ function BoyaliSiparisTakipModal({
                             type="text"
                             value={detail.PartiNo ?? ''}
                             onChange={(event) => onDetailFieldChange(index, 'PartiNo', event.target.value)}
-                            style={{ textAlign: 'left', direction: 'ltr', width: '70px', padding: '2px 4px', fontSize: '0.8rem', lineHeight: '1.1' }}
+                            className="compact-input"
+                            style={{ width: '70px' }}
                           />
                         </td>
                         <td style={{ textAlign: 'left', padding: '4px 4px' }}>
@@ -273,14 +266,16 @@ function BoyaliSiparisTakipModal({
                               const nextValue = event.target.value === '' ? '' : Number(event.target.value)
                               onDetailFieldChange(index, 'KazanGiris', nextValue)
                             }}
-                            style={{ textAlign: 'left', direction: 'ltr', width: '70px', padding: '2px 4px', fontSize: '0.8rem', lineHeight: '1.1' }}
+                            className="compact-input"
+                            style={{ width: '70px' }}
                           />
                         </td>
                         <td style={{ textAlign: 'left', padding: '4px 4px' }}>
                           <select
                             value={detail.Status ?? 1}
                             onChange={(event) => onDetailFieldChange(index, 'Status', Number(event.target.value))}
-                            style={{ textAlign: 'left', direction: 'ltr', width: '90px', padding: '2px 4px', fontSize: '0.8rem', lineHeight: '1.1' }}
+                            className="compact-select"
+                            style={{ width: '90px' }}
                           >
                             {statusOptions.map((option) => (
                               <option key={option.id} value={option.id}>
@@ -295,37 +290,15 @@ function BoyaliSiparisTakipModal({
                             step="0.01"
                             value={detail.SevkHazir ?? 0}
                             onChange={(event) => onDetailFieldChange(index, 'SevkHazir', Number(event.target.value))}
-                            style={{ textAlign: 'left', direction: 'ltr', width: '70px', padding: '2px 4px', fontSize: '0.8rem', lineHeight: '1.1' }}
+                            className="compact-input"
+                            style={{ width: '70px' }}
                           />
                         </td>
                         <td style={{ textAlign: 'center', padding: '4px 4px', whiteSpace: 'nowrap' }}>
-                          <button
-                            type="button"
-                            onClick={() => handleCopyRow(index)}
-                            title="Kopyala"
-                            style={{
-                              marginRight: '6px',
-                              padding: '4px 8px',
-                              fontSize: '0.85rem',
-                              cursor: 'pointer',
-                              minWidth: '32px',
-                            }}
-                          >
-                            📄
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteRow(index)}
-                            title="Sil"
-                            style={{
-                              padding: '4px 8px',
-                              fontSize: '0.85rem',
-                              cursor: 'pointer',
-                              minWidth: '32px',
-                            }}
-                          >
-                            🗑️
-                          </button>
+                          <div className="row-actions">
+                            <button type="button" onClick={() => handleCopyRow(index)} title="Kopyala">📄</button>
+                            <button type="button" onClick={() => handleDeleteRow(index)} title="Sil">🗑️</button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -335,18 +308,8 @@ function BoyaliSiparisTakipModal({
             </div>
 
             {activeFabricState ? (
-              <div
-                style={{
-                  marginTop: '12px',
-                  border: '1px solid #dce8ef',
-                  borderRadius: '10px',
-                  padding: '8px',
-                  background: '#f9fcfe',
-                  maxWidth: '680px',
-                  fontSize: '0.8rem',
-                }}
-              >
-                <div style={{ fontWeight: 700, marginBottom: '6px', fontSize: '0.82rem' }}>Gönderilmiş kumaşlar</div>
+              <div className="active-fabrics-panel">
+                <div className="panel-title">Gönderilmiş kumaşlar</div>
                 {activeFabricState.loading ? (
                   <p className="table-state">Kumaşlar yükleniyor...</p>
                 ) : activeFabricState.error ? (
@@ -355,14 +318,14 @@ function BoyaliSiparisTakipModal({
                   <p className="table-state">Bu satır için gönderilmiş kumaş bulunamadı.</p>
                 ) : (
                   <div style={{ overflowX: 'auto' }}>
-                    <table className="boyali-orders-table" style={{ minWidth: '520px', direction: 'ltr', fontSize: '0.78rem' }}>
+                    <table className="boyali-orders-table active-fabrics-table">
                       <thead>
                         <tr>
-                          <th style={{ padding: '4px 6px' }}>Seç</th>
-                          <th style={{ padding: '4px 6px' }}>Fabric Gender</th>
-                          <th style={{ padding: '4px 6px' }}>Lot</th>
-                          <th style={{ padding: '4px 6px' }}>Toplam Ağırlık</th>
-                          <th style={{ padding: '4px 6px' }}>Kalan</th>
+                          <th>Seç</th>
+                          <th>Fabric Gender</th>
+                          <th>Lot</th>
+                          <th>Toplam Ağırlık</th>
+                          <th>Kalan</th>
                         </tr>
                       </thead>
                       <tbody>

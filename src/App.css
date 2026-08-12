@@ -302,29 +302,7 @@ button:disabled {
 }
 
 
-.boyali-controls {
-  display: grid;
-  grid-template-columns: minmax(240px, 320px);
-  margin-bottom: 16px;
-}
-
-.boyali-orders-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 8px;
-}
-
-.boyali-orders-table th,
-.boyali-orders-table td {
-  border: 1px solid #dce8ef;
-  padding: 2px 4px;
-  line-height: 1.1;
-  text-align: right;
-}
-
-.boyali-orders-table thead {
-  background: #eef6fa;
-}
+/* Removed global .boyali-controls to avoid conflicts with component-scoped styles */
 
 .table-state {
   margin: 12px 0 0;

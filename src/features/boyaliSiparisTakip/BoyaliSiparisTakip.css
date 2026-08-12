@@ -1,0 +1,172 @@
+.boyali-siparis-section {
+  direction: ltr;
+}
+
+.boyali-controls {
+  display: grid;
+  grid-template-columns: minmax(240px, 320px);
+  margin-bottom: 12px;
+}
+
+.boyali-orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+}
+
+.boyali-orders-table th,
+.boyali-orders-table td {
+  border: 1px solid #dce8ef;
+  padding: 4px 6px;
+  line-height: 1.1;
+  text-align: right;
+  font-size: 0.8rem;
+}
+
+.boyali-orders-table thead {
+  background: #eef6fa;
+}
+
+.boyali-modal.order-modal-card {
+  max-width: 1400px;
+  width: 98%;
+  max-height: 95vh;
+  overflow-y: auto;
+}
+
+.boyali-modal .boyali-orders-table {
+  direction: ltr;
+  min-width: 1200px;
+  font-size: 0.8rem;
+}
+
+.boyali-modal .boyali-orders-table input,
+.boyali-modal .boyali-orders-table select {
+  padding: 2px 4px;
+  font-size: 0.8rem;
+  line-height: 1.1;
+}
+
+.boyali-modal .table-wrapper {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 320px;
+  border-top: 1px solid #e1e8ef;
+  border-bottom: 1px solid #e1e8ef;
+}
+
+.boyali-modal .row-actions button {
+  margin-right: 6px;
+  padding: 4px 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  min-width: 32px;
+}
+
+.boyali-modal .active-fabrics-table {
+  min-width: 520px;
+  direction: ltr;
+  font-size: 0.78rem;
+}
+
+.boyali-modal .active-fabrics-table th,
+.boyali-modal .active-fabrics-table td {
+  padding: 4px 6px;
+}
+
+/* Improved modal header */
+.boyali-modal .modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.boyali-modal .modal-title {
+  margin: 6px 0 0;
+  font-size: 1rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* Table improvements */
+.boyali-modal .boyali-orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 980px;
+  font-size: 0.88rem;
+}
+
+.boyali-modal .boyali-orders-table thead th {
+  position: sticky;
+  top: 0;
+  background: #f6fbfd;
+  z-index: 2;
+  text-align: left;
+  padding: 8px 10px;
+  font-weight: 600;
+}
+
+.boyali-modal .boyali-orders-table tbody td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #eef4f8;
+}
+
+.boyali-modal .boyali-orders-table tbody tr:nth-child(even) {
+  background: rgba(240, 249, 253, 0.5);
+}
+
+/* Compact form controls inside table */
+.boyali-modal .compact-input {
+  width: auto;
+  min-width: 56px;
+  padding: 4px 6px;
+  font-size: 0.85rem;
+  border: 1px solid #dbeaf2;
+  border-radius: 6px;
+}
+
+.boyali-modal .compact-select {
+  min-width: 72px;
+  padding: 4px 6px;
+  font-size: 0.85rem;
+  border: 1px solid #dbeaf2;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.boyali-modal .row-actions button {
+  margin-right: 6px;
+  padding: 6px 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  min-width: 36px;
+  border-radius: 8px;
+  border: 1px solid #d7e7ef;
+  background: #fff;
+}
+
+.boyali-modal .active-fabrics-panel {
+  margin-top: 12px;
+  border: 1px solid #dce8ef;
+  border-radius: 10px;
+  padding: 8px;
+  background: #f9fcfe;
+  max-width: 680px;
+  font-size: 0.88rem;
+}
+
+.boyali-modal .active-fabrics-panel .panel-title {
+  font-weight: 700;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+}
+
+.boyali-modal .table-wrapper {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 360px;
+  border-top: 1px solid #e1e8ef;
+  border-bottom: 1px solid #e1e8ef;
+  padding-top: 6px;
+}

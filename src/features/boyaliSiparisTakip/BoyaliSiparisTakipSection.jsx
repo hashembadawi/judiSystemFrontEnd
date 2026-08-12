@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import BoyaliSiparisTakipModal from './BoyaliSiparisTakipModal'
+import './BoyaliSiparisTakip.css'
 
 const FILL_OPTIONS_URL = '/api/fill-options?requestedValues=1'
 const BOYALI_SIPARIS_URL = '/api/order-factory-transaction-takip/fillBoyaliSiparis'
@@ -327,7 +328,7 @@ function BoyaliSiparisTakipSection({ apiRequest, showNotice, isActive }) {
   }, [apiRequest, closeModal, loadOrders, orderForm, selectedFactoryId, showNotice])
 
   return (
-    <section className="boyali-siparis-section" dir="rtl">
+    <section className="boyali-siparis-section" dir="ltr">
       <div className="content-header">
         <div>
           <h3>BOYALI SİPARİŞ TAKİP</h3>
