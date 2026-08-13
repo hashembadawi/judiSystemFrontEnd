@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import OrderFactoryTransactionsModal from './OrderFactoryTransactionsModal'
-import './OrderFactoryTransactions.css'
+import { buildButtonClasses, buildInputClasses } from '../../styles/designSystem'
 
 const ORDER_FACTORY_TRANSACTIONS_URL = '/api/order-factory-transactions'
 const getTodayDate = () => new Date().toISOString().slice(0, 10)
@@ -356,148 +356,150 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
   }, [isActive, loadTransactions])
 
   return (
-    <div style={{ direction: 'ltr', textAlign: 'left' }}>
-      <header className="content-header">
-        <div>
-          <h3>BOYALI SİPARİŞ</h3>
-          <p>Boya hareketlerini görüntüle ve sayfa kontrollerini yönet.</p>
-        </div>
-        <button type="button" className="add-button" onClick={openCreateModal}>
-          YENİ SİPARİŞ
-        </button>
-      </header>
-
-      <section className="filters-panel" aria-label="بحث حركة المصبغة">
-        <div className="field-group">
-          <label htmlFor="orderFactorySearch">Ara</label>
-          <input
-            id="orderFactorySearch"
-            type="text"
-            value={searchText}
-            onChange={(event) => {
-              setSearchText(event.target.value)
-              setPageNumber(1)
-            }}
-            placeholder="Sipariş veya fabrika numarasına göre ara"
-            dir="ltr"
-            style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
-          />
+    <div className="space-y-6" dir="ltr" style={{ direction: 'ltr' }}>
+      <section className="rounded-2xl border border-slate-200 bg-white px-6 py-5 shadow-sm" dir="ltr">
+        <div className="mb-5 border-b border-slate-200 pb-4 flex items-start justify-between" dir="ltr">
+          <button type="button" className={buildButtonClasses('primary')} onClick={openCreateModal}>
+            YENİ SİPARİŞ
+          </button>
+          <div className="text-left">
+            <p className="text-xs font-semibold uppercase tracking-widest text-slate-500 text-left">Boya Hareketi</p>
+            <h3 className="mt-2 text-2xl font-semibold text-slate-900 text-left">BOYALI SİPARİŞ</h3>
+          </div>
         </div>
 
-        <div className="field-group page-size-group">
-          <label htmlFor="orderFactoryPageSize">Sayfa boyutu</label>
-          <select
-            id="orderFactoryPageSize"
-            value={pageSize}
-            onChange={(event) => {
-              setPageSize(Number(event.target.value))
-              setPageNumber(1)
-            }}
-            dir="ltr"
-            style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
-          >
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
-          </select>
+        <div className="flex flex-wrap items-end gap-4" dir="ltr">
+          <div className="flex-1 min-w-max space-y-2" dir="ltr">
+            <label htmlFor="orderFactorySearch" className="block text-sm font-medium text-slate-700 text-left">Ara</label>
+            <input
+              id="orderFactorySearch"
+              type="text"
+              value={searchText}
+              onChange={(event) => {
+                setSearchText(event.target.value)
+                setPageNumber(1)
+              }}
+              placeholder="Sipariş veya fabrika numarasına göre ara"
+              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+              dir="ltr"
+              style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
+            />
+          </div>
+
+          <div className="min-w-max space-y-2" dir="ltr">
+            <label htmlFor="orderFactoryPageSize" className="block text-sm font-medium text-slate-700 text-left">Sayfa boyutu</label>
+            <select
+              id="orderFactoryPageSize"
+              value={pageSize}
+              onChange={(event) => {
+                setPageSize(Number(event.target.value))
+                setPageNumber(1)
+              }}
+              className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+              dir="ltr"
+              style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
+            >
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
         </div>
       </section>
 
-      {error ? <p className="error-box inline-error">{error}</p> : null}
+      {error ? (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800 text-left" dir="ltr">
+          {error}
+        </div>
+      ) : null}
 
-      <div className="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th style={{ textAlign: 'left' }}>Sipariş No</th>
-              <th style={{ textAlign: 'left' }}>Fabrika</th>
-              <th style={{ textAlign: 'left' }}>Tarih</th>
-              <th style={{ textAlign: 'left' }}>Hareket Durumu</th>
-              <th style={{ textAlign: 'left' }}>Detay Sayısı</th>
-              <th style={{ textAlign: 'left' }}>Renkler</th>
-              <th style={{ textAlign: 'left' }}>İşlemler</th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading ? (
-              <tr>
-                <td colSpan={7} className="table-state">
-                  Hareketler yükleniyor...
-                </td>
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm" dir="ltr">
+        <div className="overflow-x-auto" dir="ltr">
+          <table className="w-full text-sm" dir="ltr" style={{ direction: 'ltr' }}>
+            <thead>
+              <tr className="border-b border-slate-200 bg-slate-50">
+                <th className="px-6 py-3 text-left"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Sipariş No</span></th>
+                <th className="px-6 py-3 text-left"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Fabrika</span></th>
+                <th className="px-6 py-3 text-left"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Tarih</span></th>
+                <th className="px-6 py-3 text-left"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Hareket Durumu</span></th>
+                <th className="px-6 py-3 text-left"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Detay Sayısı</span></th>
+                <th className="px-6 py-3 text-left"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Renkler</span></th>
+                <th className="px-6 py-3 text-left"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">İşlemler</span></th>
               </tr>
-            ) : transactions.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="table-state">
-                  Eşleşen veri bulunamadı.
-                </td>
-              </tr>
-            ) : (
-              transactions.map((transaction) => (
-                <tr key={transaction.id ?? transaction.orderNo}>
-                  <td style={{ textAlign: 'left' }}>{transaction.orderNo ?? '-'}</td>
-                  <td style={{ textAlign: 'left' }}>{transaction.factoryName ?? '-'}</td>
-                  <td style={{ textAlign: 'left' }}>{transaction.date ? transaction.date.split('T')[0] : '-'}</td>
-                  <td style={{ textAlign: 'left' }}>
-                    <span className={`status-badge ${getStatusClass(transaction.transactionStatus)}`}>
-                      {transaction.transactionStatusName ?? '-'}
-                    </span>
-                  </td>
-                  <td style={{ textAlign: 'left' }}>{transaction.detailsCount ?? '-'}</td>
-                  <td style={{ textAlign: 'left' }}>{transaction.colors ?? '-'}</td>
-                  <td style={{ textAlign: 'left' }}>
-                    <div className="row-actions">
-                      <button
-                        type="button"
-                        className="action-btn edit"
-                        onClick={() => openEditModal(transaction.id)}
-                        title="Düzenle"
-                        aria-label={`Düzenle ${transaction.orderNo ?? ''}`}
-                      >
-                        ✏️
-                      </button>
-                      <button
-                        type="button"
-                        className="action-btn delete"
-                        onClick={() => deleteTransaction(transaction.id)}
-                        title="Sil"
-                        aria-label={`Sil ${transaction.orderNo ?? ''}`}
-                      >
-                        🗑️
-                      </button>
-                    </div>
-                  </td>
+            </thead>
+            <tbody className="divide-y divide-slate-200" dir="ltr">
+              {isLoading ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-12 text-center text-slate-500 text-left">Hareketler yükleniyor...</td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : transactions.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-12 text-center text-slate-500 text-left">Eşleşen veri bulunamadı.</td>
+                </tr>
+              ) : (
+                transactions.map((transaction) => (
+                  <tr key={transaction.id ?? transaction.orderNo} className="hover:bg-slate-50" dir="ltr">
+                    <td className="px-6 py-4 text-left"><span className="text-sm text-slate-900 font-medium">{transaction.orderNo ?? '-'}</span></td>
+                    <td className="px-6 py-4 text-left"><span className="text-sm text-slate-700">{transaction.factoryName ?? '-'}</span></td>
+                    <td className="px-6 py-4 text-left"><span className="text-sm text-slate-700">{transaction.date ? transaction.date.split('T')[0] : '-'}</span></td>
+                    <td className="px-6 py-4 text-left">
+                      <span className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold ${getStatusClass(transaction.transactionStatus)}`}>
+                        {transaction.transactionStatusName ?? '-'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-left"><span className="text-sm text-slate-700">{transaction.detailsCount ?? '-'}</span></td>
+                    <td className="px-6 py-4 text-left"><span className="text-sm text-slate-700">{transaction.colors ?? '-'}</span></td>
+                    <td className="px-6 py-4 text-left">
+                      <div className="flex items-center justify-start gap-3">
+                        <button
+                          type="button"
+                          onClick={() => openEditModal(transaction.id)}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-blue-300 bg-blue-50 text-blue-600 text-lg transition hover:bg-blue-100"
+                          title="Düzenle"
+                          aria-label={`Düzenle ${transaction.orderNo ?? ''}`}
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => deleteTransaction(transaction.id)}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-red-300 bg-red-50 text-red-600 text-lg transition hover:bg-red-100"
+                          title="Sil"
+                          aria-label={`Sil ${transaction.orderNo ?? ''}`}
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <footer className="table-footer">
-        <div className="table-footer-summary">
-          <p>
-            Sonuç sayısı: <strong>{totalCount}</strong>
-          </p>
+      <footer className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-6" dir="ltr">
+        <div className="text-left text-sm text-slate-700" dir="ltr">
+          <p className="text-left">Sonuç sayısı: <strong className="text-slate-900">{totalCount}</strong></p>
         </div>
-        <div className="pagination-controls">
+        <div className="flex items-center justify-end gap-2" dir="ltr">
           <button
             type="button"
-            className="pager-btn"
-            disabled={pageNumber <= 1 || isLoading}
             onClick={() => setPageNumber((prev) => Math.max(prev - 1, 1))}
+            disabled={pageNumber <= 1 || isLoading}
+            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Önceki
           </button>
-          <span>
+          <span className="text-sm text-slate-600">
             Sayfa {pageNumber} / {Math.max(Math.ceil(totalCount / pageSize), 1)}
           </span>
           <button
             type="button"
-            className="pager-btn"
+            onClick={() => setPageNumber((prev) => Math.min(prev + 1, Math.max(Math.ceil(totalCount / pageSize), 1)))}
             disabled={pageNumber >= Math.max(Math.ceil(totalCount / pageSize), 1) || isLoading}
-            onClick={() =>
-              setPageNumber((prev) => Math.min(prev + 1, Math.max(Math.ceil(totalCount / pageSize), 1)))
-            }
+            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Sonraki
           </button>
@@ -528,13 +530,13 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
 function getStatusClass(status) {
   switch (status) {
     case 1:
-      return 'open'
+      return 'bg-blue-100 text-blue-800'
     case 2:
-      return 'completed'
+      return 'bg-green-100 text-green-800'
     case 3:
-      return 'closed'
+      return 'bg-slate-100 text-slate-800'
     default:
-      return 'default'
+      return 'bg-slate-100 text-slate-800'
   }
 }
 

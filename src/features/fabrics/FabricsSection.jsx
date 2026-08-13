@@ -1,5 +1,4 @@
 ﻿import React, { useCallback, useEffect, useState } from 'react'
-import './FabricsSection.css'
 
 const DAILY_FABRICS_URL = '/api/DailyHamFabricsTransaction'
 
@@ -173,178 +172,247 @@ function FabricsSection({ apiRequest, showNotice, isActive, currentUserName = ''
   }
 
   return (
-    <div className="fabrics-section" dir="ltr">
-      <header className="content-header">
-        <div>
-          <h3>GÜNLÜK KUMAŞ HAREKETİ</h3>
-          <p>Günlük kumaş hareketlerini görüntüleyin ve sunucudan verileri yükleyin.</p>
-        </div>
-      </header>
-
-      <section className="filters-panel fabrics-filters" aria-label="Günlük kumaş hareketleri arama">
-        <div className="field-group">
-          <label htmlFor="fabricsSearch">Arama</label>
-          <input
-            id="fabricsSearch"
-            type="text"
-            value={searchText}
-            onChange={(event) => handleSearchChange(event.target.value)}
-            placeholder="Sipariş numarası, kumaş türü veya kişi ile arayın"
-          />
-        </div>
-
-        <div className="date-row">
-          <div className="field-group">
-            <label htmlFor="optionDate">Tarihi uygulayın</label>
-            <input
-              id="optionDate"
-              type="checkbox"
-              checked={optionDate}
-              onChange={(event) => handleOptionDateChange(event.target.checked)}
-            />
+    <>
+      <div className="space-y-6" dir="ltr">
+        <section className="rounded-2xl border border-slate-200 bg-white px-6 py-5 shadow-sm" aria-label="Günlük kumaş hareketleri arama">
+          <div className="mb-5 border-b border-slate-200 pb-4">
+            <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Kumaş Hareketleri</p>
+            <h3 className="mt-2 text-2xl font-semibold text-slate-900">Günlük Kumaş Hareketi</h3>
           </div>
+          <div className="flex flex-wrap items-end gap-4">
+            <div className="flex-1 min-w-max space-y-2 text-left">
+              <label htmlFor="fabricsSearch" className="block text-sm font-medium text-slate-700">Arama</label>
+              <input
+                id="fabricsSearch"
+                type="text"
+                value={searchText}
+                onChange={(event) => handleSearchChange(event.target.value)}
+                placeholder="Sipariş, kumaş türü veya kişi ile arayın"
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                dir="ltr"
+                style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
+              />
+            </div>
 
-          <div className="field-group">
-            <label htmlFor="dateFrom">Başlangıç tarihi</label>
-            <input
-              id="dateFrom"
-              type="date"
-              value={dateFrom}
-              onChange={(event) => handleDateFromChange(event.target.value)}
-            />
+            <div className="flex items-center gap-2 text-left">
+              <label htmlFor="optionDate" className="text-sm font-medium text-slate-700">Tarihi Uygula</label>
+              <input
+                id="optionDate"
+                type="checkbox"
+                checked={optionDate}
+                onChange={(event) => handleOptionDateChange(event.target.checked)}
+                className="h-4 w-4 rounded border-slate-300"
+              />
+            </div>
+
+            <div className="min-w-max space-y-2 text-left">
+              <label htmlFor="dateFrom" className="block text-sm font-medium text-slate-700">Başlangıç Tarihi</label>
+              <input
+                id="dateFrom"
+                type="date"
+                value={dateFrom}
+                onChange={(event) => handleDateFromChange(event.target.value)}
+                className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                dir="ltr"
+                style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
+              />
+            </div>
+
+            <div className="min-w-max space-y-2 text-left">
+              <label htmlFor="dateTo" className="block text-sm font-medium text-slate-700">Bitiş Tarihi</label>
+              <input
+                id="dateTo"
+                type="date"
+                value={dateTo}
+                onChange={(event) => handleDateToChange(event.target.value)}
+                className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                dir="ltr"
+                style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
+              />
+            </div>
+
+            <div className="min-w-max space-y-2 text-left">
+              <label htmlFor="fabricsPageSize" className="block text-sm font-medium text-slate-700">Sayfa Boyutu</label>
+              <select
+                id="fabricsPageSize"
+                value={pageSize}
+                onChange={(event) => handlePageSizeChange(Number(event.target.value))}
+                className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                dir="ltr"
+                style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
+              >
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+            </div>
           </div>
+        </section>
 
-          <div className="field-group">
-            <label htmlFor="dateTo">Bitiş tarihi</label>
-            <input
-              id="dateTo"
-              type="date"
-              value={dateTo}
-              onChange={(event) => handleDateToChange(event.target.value)}
-            />
+        {error ? (
+          <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+            {error}
           </div>
-        </div>
+        ) : null}
 
-        <div className="field-group page-size-group">
-          <label htmlFor="fabricsPageSize">Sayfa boyutu</label>
-          <select
-            id="fabricsPageSize"
-            value={pageSize}
-            onChange={(event) => handlePageSizeChange(Number(event.target.value))}
-          >
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
-          </select>
-        </div>
-      </section>
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="hidden overflow-x-auto md:block" dir="ltr">
+            <table className="w-full text-sm" style={{ direction: 'ltr' }} dir="ltr">
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50">
+                  <th className="px-6 py-3 text-left"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Vardiya</span></th>
+                  <th className="px-6 py-3 text-left"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Tarih</span></th>
+                  <th className="px-6 py-3 text-left"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Sorumlu Personel</span></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200">
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={3} className="px-6 py-12 text-center text-slate-500">Hareketler yükleniyor...</td>
+                  </tr>
+                ) : transactions.length === 0 ? (
+                  <tr>
+                    <td colSpan={3} className="px-6 py-12 text-center text-slate-500">Eşleşen veri bulunamadı.</td>
+                  </tr>
+                ) : (
+                  transactions.map((transaction, index) => {
+                    const transactionId = transaction.id
+                    const isExpanded = isTransactionExpanded(transactionId)
+                    const details = detailRows[transactionId] || []
+                    const detailColumns = details.length > 0 ? Object.keys(details[0]) : []
 
-      {error ? <p className="error-box inline-error">{error}</p> : null}
-
-      <div className="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Vardiya</th>
-              <th>Tarih</th>
-              <th>Sorumlu personel</th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading ? (
-              <tr>
-                <td colSpan={3} className="table-state">Hareketler yükleniyor...</td>
-              </tr>
-            ) : transactions.length === 0 ? (
-              <tr>
-                <td colSpan={3} className="table-state">Eşleşen veri bulunamadı.</td>
-              </tr>
-            ) : (
-              transactions.map((transaction, index) => {
-                const transactionId = transaction.id
-                const isExpanded = isTransactionExpanded(transactionId)
-                const details = detailRows[transactionId] || []
-                const detailColumns = details.length > 0 ? Object.keys(details[0]) : []
-
-                return (
-                  <React.Fragment key={`transaction-${transactionId ?? index}`}>
-                    <tr
-                      className={`expandable-row ${isExpanded ? 'expanded-parent' : ''}`}
-                      onClick={() => handleToggleExpand(transactionId)}
-                    >
-                      <td>{transaction.shift ?? '-'}</td>
-                      <td>{transaction.date ? new Date(transaction.date).toISOString().split('T')[0] : '-'}</td>
-                      <td>{transaction.personal ?? '-'}</td>
-                    </tr>
-                    {isExpanded ? (
-                      <tr className="expanded-row">
-                        <td colSpan={3}>
-                          {isDetailLoading(transactionId) ? (
-                            <p className="table-state">Alt satırlar yükleniyor...</p>
-                          ) : details.length > 0 ? (
-                            <div className="nested-table-wrapper">
-                              <table className="nested-table">
-                                <thead>
-                                  <tr>
-                                    {detailColumns.map((column) => (
-                                      <th key={column}>{getDetailColumnTitle(column)}</th>
-                                    ))}
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {details.map((detail, detailIndex) => (
-                                    <tr key={detail.id ?? detailIndex}>
-                                      {detailColumns.map((column) => (
-                                        <td key={column}>{detail[column] ?? '-'}</td>
+                    return (
+                      <React.Fragment key={`transaction-${transactionId ?? index}`}>
+                        <tr
+                          onClick={() => handleToggleExpand(transactionId)}
+                          className="cursor-pointer transition hover:bg-slate-50"
+                        >
+                          <td className="px-6 py-4 text-left"><span className="text-sm text-slate-900">{transaction.shift ?? '-'}</span></td>
+                          <td className="px-6 py-4 text-left"><span className="text-sm text-slate-700">{transaction.date ? new Date(transaction.date).toISOString().split('T')[0] : '-'}</span></td>
+                          <td className="px-6 py-4 text-left"><span className="text-sm text-slate-700">{transaction.personal ?? '-'}</span></td>
+                        </tr>
+                        {isExpanded ? (
+                          <tr className="bg-slate-50">
+                            <td colSpan={3} className="px-6 py-4">
+                              {isDetailLoading(transactionId) ? (
+                                <p className="py-8 text-center text-sm text-slate-500">Alt satırlar yükleniyor...</p>
+                              ) : details.length > 0 ? (
+                                <div className="overflow-x-auto" dir="ltr">
+                                  <table className="w-full text-sm" style={{ direction: 'ltr' }} dir="ltr">
+                                    <thead>
+                                      <tr className="border-b border-slate-200 bg-white">
+                                        {detailColumns.map((column) => (
+                                          <th key={column} className="px-4 py-2 text-left"><span className="text-xs font-semibold text-slate-600">{getDetailColumnTitle(column)}</span></th>
+                                        ))}
+                                      </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-200">
+                                      {details.map((detail, detailIndex) => (
+                                        <tr key={detail.id ?? detailIndex} className="hover:bg-slate-100">
+                                          {detailColumns.map((column) => (
+                                            <td key={column} className="px-4 py-2 text-left"><span className="text-xs text-slate-700">{detail[column] ?? '-'}</span></td>
+                                          ))}
+                                        </tr>
                                       ))}
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            </div>
-                          ) : (
-                            <p className="table-state">Bu hareket için alt veri yok.</p>
-                          )}
-                        </td>
-                      </tr>
-                    ) : null}
-                  </React.Fragment>
-                )
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
+                                    </tbody>
+                                  </table>
+                                </div>
+                              ) : (
+                                <p className="py-4 text-center text-sm text-slate-500">Bu hareket için alt veri yok.</p>
+                              )}
+                            </td>
+                          </tr>
+                        ) : null}
+                      </React.Fragment>
+                    )
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
 
-      <footer className="table-footer">
-        <div className="table-footer-summary">
-          <p>
-            Toplam sonuç: <strong>{totalCount}</strong> | Sayfa: <strong>{pageNumber}</strong> / <strong>{Math.max(Math.ceil(totalCount / pageSize), 1)}</strong>
-          </p>
+          <div className="md:hidden" dir="ltr">
+            {isLoading ? (
+              <div className="px-4 py-12 text-center text-slate-500">Hareketler yükleniyor...</div>
+            ) : transactions.length === 0 ? (
+              <div className="px-4 py-12 text-center text-slate-500">Eşleşen veri bulunamadı.</div>
+            ) : (
+              <div className="divide-y divide-slate-200">
+                {transactions.map((transaction, index) => {
+                  const transactionId = transaction.id
+                  const isExpanded = isTransactionExpanded(transactionId)
+                  const details = detailRows[transactionId] || []
+
+                  return (
+                    <div key={`transaction-${transactionId ?? index}`} className="border-b border-slate-200 p-4">
+                      <div
+                        onClick={() => handleToggleExpand(transactionId)}
+                        className="cursor-pointer space-y-2 text-left"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium text-slate-900">{transaction.shift ?? '-'}</span>
+                          <span className="text-sm text-slate-500">{isExpanded ? '▼' : '▶'}</span>
+                        </div>
+                        <div className="text-sm text-slate-600">{transaction.date ? new Date(transaction.date).toISOString().split('T')[0] : '-'}</div>
+                        <div className="text-xs text-slate-600">Personel: {transaction.personal ?? '-'}</div>
+                      </div>
+
+                      {isExpanded && (
+                        <div className="mt-4 space-y-2 border-t border-slate-200 pt-4">
+                          {isDetailLoading(transactionId) ? (
+                            <p className="text-center text-sm text-slate-500">Alt satırlar yükleniyor...</p>
+                          ) : details.length > 0 ? (
+                            details.map((detail, detailIndex) => (
+                              <div key={detail.id ?? detailIndex} className="rounded-lg bg-slate-50 p-3 text-xs">
+                                {Object.entries(detail).map(([key, value]) => (
+                                  <div key={key} className="flex justify-between gap-2 text-slate-700">
+                                    <span className="font-medium">{getDetailColumnTitle(key)}:</span>
+                                    <span>{value ?? '-'}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            ))
+                          ) : (
+                            <p className="text-center text-sm text-slate-500">Alt veri yok</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
         </div>
-        <div className="pagination-controls">
-          <button
-            type="button"
-            className="pager-btn"
-            disabled={pageNumber <= 1 || isLoading}
-            onClick={() => handlePageChange(Math.max(pageNumber - 1, 1))}
-          >
-            Önceki
-          </button>
-          <span>
-            Sayfa {pageNumber} / {Math.max(Math.ceil(totalCount / pageSize), 1)}
-          </span>
-          <button
-            type="button"
-            className="pager-btn"
-            disabled={pageNumber >= Math.max(Math.ceil(totalCount / pageSize), 1) || isLoading}
-            onClick={() => handlePageChange(Math.min(pageNumber + 1, Math.max(Math.ceil(totalCount / pageSize), 1)))}
-          >
-            Sonraki
-          </button>
-        </div>
-      </footer>
-    </div>
+
+        <footer className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <div className="text-left text-sm text-slate-700">
+            <p>Toplam sonuç: <strong className="text-slate-900">{totalCount}</strong> | Sayfa: <strong className="text-slate-900">{pageNumber}</strong> / <strong className="text-slate-900">{Math.max(Math.ceil(totalCount / pageSize), 1)}</strong></p>
+          </div>
+          <div className="flex items-center justify-end gap-2">
+            <button
+              type="button"
+              className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={pageNumber <= 1 || isLoading}
+              onClick={() => handlePageChange(Math.max(pageNumber - 1, 1))}
+            >
+              Önceki
+            </button>
+            <span className="rounded-md bg-slate-100 px-2.5 py-1 text-sm font-medium text-slate-700">
+              Sayfa {pageNumber}
+            </span>
+            <button
+              type="button"
+              className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={pageNumber >= Math.max(Math.ceil(totalCount / pageSize), 1) || isLoading}
+              onClick={() => handlePageChange(Math.min(pageNumber + 1, Math.max(Math.ceil(totalCount / pageSize), 1)))}
+            >
+              Sonraki
+            </button>
+          </div>
+        </footer>
+      </div>
+    </>
   )
 }
 

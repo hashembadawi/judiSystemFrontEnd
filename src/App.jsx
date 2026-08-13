@@ -18,17 +18,40 @@ const TOKEN_KEY = 'judi_auth_token'
 const DAILY_FABRICS_URL = '/api/DailyHamFabricsTransaction'
 const getTodayDate = () => new Date().toISOString().slice(0, 10)
 
+const formatFabricGenderDisplay = (value) => {
+  if (value == null) {
+    return ''
+  }
+
+  const text = String(value).trim()
+  if (!text) {
+    return ''
+  }
+
+  const ratioMatch = text.match(/^(.*?)(\d+\s*\/\s*\d+(?:\s*\/\s*\d+)?)\s*$/)
+  if (ratioMatch) {
+    const prefix = ratioMatch[1].trim()
+    const ratio = ratioMatch[2].trim()
+
+    if (prefix && ratio) {
+      return `${ratio} ${prefix}`
+    }
+  }
+
+  return text
+}
+
 const getOptionDisplayText = (item) => {
   if (item == null) {
     return ''
   }
 
   if (typeof item === 'string') {
-    return item
+    return formatFabricGenderDisplay(item)
   }
 
   if (typeof item === 'object') {
-    return (
+    const text = (
       item.label ||
       item.text ||
       item.name ||
@@ -40,9 +63,11 @@ const getOptionDisplayText = (item) => {
       item.factoryName ||
       ''
     )
+
+    return formatFabricGenderDisplay(text)
   }
 
-  return String(item)
+  return formatFabricGenderDisplay(String(item))
 }
 
 function App() {
@@ -53,6 +78,7 @@ function App() {
   const [authData, setAuthData] = useState(null)
 
   const [activeOperation, setActiveOperation] = useState('users')
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [notice, setNotice] = useState(null)
   const currentUserType = Number(authData?.user?.userType ?? authData?.user?.userTypeValue ?? authData?.user?.UserType ?? authData?.user?.type ?? 0)
   const isRestrictedFabricInspectorUser = currentUserType === 6
@@ -648,7 +674,7 @@ function App() {
 
   if (!authData) {
     return (
-      <main className="page-shell" dir="rtl">
+      <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.9),_rgba(210,233,246,0.9)_28%,_rgba(184,219,236,0.98)_100%)] px-4 py-10" dir="rtl">
         {pendingRequests > 0 ? (
           <div className="global-loading-overlay" aria-live="polite" aria-busy="true">
             <div className="global-loading-content">
@@ -664,47 +690,59 @@ function App() {
           </div>
         ) : null}
 
-        <section className="login-card" aria-label="نموذج تسجيل الدخول">
-          <p className="brand-chip">JUDI SYSTEM</p>
-          <h1>تسجيل الدخول</h1>
-          <p className="subtitle">أدخل بيانات الحساب للمتابعة إلى النظام.</p>
+        <section className="mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-5xl items-center justify-center" aria-label="نموذج تسجيل الدخول">
+          <div className="w-full max-w-md rounded-[28px] border border-slate-200/80 bg-white/80 p-8 shadow-[0_24px_48px_rgba(15,23,42,0.12)] backdrop-blur-sm">
+            <p className="inline-flex rounded-full bg-sky-100 px-3 py-1 text-[11px] font-bold tracking-[0.2em] text-sky-700">JUDI SYSTEM</p>
+            <h1 className="mt-5 text-3xl font-bold text-slate-900">تسجيل الدخول</h1>
+            <p className="mt-2 text-sm text-slate-600">أدخل بيانات الحساب للمتابعة إلى النظام.</p>
 
-          <form onSubmit={onSubmitLogin} className="login-form">
-            <label htmlFor="username">اسم المستخدم</label>
-            <input
-              id="username"
-              type="text"
-              autoComplete="username"
-              value={userName}
-              onChange={(event) => setUserName(event.target.value)}
-              placeholder="ali"
-              required
-            />
+            <form onSubmit={onSubmitLogin} className="mt-6 grid gap-4">
+              <div className="grid gap-2">
+                <label htmlFor="username" className="text-sm font-medium text-slate-700">اسم المستخدم</label>
+                <input
+                  id="username"
+                  type="text"
+                  autoComplete="username"
+                  value={userName}
+                  onChange={(event) => setUserName(event.target.value)}
+                  placeholder="ali"
+                  required
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
+                />
+              </div>
 
-            <label htmlFor="password">كلمة المرور</label>
-            <input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder="*****"
-              required
-            />
+              <div className="grid gap-2">
+                <label htmlFor="password" className="text-sm font-medium text-slate-700">كلمة المرور</label>
+                <input
+                  id="password"
+                  type="password"
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  placeholder="*****"
+                  required
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
+                />
+              </div>
 
-            {loginError ? <p className="error-box">{loginError}</p> : null}
+              {loginError ? <p className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{loginError}</p> : null}
 
-            <button type="submit" disabled={isLoginLoading}>
-              {isLoginLoading ? 'جاري تسجيل الدخول...' : 'دخول'}
-            </button>
-          </form>
+              <button
+                type="submit"
+                disabled={isLoginLoading}
+                className="mt-2 inline-flex w-full items-center justify-center rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-wait disabled:opacity-70"
+              >
+                {isLoginLoading ? 'جاري تسجيل الدخول...' : 'دخول'}
+              </button>
+            </form>
+          </div>
         </section>
       </main>
     )
   }
 
   return (
-    <main className="dashboard-shell" dir="rtl">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.9),_rgba(214,234,245,0.9)_30%,_rgba(184,219,236,0.98)_100%)] px-4 py-6 text-slate-700" dir="rtl">
       {pendingRequests > 0 ? (
         <div className="global-loading-overlay" aria-live="polite" aria-busy="true">
           <div className="global-loading-content">
@@ -720,142 +758,222 @@ function App() {
         </div>
       ) : null}
 
-      <div className="topbar-user-card" aria-label="معلومات المستخدم">
-        <div className="user-chip">
-          <span className="user-avatar" aria-hidden="true">👤</span>
-          <span>{authData?.user?.userName || authData?.user?.name || 'المستخدم'}</span>
-        </div>
-        <button type="button" className="icon-btn" onClick={handleLogout} aria-label="تسجيل الخروج">
-          ⎋
-        </button>
-      </div>
-
-      <aside className="side-menu" aria-label="قائمة العمليات">
-        <h2>العمليات</h2>
-        {isRestrictedFabricInspectorUser ? (
+      <div className="mx-auto max-w-[1280px]">
+        <div className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white/80 px-3 py-2 shadow-sm backdrop-blur-sm" aria-label="معلومات المستخدم">
           <button
             type="button"
-            className="menu-item"
-            onClick={() => {
-              setActiveOperation('fabricEntry')
-              openAddFabricModal()
-            }}
+            onClick={() => setIsSidebarOpen((prev) => !prev)}
+            className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
           >
-            KUMAŞ HAREKETİ EKLE
+            <span className="text-base">{isSidebarOpen ? '☰' : '☰'}</span>
+            <span>{isSidebarOpen ? 'إخفاء القائمة' : 'إظهار القائمة'}</span>
           </button>
-        ) : isProductionManagerUser ? (
-          <>
-            <button
-              type="button"
-              className={activeOperation === 'fabrics' ? 'menu-item active' : 'menu-item'}
-              onClick={() => setActiveOperation('fabrics')}
-            >
-              GÜNLÜK KUMAŞ HAREKETİ
-            </button>
-            <button
-              type="button"
-              className={activeOperation === 'depoHamFabric' ? 'menu-item active' : 'menu-item'}
-              onClick={() => setActiveOperation('depoHamFabric')}
-            >
-              HAM KUMAŞ DEPO
-            </button>
-            <button
-              type="button"
-              className={activeOperation === 'weavingOrders' ? 'menu-item active' : 'menu-item'}
-              onClick={() => setActiveOperation('weavingOrders')}
-            >
-              Dokuma Siparişleri Yönetimi
-            </button>
-          </>
-        ) : (
-          <>
-            <button
-              type="button"
-              className={activeOperation === 'users' ? 'menu-item active' : 'menu-item'}
-              onClick={() => setActiveOperation('users')}
-            >
-              ادارة المستخدمين
-            </button>
-            <button
-              type="button"
-              className={activeOperation === 'orders' ? 'menu-item active' : 'menu-item'}
-              onClick={() => setActiveOperation('orders')}
-            >
-              ادارة الطلبيات
-            </button>
-            <button
-              type="button"
-              className={activeOperation === 'depoHamFabric' ? 'menu-item active' : 'menu-item'}
-              onClick={() => setActiveOperation('depoHamFabric')}
-            >
-              HAM KUMAŞ DEPO
-            </button>
-            <button
-              type="button"
-              className={activeOperation === 'yarns' ? 'menu-item active' : 'menu-item'}
-              onClick={() => setActiveOperation('yarns')}
-            >
-              ادارة مخزون الخيط
-            </button>
-            <button
-              type="button"
-              className={activeOperation === 'fabrics' ? 'menu-item active' : 'menu-item'}
-              onClick={() => setActiveOperation('fabrics')}
-            >
-              GÜNLÜK KUMAŞ HAREKETİ
-            </button>
-            <button
-              type="button"
-              className="menu-item"
-              onClick={openAddFabricModal}
-            >
-              KUMAŞ HAREKETİ EKLE
-            </button>
-            <button
-              type="button"
-              className="menu-item"
-              onClick={openFasonFabricModal}
-            >
-              FASON KUMAŞ HAREKETİ EKLE
-            </button>
-            <button
-              type="button"
-              className={activeOperation === 'hamBoya' ? 'menu-item active' : 'menu-item'}
-              onClick={() => setActiveOperation('hamBoya')}
-            >
-              ادارة خام مرسل للمصابغ
-            </button>
-            <button
-              type="button"
-              className={activeOperation === 'boyaliSiparis' ? 'menu-item active' : 'menu-item'}
-              onClick={() => setActiveOperation('boyaliSiparis')}
-            >
-              BOYALI SİPARİŞ TAKİP
-            </button>
-            <button
-              type="button"
-              className={activeOperation === 'orderFactory' ? 'menu-item active' : 'menu-item'}
-              onClick={() => setActiveOperation('orderFactory')}
-            >
-              BOYALI SİPARİŞ
-            </button>
-            <button
-              type="button"
-              className={activeOperation === 'yarnWeaving' ? 'menu-item active' : 'menu-item'}
-              onClick={() => setActiveOperation('yarnWeaving')}
-            >
-              ادارة حركات الحياكة
-            </button>
-            <button
-              type="button"
-              className={activeOperation === 'weavingOrders' ? 'menu-item active' : 'menu-item'}
-              onClick={() => setActiveOperation('weavingOrders')}
-            >
-              Dokuma Siparişleri Yönetimi
-            </button>
-          </>
-        )}
-      </aside>
+
+          <div className="flex items-center gap-2 text-sm font-semibold text-slate-800">
+            <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-sky-100 text-base" aria-hidden="true">👤</span>
+            <span>{authData?.user?.userName || authData?.user?.name || 'المستخدم'}</span>
+          </div>
+
+          <button type="button" className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-transparent text-lg text-slate-700 transition hover:bg-slate-100" onClick={handleLogout} aria-label="تسجيل الخروج">
+            ⎋
+          </button>
+        </div>
+
+        <div className={isSidebarOpen ? 'grid gap-5 xl:grid-cols-[280px_minmax(0,1fr)]' : 'grid gap-5 xl:grid-cols-1'}>
+          {isSidebarOpen ? (
+            <aside className="sticky top-5 h-fit rounded-3xl border border-slate-200 bg-white/80 p-5 shadow-[0_16px_30px_rgba(15,23,42,0.08)] backdrop-blur-sm" aria-label="قائمة العمليات">
+              <h2 className="mb-4 text-lg font-bold text-slate-900">العمليات</h2>
+              <div className="space-y-2">
+              {isRestrictedFabricInspectorUser ? (
+                <button
+                  type="button"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-right text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-100"
+                  onClick={() => {
+                    setActiveOperation('fabricEntry')
+                    openAddFabricModal()
+                  }}
+                >
+                  KUMAŞ HAREKETİ EKLE
+                </button>
+              ) : isProductionManagerUser ? (
+                <>
+                  <button
+                    type="button"
+                    className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'fabrics' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
+                    onClick={() => setActiveOperation('fabrics')}
+                  >
+                    GÜNLÜK KUMAŞ HAREKETİ
+                  </button>
+                  <button
+                    type="button"
+                    className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'depoHamFabric' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
+                    onClick={() => setActiveOperation('depoHamFabric')}
+                  >
+                    HAM KUMAŞ DEPO
+                  </button>
+                  <button
+                    type="button"
+                    className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'weavingOrders' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
+                    onClick={() => setActiveOperation('weavingOrders')}
+                  >
+                    Dokuma Siparişleri Yönetimi
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'users' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
+                    onClick={() => setActiveOperation('users')}
+                  >
+                    ادارة المستخدمين
+                  </button>
+                  <button
+                    type="button"
+                    className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'orders' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
+                    onClick={() => setActiveOperation('orders')}
+                  >
+                    ادارة الطلبيات
+                  </button>
+                  <button
+                    type="button"
+                    className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'depoHamFabric' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
+                    onClick={() => setActiveOperation('depoHamFabric')}
+                  >
+                    HAM KUMAŞ DEPO
+                  </button>
+                  <button
+                    type="button"
+                    className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'yarns' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
+                    onClick={() => setActiveOperation('yarns')}
+                  >
+                    ادارة مخزون الخيط
+                  </button>
+                  <button
+                    type="button"
+                    className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'fabrics' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
+                    onClick={() => setActiveOperation('fabrics')}
+                  >
+                    GÜNLÜK KUMAŞ HAREKETİ
+                  </button>
+                  <button
+                    type="button"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-right text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-100"
+                    onClick={openAddFabricModal}
+                  >
+                    KUMAŞ HAREKETİ EKLE
+                  </button>
+                  <button
+                    type="button"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-right text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-100"
+                    onClick={openFasonFabricModal}
+                  >
+                    FASON KUMAŞ HAREKETİ EKLE
+                  </button>
+                  <button
+                    type="button"
+                    className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'hamBoya' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
+                    onClick={() => setActiveOperation('hamBoya')}
+                  >
+                    ادارة خام مرسل للمصابغ
+                  </button>
+                  <button
+                    type="button"
+                    className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'boyaliSiparis' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
+                    onClick={() => setActiveOperation('boyaliSiparis')}
+                  >
+                    BOYALI SİPARİŞ TAKİP
+                  </button>
+                  <button
+                    type="button"
+                    className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'orderFactory' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
+                    onClick={() => setActiveOperation('orderFactory')}
+                  >
+                    BOYALI SİPARİŞ
+                  </button>
+                  <button
+                    type="button"
+                    className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'yarnWeaving' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
+                    onClick={() => setActiveOperation('yarnWeaving')}
+                  >
+                    ادارة حركات الحياكة
+                  </button>
+                  <button
+                    type="button"
+                    className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'weavingOrders' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
+                    onClick={() => setActiveOperation('weavingOrders')}
+                  >
+                    Dokuma Siparişleri Yönetimi
+                  </button>
+                </>
+              )}
+              </div>
+            </aside>
+          ) : null}
+
+          <section className="min-h-[calc(100vh-8rem)] rounded-3xl border border-slate-200 bg-white/80 p-5 shadow-[0_16px_30px_rgba(15,23,42,0.08)] backdrop-blur-sm">
+            {isRestrictedFabricInspectorUser ? null : isProductionManagerUser ? (
+              activeOperation === 'fabrics' ? (
+                <FabricsSection
+                  apiRequest={apiRequest}
+                  showNotice={showNotice}
+                  isActive
+                  currentUserName={authData?.user?.userName || authData?.user?.name || userName || 'المستخدم'}
+                />
+              ) : activeOperation === 'weavingOrders' ? (
+                <WeavingOrdersSection apiRequest={apiRequest} showNotice={showNotice} isActive />
+              ) : activeOperation === 'depoHamFabric' ? (
+                <DepoHamFabricSection apiRequest={apiRequest} showNotice={showNotice} isActive />
+              ) : null
+            ) : activeOperation === 'users' ? (
+              <UsersSection apiRequest={apiRequest} showNotice={showNotice} isActive />
+            ) : activeOperation === 'orders' ? (
+              <OrdersSection
+                apiRequest={apiRequest}
+                showNotice={showNotice}
+                isActive
+                currentUserName={authData?.user?.userName || authData?.user?.name || userName || 'المستخدم'}
+              />
+            ) : activeOperation === 'fabrics' ? (
+              <FabricsSection
+                apiRequest={apiRequest}
+                showNotice={showNotice}
+                isActive
+                currentUserName={authData?.user?.userName || authData?.user?.name || userName || 'المستخدم'}
+              />
+            ) : activeOperation === 'hamBoya' ? (
+              <HamBoyaTransactionsSection
+                apiRequest={apiRequest}
+                showNotice={showNotice}
+                isActive
+                currentUserName={authData?.user?.userName || authData?.user?.name || userName || 'المستخدم'}
+              />
+            ) : activeOperation === 'boyaliSiparis' ? (
+              <BoyaliSiparisTakipSection apiRequest={apiRequest} showNotice={showNotice} isActive />
+            ) : activeOperation === 'orderFactory' ? (
+              <OrderFactoryTransactionsSection apiRequest={apiRequest} showNotice={showNotice} isActive />
+            ) : activeOperation === 'yarnWeaving' ? (
+              <YarnWeavingTransactionsSection
+                apiRequest={apiRequest}
+                showNotice={showNotice}
+                isActive
+                currentUserName={authData?.user?.userName || authData?.user?.name || userName || 'المستخدم'}
+              />
+            ) : activeOperation === 'depoHamFabric' ? (
+              <DepoHamFabricSection apiRequest={apiRequest} showNotice={showNotice} isActive />
+            ) : activeOperation === 'weavingOrders' ? (
+              <WeavingOrdersSection apiRequest={apiRequest} showNotice={showNotice} isActive />
+            ) : activeOperation === 'yarns' ? (
+              <YarnsSection
+                apiRequest={apiRequest}
+                showNotice={showNotice}
+                isActive
+                currentUserName={authData?.user?.userName || authData?.user?.name || userName || 'المستخدم'}
+              />
+            ) : null}
+          </section>
+        </div>
+      </div>
 
       <AddFabricTransactionModal
         isOpen={isAddFabricModalOpen}
@@ -900,68 +1018,6 @@ function App() {
         onClose={closeFasonFabricModal}
         onSave={saveFasonFabricTransaction}
       />
-
-      <section className="content-panel">
-        {isRestrictedFabricInspectorUser ? null : isProductionManagerUser ? (
-          activeOperation === 'fabrics' ? (
-            <FabricsSection
-              apiRequest={apiRequest}
-              showNotice={showNotice}
-              isActive
-              currentUserName={authData?.user?.userName || authData?.user?.name || userName || 'المستخدم'}
-            />
-          ) : activeOperation === 'weavingOrders' ? (
-            <WeavingOrdersSection apiRequest={apiRequest} showNotice={showNotice} isActive />
-           ) : activeOperation === 'depoHamFabric' ? (
-            <DepoHamFabricSection apiRequest={apiRequest} showNotice={showNotice} isActive />
-          ) : null
-        ) : activeOperation === 'users' ? (
-          <UsersSection apiRequest={apiRequest} showNotice={showNotice} isActive />
-        ) : activeOperation === 'orders' ? (
-          <OrdersSection
-            apiRequest={apiRequest}
-            showNotice={showNotice}
-            isActive
-            currentUserName={authData?.user?.userName || authData?.user?.name || userName || 'المستخدم'}
-          />
-        ) : activeOperation === 'fabrics' ? (
-          <FabricsSection
-            apiRequest={apiRequest}
-            showNotice={showNotice}
-            isActive
-            currentUserName={authData?.user?.userName || authData?.user?.name || userName || 'المستخدم'}
-          />
-        ) : activeOperation === 'hamBoya' ? (
-          <HamBoyaTransactionsSection
-            apiRequest={apiRequest}
-            showNotice={showNotice}
-            isActive
-            currentUserName={authData?.user?.userName || authData?.user?.name || userName || 'المستخدم'}
-          />
-        ) : activeOperation === 'boyaliSiparis' ? (
-          <BoyaliSiparisTakipSection apiRequest={apiRequest} showNotice={showNotice} isActive />
-        ) : activeOperation === 'orderFactory' ? (
-          <OrderFactoryTransactionsSection apiRequest={apiRequest} showNotice={showNotice} isActive />
-        ) : activeOperation === 'yarnWeaving' ? (
-          <YarnWeavingTransactionsSection
-            apiRequest={apiRequest}
-            showNotice={showNotice}
-            isActive
-            currentUserName={authData?.user?.userName || authData?.user?.name || userName || 'المستخدم'}
-          />
-        ) : activeOperation === 'depoHamFabric' ? (
-          <DepoHamFabricSection apiRequest={apiRequest} showNotice={showNotice} isActive />
-        ) : activeOperation === 'weavingOrders' ? (
-          <WeavingOrdersSection apiRequest={apiRequest} showNotice={showNotice} isActive />
-        ) : activeOperation === 'yarns' ? (
-          <YarnsSection
-            apiRequest={apiRequest}
-            showNotice={showNotice}
-            isActive
-            currentUserName={authData?.user?.userName || authData?.user?.name || userName || 'المستخدم'}
-          />
-        ) : null}
-      </section>
     </main>
   )
 }

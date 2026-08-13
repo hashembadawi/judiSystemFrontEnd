@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import HamBoyaTransactionsModal from './HamBoyaTransactionsModal'
-import './HamBoyaTransactionsSection.css'
+import { buildButtonClasses } from '../../styles/designSystem'
 
 const HAM_BOYA_TRANSACTIONS_URL = '/api/ham-boya-transactions'
 
@@ -455,151 +455,159 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
   }, [currentUserName, showNotice, totalCount, totalWeight, transactions])
 
   return (
-    <div className="ham-boya-section">
-      <header className="content-header">
-        <div>
-          <h3>ادارة خام مرسل للمصابغ</h3>
-          <p>عرض حركات الخام المرسلة للمصابغ مع التحكم في الصفحات.</p>
-        </div>
-        <button type="button" className="add-button" onClick={openCreateModal}>
-          + إضافة حركة جديدة
-        </button>
-      </header>
-
-      <section className="ham-boya-filters-panel" aria-label="بحث حركة خام المرسل للمصابغ">
-        <div className="field-group">
-          <label htmlFor="hamBoyaSearch">بحث</label>
-          <input
-            id="hamBoyaSearch"
-            type="text"
-            value={searchText}
-            onChange={(event) => {
-              setSearchText(event.target.value)
-              setPageNumber(1)
-            }}
-            placeholder="ابحث برقم الفاتورة أو المصنع أو السائق"
-            dir="ltr"
-            style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
-          />
+    <div className="space-y-6" dir="rtl" style={{ direction: 'rtl' }}>
+      <section className="rounded-2xl border border-slate-200 bg-white px-6 py-5 shadow-sm" dir="rtl">
+        <div className="mb-5 border-b border-slate-200 pb-4 flex items-start justify-between" dir="rtl">
+          <div className="text-right">
+            <p className="text-xs font-semibold uppercase tracking-widest text-slate-500 text-right">إدارة الحركات</p>
+            <h3 className="mt-2 text-2xl font-semibold text-slate-900 text-right">إدارة خام مرسل للمصابغ</h3>
+          </div>
+          <button type="button" className={buildButtonClasses('primary')} onClick={openCreateModal}>
+            + إضافة حركة جديدة
+          </button>
         </div>
 
-        <div className="field-group page-size-group">
-          <label htmlFor="hamBoyaPageSize">حجم الصفحة</label>
-          <select
-            id="hamBoyaPageSize"
-            value={pageSize}
-            onChange={(event) => {
-              setPageSize(Number(event.target.value))
-              setPageNumber(1)
-            }}
-            dir="ltr"
-            style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
-          >
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
-          </select>
+        <div className="flex flex-wrap items-end gap-4" dir="rtl">
+          <div className="flex-1 min-w-max space-y-2" dir="rtl">
+            <label htmlFor="hamBoyaSearch" className="block text-sm font-medium text-slate-700 text-right">بحث</label>
+            <input
+              id="hamBoyaSearch"
+              type="text"
+              value={searchText}
+              onChange={(event) => {
+                setSearchText(event.target.value)
+                setPageNumber(1)
+              }}
+              placeholder="ابحث برقم الفاتورة أو المصنع أو السائق"
+              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+              dir="ltr"
+              style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
+            />
+          </div>
+
+          <div className="min-w-max space-y-2" dir="rtl">
+            <label htmlFor="hamBoyaPageSize" className="block text-sm font-medium text-slate-700 text-right">حجم الصفحة</label>
+            <select
+              id="hamBoyaPageSize"
+              value={pageSize}
+              onChange={(event) => {
+                setPageSize(Number(event.target.value))
+                setPageNumber(1)
+              }}
+              className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+              dir="ltr"
+              style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
+            >
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
         </div>
       </section>
 
-      {error ? <p className="error-box inline-error">{error}</p> : null}
+      {error ? (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800 text-right" dir="rtl">
+          {error}
+        </div>
+      ) : null}
 
-      <div className="ham-boya-table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>رقم الفاتورة</th>
-              <th>المصنع</th>
-              <th>التاريخ</th>
-              <th>الكاتب</th>
-              <th>لوحة السيارة</th>
-              <th>صاحب السيارة</th>
-              <th>عدد التفاصيل</th>
-              <th>الوزن الكلي</th>
-              <th>عدد الأثواب</th>
-              <th>الإجراءات</th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading ? (
-              <tr>
-                <td colSpan={10} className="table-state">
-                  جاري تحميل الحركات...
-                </td>
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm" dir="rtl">
+        <div className="overflow-x-auto" dir="rtl">
+          <table className="w-full text-sm" dir="rtl" style={{ direction: 'rtl' }}>
+            <thead>
+              <tr className="border-b border-slate-200 bg-slate-50">
+                <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">رقم الفاتورة</span></th>
+                <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">المصنع</span></th>
+                <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">التاريخ</span></th>
+                <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">الكاتب</span></th>
+                <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">لوحة السيارة</span></th>
+                <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">صاحب السيارة</span></th>
+                <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">عدد التفاصيل</span></th>
+                <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">الوزن الكلي</span></th>
+                <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">عدد الأثواب</span></th>
+                <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">الإجراءات</span></th>
               </tr>
-            ) : transactions.length === 0 ? (
-              <tr>
-                <td colSpan={10} className="table-state">
-                  لا توجد بيانات مطابقة.
-                </td>
-              </tr>
-            ) : (
-              transactions.map((transaction) => (
-                <tr key={transaction.id ?? transaction.faturaNo}>
-                  <td>{transaction.faturaNo ?? '-'}</td>
-                  <td>{transaction.factoryName ?? '-'}</td>
-                  <td style={{ textAlign: 'left' }}>{transaction.date ?? '-'}</td>
-                  <td>{transaction.writer ?? '-'}</td>
-                  <td style={{ textAlign: 'left' }}>{transaction.carBLK ?? '-'}</td>
-                  <td>{transaction.carOwner ?? '-'}</td>
-                  <td>{transaction.detailsCount ?? '-'}</td>
-                  <td>{transaction.totalWeight ?? '-'}</td>
-                  <td>{transaction.totalTopCount ?? '-'}</td>
-                  <td>
-                    <div className="ham-boya-order-actions">
-                      <button
-                        type="button"
-                        className="action-btn edit"
-                        onClick={() => openEditModal(transaction.id)}
-                      >
-                        تعديل
-                      </button>
-                      <button
-                        type="button"
-                        className="action-btn delete"
-                        onClick={() => deleteTransaction(transaction.id)}
-                      >
-                        حذف
-                      </button>
-                    </div>
-                  </td>
+            </thead>
+            <tbody className="divide-y divide-slate-200" dir="rtl">
+              {isLoading ? (
+                <tr>
+                  <td colSpan={10} className="px-6 py-12 text-center text-slate-500 text-right" dir="rtl">جاري تحميل الحركات...</td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : transactions.length === 0 ? (
+                <tr>
+                  <td colSpan={10} className="px-6 py-12 text-center text-slate-500 text-right" dir="rtl">لا توجد بيانات مطابقة.</td>
+                </tr>
+              ) : (
+                transactions.map((transaction) => (
+                  <tr key={transaction.id ?? transaction.faturaNo} className="hover:bg-slate-50" dir="rtl">
+                    <td className="px-6 py-4 text-right"><span className="text-sm text-slate-900 font-medium">{transaction.faturaNo ?? '-'}</span></td>
+                    <td className="px-6 py-4 text-right"><span className="text-sm text-slate-700">{transaction.factoryName ?? '-'}</span></td>
+                    <td className="px-6 py-4 text-right"><span className="text-sm text-slate-700">{transaction.date ?? '-'}</span></td>
+                    <td className="px-6 py-4 text-right"><span className="text-sm text-slate-700">{transaction.writer ?? '-'}</span></td>
+                    <td className="px-6 py-4 text-right"><span className="text-sm text-slate-700">{transaction.carBLK ?? '-'}</span></td>
+                    <td className="px-6 py-4 text-right"><span className="text-sm text-slate-700">{transaction.carOwner ?? '-'}</span></td>
+                    <td className="px-6 py-4 text-right"><span className="text-sm text-slate-700">{transaction.detailsCount ?? '-'}</span></td>
+                    <td className="px-6 py-4 text-right"><span className="text-sm text-slate-700">{transaction.totalWeight ?? '-'}</span></td>
+                    <td className="px-6 py-4 text-right"><span className="text-sm text-slate-700">{transaction.totalTopCount ?? '-'}</span></td>
+                    <td className="px-6 py-4" dir="rtl">
+                      <div className="flex items-center justify-start gap-3" dir="rtl">
+                        <button
+                          type="button"
+                          onClick={() => deleteTransaction(transaction.id)}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-red-300 bg-red-50 text-red-600 text-lg transition hover:bg-red-100"
+                          title="حذف"
+                        >
+                          🗑️
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => openEditModal(transaction.id)}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-blue-300 bg-blue-50 text-blue-600 text-lg transition hover:bg-blue-100"
+                          title="تعديل"
+                        >
+                          ✎
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <footer className="ham-boya-table-footer">
-        <div className="table-footer-summary">
-          <p>
-            عدد النتائج: <strong>{totalCount}</strong> | الوزن الكلي: <strong>{totalWeight}</strong>
-          </p>
-          <button type="button" className="print-btn" onClick={handlePrintTransactions}>
-            طباعة
-          </button>
+      <footer className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-6" dir="rtl">
+        <div className="text-right text-sm text-slate-700" dir="rtl">
+          <p className="text-right">عدد النتائج: <strong className="text-slate-900">{totalCount}</strong> | الوزن الكلي: <strong className="text-slate-900">{totalWeight}</strong></p>
         </div>
-        <div className="ham-boya-pagination-controls">
+        <div className="flex items-center justify-start gap-2" dir="rtl">
           <button
             type="button"
-            className="pager-btn"
-            disabled={pageNumber <= 1 || isLoading}
             onClick={() => setPageNumber((prev) => Math.max(prev - 1, 1))}
+            disabled={pageNumber <= 1 || isLoading}
+            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             السابق
           </button>
-          <span>
+          <span className="text-sm text-slate-600">
             الصفحة {pageNumber} من {Math.max(Math.ceil(totalCount / pageSize), 1)}
           </span>
           <button
             type="button"
-            className="pager-btn"
+            onClick={() => setPageNumber((prev) => Math.min(prev + 1, Math.max(Math.ceil(totalCount / pageSize), 1)))}
             disabled={pageNumber >= Math.max(Math.ceil(totalCount / pageSize), 1) || isLoading}
-            onClick={() =>
-              setPageNumber((prev) => Math.min(prev + 1, Math.max(Math.ceil(totalCount / pageSize), 1)))
-            }
+            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             التالي
+          </button>
+          <button
+            type="button"
+            onClick={handlePrintTransactions}
+            className={buildButtonClasses('secondary')}
+          >
+            طباعة
           </button>
         </div>
       </footer>

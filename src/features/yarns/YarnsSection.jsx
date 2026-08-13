@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import './YarnsSection.css'
 import YarnModal from './YarnModal'
 
 const YARNS_URL = '/api/yarns'
@@ -66,7 +65,7 @@ function YarnsSection({ apiRequest, showNotice, isActive, currentUserName = '' }
       setTotalCount(data.totalRecords ?? data.totalCount ?? 0)
     } catch (requestError) {
       if (requestError instanceof TypeError) {
-        setError('تعذر الاتصال بالخادم. تأكد أن API متاحة على judimensucat.runasp.net وأن الخادم يسمح بطلبات CORS.')
+        setError('تعذر الاتصال بالخادم. تأكد أن API متاحة وأن الأذونات تسمح بالوصول.')
       } else {
         setError(requestError.message || 'حدث خطأ عند جلب بيانات الخيط.')
       }
@@ -296,7 +295,7 @@ function YarnsSection({ apiRequest, showNotice, isActive, currentUserName = '' }
             <div class="report-user">${currentUserName || 'المستخدم'}</div>
             <div class="report-title">تقرير مخزون الخيط</div>
           </div>
-          <div class="summary">عدد النتائج: ${totalCount} | صافي: ${totalNetKg} | قائم: ${totalBrutKg} | متبقي صافي: ${totalRemainNetKg} | متبقي قائم: ${totalRemainBrutKg}</div>
+          <div class="summary">عدد النتائج: ${totalCount} | الصافي: ${totalNetKg} | القائم: ${totalBrutKg} | المتبقي صافي: ${totalRemainNetKg} | المتبقي قائم: ${totalRemainBrutKg}</div>
           <table>
             <thead>
               <tr>
@@ -307,8 +306,8 @@ function YarnsSection({ apiRequest, showNotice, isActive, currentUserName = '' }
                 <th>الصافي KG</th>
                 <th>القائم KG</th>
                 <th>العدد المتبقي</th>
-                <th>صافي متبقي KG</th>
-                <th>قائم متبقي KG</th>
+                <th>الصافي المتبقي KG</th>
+                <th>القائم المتبقي KG</th>
                 <th>الشركة</th>
                 <th>السعر</th>
                 <th>رقم الفاتورة</th>
@@ -341,154 +340,248 @@ function YarnsSection({ apiRequest, showNotice, isActive, currentUserName = '' }
   }, [currentUserName, showNotice, totalBrutKg, totalCount, totalNetKg, totalRemainBrutKg, totalRemainNetKg, yarns])
 
   return (
-    <div className="yarns-section" dir="rtl">
-      <header className="content-header">
-        <div>
-          <h3>ادارة مخزون الخيط</h3>
-          <p>عرض المخزون الحالي مع البحث والتصفح.</p>
-        </div>
-        <button type="button" className="add-button" onClick={handleAddYarn}>
-          + اضافة خيط جديد
-        </button>
-      </header>
+    <>
+      <div className="space-y-6" dir="rtl">
+        <header className="rounded-2xl border border-slate-200 bg-white px-6 py-7 shadow-sm">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="text-right">
+              <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">إدارة المخزون</p>
+              <h3 className="mt-2 text-2xl font-semibold text-slate-900">إدارة مخزون الخيط</h3>
+              <p className="mt-2 text-sm text-slate-600">عرض المخزون الحالي مع البحث والتصفح.</p>
+            </div>
 
-      <section className="filters-panel" aria-label="بحث مخزون الخيط">
-        <div className="field-group">
-          <label htmlFor="yarnsSearch">بحث</label>
-          <input
-            id="yarnsSearch"
-            type="text"
-            value={searchText}
-            onChange={(event) => {
-              setSearchText(event.target.value)
-              setPageNumber(1)
-            }}
-            placeholder="ابحث بالنوع أو LOT أو الشركة"
-          />
-        </div>
+            <button
+              type="button"
+              onClick={handleAddYarn}
+              className="inline-flex items-center justify-center rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-slate-800 active:bg-slate-950"
+            >
+              + إضافة خيط جديد
+            </button>
+          </div>
 
-        <div className="field-group page-size-group">
-          <label htmlFor="yarnsPageSize">حجم الصفحة</label>
-          <select
-            id="yarnsPageSize"
-            value={pageSize}
-            onChange={(event) => {
-              setPageSize(Number(event.target.value))
-              setPageNumber(1)
-            }}
-          >
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
-          </select>
-        </div>
-      </section>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-right">
+              <label htmlFor="yarnsSearch" className="mb-2 block text-xs font-medium text-slate-600">بحث</label>
+              <input
+                id="yarnsSearch"
+                type="text"
+                value={searchText}
+                onChange={(event) => {
+                  setSearchText(event.target.value)
+                  setPageNumber(1)
+                }}
+                placeholder="ابحث بالنوع أو LOT أو الشركة"
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                dir="ltr"
+                style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
+              />
+            </div>
 
-      {error ? <p className="error-box inline-error">{error}</p> : null}
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-right">
+              <label htmlFor="yarnsPageSize" className="mb-2 block text-xs font-medium text-slate-600">حجم الصفحة</label>
+              <select
+                id="yarnsPageSize"
+                value={pageSize}
+                onChange={(event) => {
+                  setPageSize(Number(event.target.value))
+                  setPageNumber(1)
+                }}
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                dir="ltr"
+                style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
+              >
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+            </div>
 
-      <div className="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>النوع</th>
-              <th>LOT</th>
-              <th>العدد</th>
-              <th>الصافي KG</th>
-              <th>القائم KG</th>
-              <th style={{ backgroundColor: '#d4edda' }}>العدد المتبقي</th>
-              <th style={{ backgroundColor: '#d4edda' }}>صافي متبقي KG</th>
-              <th style={{ backgroundColor: '#d4edda' }}>قائم متبقي KG</th>
-              <th>الشركة</th>
-              <th>السعر</th>
-              <th>رقم الفاتورة</th>
-              <th>تاريخ الاستلام</th>
-              <th>الاجراءات</th>
-            </tr>
-          </thead>
-          <tbody>
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-right">
+              <label className="mb-2 block text-xs font-medium text-slate-600">النتائج</label>
+              <div className="rounded-md bg-slate-200 px-2.5 py-2 text-sm font-medium text-slate-700">
+                {totalCount} عنصر
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {error ? (
+          <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+            {error}
+          </div>
+        ) : null}
+
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="flex flex-col gap-4 border-b border-slate-200 bg-slate-50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            <div className="text-right">
+              <p className="text-xs font-medium text-slate-600">إجمالي النتائج</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-900">{totalCount}</p>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-end gap-2 text-xs sm:text-sm">
+              <span className="rounded-md bg-slate-200 px-2.5 py-1 font-medium text-slate-700">الصفحة {pageNumber}</span>
+              <span className="rounded-md bg-slate-200 px-2.5 py-1 font-medium text-slate-700">{pageSize} لكل صفحة</span>
+            </div>
+          </div>
+
+          <div className="hidden overflow-x-auto md:block">
+            <table className="w-full text-sm" style={{ direction: 'rtl' }}>
+              <thead>
+                <tr className="border-b border-slate-200 bg-white">
+                  <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">النوع</span></th>
+                  <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">LOT</span></th>
+                  <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">العدد</span></th>
+                  <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">الصافي KG</span></th>
+                  <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">القائم KG</span></th>
+                  <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">العدد المتبقي</span></th>
+                  <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">الصافي المتبقي KG</span></th>
+                  <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">القائم المتبقي KG</span></th>
+                  <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">الشركة</span></th>
+                  <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">السعر</span></th>
+                  <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">رقم الفاتورة</span></th>
+                  <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">تاريخ الاستلام</span></th>
+                  <th className="px-6 py-3 text-center"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">الإجراءات</span></th>
+                </tr>
+              </thead>
+
+              <tbody className="divide-y divide-slate-200">
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={13} className="px-6 py-12 text-center text-slate-500">جاري تحميل بيانات الخيط...</td>
+                  </tr>
+                ) : yarns.length === 0 ? (
+                  <tr>
+                    <td colSpan={13} className="px-6 py-12 text-center text-slate-500">لا توجد بيانات مطابقة.</td>
+                  </tr>
+                ) : (
+                  yarns.map((yarn, index) => (
+                    <tr key={yarn.id ?? index} className="transition hover:bg-slate-50">
+                      <td className="px-6 py-4 text-right"><span className="text-sm text-slate-900">{yarn.yarnGender ?? '-'}</span></td>
+                      <td className="px-6 py-4 text-right"><span className="text-sm text-slate-700">{yarn.lot ?? '-'}</span></td>
+                      <td className="px-6 py-4 text-right"><span className="text-sm text-slate-700">{yarn.count ?? '-'}</span></td>
+                      <td className="px-6 py-4 text-right"><span className="text-sm text-slate-700">{yarn.netKg ?? '-'}</span></td>
+                      <td className="px-6 py-4 text-right"><span className="text-sm text-slate-700">{yarn.brutKg ?? '-'}</span></td>
+                      <td className="px-6 py-4 text-right"><span className="text-sm font-semibold text-slate-800">{yarn.remainCount ?? '-'}</span></td>
+                      <td className="px-6 py-4 text-right"><span className="text-sm font-semibold text-slate-800">{yarn.remainNetKg ?? '-'}</span></td>
+                      <td className="px-6 py-4 text-right"><span className="text-sm font-semibold text-slate-800">{yarn.remainBrutKg ?? '-'}</span></td>
+                      <td className="px-6 py-4 text-right"><span className="text-sm text-slate-700">{yarn.company ?? '-'}</span></td>
+                      <td className="px-6 py-4 text-right"><span className="text-sm text-slate-700">{yarn.price ?? '-'}</span></td>
+                      <td className="px-6 py-4 text-right"><span className="text-sm text-slate-700">{yarn.faturaNo ?? '-'}</span></td>
+                      <td className="px-6 py-4 text-right"><span className="text-sm text-slate-700">{yarn.incomDate ?? '-'}</span></td>
+                      <td className="px-6 py-4 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          <button
+                            type="button"
+                            title="تعديل"
+                            onClick={() => handleEditYarn(yarn.id)}
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-300 text-slate-600 transition hover:bg-slate-100 hover:border-slate-400"
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            type="button"
+                            title="حذف"
+                            onClick={() => handleDeleteYarn(yarn.id)}
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-red-300 bg-red-50 text-red-600 transition hover:bg-red-100 hover:border-red-400"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="md:hidden">
             {isLoading ? (
-              <tr>
-                <td colSpan={14} className="table-state">
-                  جاري تحميل بيانات الخيط...
-                </td>
-              </tr>
+              <div className="px-4 py-12 text-center text-slate-500">جاري تحميل بيانات الخيط...</div>
             ) : yarns.length === 0 ? (
-              <tr>
-                <td colSpan={14} className="table-state">
-                  لا توجد بيانات مطابقة.
-                </td>
-              </tr>
+              <div className="px-4 py-12 text-center text-slate-500">لا توجد بيانات مطابقة.</div>
             ) : (
-              yarns.map((yarn, index) => (
-                <tr key={yarn.id ?? index}>
-                  <td>{yarn.yarnGender ?? '-'}</td>
-                  <td>{yarn.lot ?? '-'}</td>
-                  <td>{yarn.count ?? '-'}</td>
-                  <td>{yarn.netKg ?? '-'}</td>
-                  <td>{yarn.brutKg ?? '-'}</td>
-                  <td style={{ backgroundColor: '#d4edda', fontWeight: 'bold' }}>{yarn.remainCount ?? '-'}</td>
-                  <td style={{ backgroundColor: '#d4edda', fontWeight: 'bold' }}>{yarn.remainNetKg ?? '-'}</td>
-                  <td style={{ backgroundColor: '#d4edda', fontWeight: 'bold' }}>{yarn.remainBrutKg ?? '-'}</td>
-                  <td>{yarn.company ?? '-'}</td>
-                  <td>{yarn.price ?? '-'}</td>
-                  <td>{yarn.faturaNo ?? '-'}</td>
-                  <td>{yarn.incomDate ?? '-'}</td>
-                  <td>
-                    <div className="row-actions">
-                      <button type="button" className="action-btn edit" onClick={() => handleEditYarn(yarn.id)}>
-                        تعديل
+              <div className="divide-y divide-slate-200">
+                {yarns.map((yarn, index) => (
+                  <div key={yarn.id ?? index} className="p-4 text-right">
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <span className="text-sm font-semibold text-slate-900">{yarn.yarnGender ?? '-'}</span>
+                      <span className="inline-flex rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">{yarn.lot ?? '-'}</span>
+                    </div>
+
+                    <div className="space-y-2 text-xs text-slate-700">
+                      <div className="flex items-center justify-between gap-3"><span>العدد:</span><span className="font-medium text-slate-900">{yarn.count ?? '-'}</span></div>
+                      <div className="flex items-center justify-between gap-3"><span>الصافي KG:</span><span className="font-medium text-slate-900">{yarn.netKg ?? '-'}</span></div>
+                      <div className="flex items-center justify-between gap-3"><span>القائم KG:</span><span className="font-medium text-slate-900">{yarn.brutKg ?? '-'}</span></div>
+                      <div className="flex items-center justify-between gap-3"><span>الصافي المتبقي:</span><span className="font-medium text-slate-900">{yarn.remainNetKg ?? '-'}</span></div>
+                      <div className="flex items-center justify-between gap-3"><span>الشركة:</span><span className="font-medium text-slate-900">{yarn.company ?? '-'}</span></div>
+                      <div className="flex items-center justify-between gap-3"><span>تاريخ الاستلام:</span><span className="font-medium text-slate-900">{yarn.incomDate ?? '-'}</span></div>
+                    </div>
+
+                    <div className="mt-4 flex items-center justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleEditYarn(yarn.id)}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-300 text-slate-600 transition hover:bg-slate-100"
+                      >
+                        ✏️
                       </button>
-                      <button type="button" className="action-btn delete" onClick={() => handleDeleteYarn(yarn.id)}>
-                        حذف
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteYarn(yarn.id)}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-red-300 bg-red-50 text-red-600 transition hover:bg-red-100"
+                      >
+                        🗑️
                       </button>
                     </div>
-                  </td>
-                </tr>
-              ))
+                  </div>
+                ))}
+              </div>
             )}
-          </tbody>
-        </table>
-      </div>
+          </div>
+        </div>
 
-      <footer className="table-footer">
-        <div className="table-footer-summary">
-          <p style={{ fontSize: '0.84rem', lineHeight: 1.6 }}>
-            <span>عدد النتائج: <strong>{totalCount}</strong></span> ·
-            <span>صافي: <strong>{totalNetKg}</strong></span> ·
-            <span>قائم: <strong>{totalBrutKg}</strong></span> ·
-            <span>متبقي صافي: <strong>{totalRemainNetKg}</strong></span> ·
-            <span>متبقي قائم: <strong>{totalRemainBrutKg}</strong></span>
-          </p>
-          <button type="button" className="print-btn" onClick={handlePrintYarns}>
-            طباعة
-          </button>
-        </div>
-        <div className="pagination-controls">
-          <button
-            type="button"
-            className="pager-btn"
-            disabled={pageNumber >= Math.max(Math.ceil(totalCount / pageSize), 1) || isLoading}
-            onClick={() =>
-              setPageNumber((prev) =>
-                Math.min(prev + 1, Math.max(Math.ceil(totalCount / pageSize), 1)),
-              )
-            }
-          >
-            التالي
-          </button>
-          <span>
-            الصفحة {pageNumber} من {Math.max(Math.ceil(totalCount / pageSize), 1)}
-          </span>
-          <button
-            type="button"
-            className="pager-btn"
-            disabled={pageNumber <= 1 || isLoading}
-            onClick={() => setPageNumber((prev) => Math.max(prev - 1, 1))}
-          >
-            السابق
-          </button>
-        </div>
-      </footer>
+        <footer className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <div className="space-y-1 text-sm text-slate-700 text-right">
+            <p>إجمالي النتائج: <strong className="text-slate-900">{totalCount}</strong></p>
+            <p>الصافي: <strong className="text-slate-900">{totalNetKg}</strong> | القائم: <strong className="text-slate-900">{totalBrutKg}</strong></p>
+            <p>المتبقي صافي: <strong className="text-slate-900">{totalRemainNetKg}</strong> | المتبقي قائم: <strong className="text-slate-900">{totalRemainBrutKg}</strong></p>
+          </div>
+
+          <div className="flex items-center justify-end gap-2">
+            <button
+              type="button"
+              onClick={handlePrintYarns}
+              className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            >
+              طباعة
+            </button>
+            <button
+              type="button"
+              className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={pageNumber <= 1 || isLoading}
+              onClick={() => setPageNumber((prev) => Math.max(prev - 1, 1))}
+            >
+              السابق
+            </button>
+            <span className="rounded-md bg-slate-100 px-2.5 py-1 text-sm font-medium text-slate-700">
+              الصفحة {pageNumber}
+            </span>
+            <button
+              type="button"
+              className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={pageNumber >= Math.max(Math.ceil(totalCount / pageSize), 1) || isLoading}
+              onClick={() =>
+                setPageNumber((prev) =>
+                  Math.min(prev + 1, Math.max(Math.ceil(totalCount / pageSize), 1)),
+                )
+              }
+            >
+              التالي
+            </button>
+          </div>
+        </footer>
+      </div>
 
       <YarnModal
         isOpen={isModalOpen}
@@ -499,7 +592,7 @@ function YarnsSection({ apiRequest, showNotice, isActive, currentUserName = '' }
         onClose={closeModal}
         onSave={saveYarn}
       />
-    </div>
+    </>
   )
 }
 

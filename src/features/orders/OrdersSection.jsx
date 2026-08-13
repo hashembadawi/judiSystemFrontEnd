@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import './OrdersSection.css'
+import { buildButtonClasses, buildInputClasses, SECTION_STYLES } from '../../styles/designSystem'
 import OrderModal from './OrderModal'
 
 const CUSTOMER_ORDERS_URL = '/api/customer-orders'
@@ -538,268 +538,392 @@ function OrdersSection({ apiRequest, showNotice, isActive, currentUserName = '' 
 
   return (
     <>
-      <header className="content-header">
-        <div>
-          <h3>ادارة الطلبيات</h3>
-          <p>جلب وعرض الطلبيات مع خيارات البحث.</p>
+      <div className="space-y-6" style={{ direction: 'rtl' }}>
+        <header className={`${SECTION_STYLES.container} overflow-hidden rounded-2xl border border-slate-200 bg-white px-6 py-7 shadow-sm`}>
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">إدارة النظام</p>
+              <h3 className="mt-2 text-2xl font-semibold text-slate-900">ادارة الطلبيات</h3>
+              <p className="mt-2 text-sm text-slate-600">إدارة طلبيات العملاء والبحث والتفاصيل</p>
+            </div>
+
+            <button
+              type="button"
+              onClick={openCreateModal}
+              className="inline-flex items-center justify-center rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-slate-800 active:bg-slate-950"
+            >
+              إضافة طلبية
+            </button>
+          </div>
+
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <label htmlFor="ordersSearch" className="mb-2 block text-xs font-medium text-slate-600">البحث</label>
+              <input
+                id="ordersSearch"
+                type="text"
+                value={searchText}
+                onChange={(event) => {
+                  setSearchText(event.target.value)
+                  setPageNumber(1)
+                }}
+                placeholder="رقم الطلبية، اسم الزبون، أو أي نص"
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+              />
+            </div>
+
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <label htmlFor="orderStatus" className="mb-2 block text-xs font-medium text-slate-600">حالة الطلبية</label>
+              <select
+                id="orderStatus"
+                value={orderStatus}
+                onChange={(event) => {
+                  setOrderStatus(event.target.value)
+                  setPageNumber(1)
+                }}
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+              >
+                <option value="">الكل</option>
+                {ORDER_STATUS_OPTIONS.map((statusOption) => (
+                  <option key={statusOption.value} value={statusOption.value}>
+                    {statusOption.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <label htmlFor="ordersPageSize" className="mb-2 block text-xs font-medium text-slate-600">حجم الصفحة</label>
+              <select
+                id="ordersPageSize"
+                value={pageSize}
+                onChange={(event) => {
+                  setPageSize(Number(event.target.value))
+                  setPageNumber(1)
+                }}
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+              >
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+            </div>
+          </div>
+        </header>
+
+        <div className="hidden print:flex flex-col items-end gap-1 text-sm font-medium text-slate-700">
+          <div>judi mensucat</div>
+          <div>{currentUserName || 'المستخدم'}</div>
         </div>
-        <button type="button" className="add-button" onClick={openCreateModal}>
-          + اضافة طلبية
-        </button>
-      </header>
 
-      <div className="print-report-header">
-        <div className="print-report-title">judi mensucat</div>
-        <div className="print-report-user">{currentUserName || 'المستخدم'}</div>
-      </div>
+        {error ? (
+          <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">{error}</div>
+        ) : null}
 
-      <section className="filters-panel" aria-label="فلترة الطلبيات">
-        <div className="field-group">
-          <label htmlFor="ordersSearch">بحث نصي</label>
-          <input
-            id="ordersSearch"
-            type="text"
-            value={searchText}
-            onChange={(event) => {
-              setSearchText(event.target.value)
-              setPageNumber(1)
-            }}
-            placeholder="رقم الطلبية، اسم الزبون، او أي نص"
-          />
-        </div>
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="flex flex-col gap-4 border-b border-slate-200 bg-slate-50 px-4 py-4 sm:px-6 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-medium text-slate-600">إجمالي الطلبيات</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-900">{totalCount}</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+              <span className="rounded-md bg-slate-200 px-2.5 py-1 font-medium text-slate-700">صفحة {pageNumber} من {totalPages}</span>
+              <span className="rounded-md bg-slate-200 px-2.5 py-1 font-medium text-slate-700">{pageSize} لكل صفحة</span>
+            </div>
+          </div>
 
-        <div className="field-group">
-          <label htmlFor="orderStatus">حالة الطلبية</label>
-          <select
-            id="orderStatus"
-            value={orderStatus}
-            onChange={(event) => {
-              setOrderStatus(event.target.value)
-              setPageNumber(1)
-            }}
-          >
-            <option value="">الكل</option>
-            {ORDER_STATUS_OPTIONS.map((statusOption) => (
-              <option key={statusOption.value} value={statusOption.value}>
-                {statusOption.label}
-              </option>
-            ))}
-          </select>
-        </div>
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-200 bg-white">
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-600">رقم الطلبية</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-600">اسم الزبون</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-600">التاريخ</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-600">حالة الطلبية</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-600">عدد التفاصيل</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-600">الوزن الكلي</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-600">الوزن المنتج</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-600">الوزن المتبقي</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-600">التقدم</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-600">ملاحظات</th>
+                  <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider text-slate-600">الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200">
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={11} className="px-4 py-12 text-center text-slate-500">جاري تحميل الطلبيات...</td>
+                  </tr>
+                ) : orders.length === 0 ? (
+                  <tr>
+                    <td colSpan={11} className="px-4 py-12 text-center text-slate-500">لا توجد طلبيات مطابقة.</td>
+                  </tr>
+                ) : (
+                  orders.map((order, index) => {
+                    const progressPercent = calculateOrderProgressPercent(order)
+                    const producedWeight = getOrderValue(order, ['producedWeight', 'produced'])
+                    const remainingWeight = getOrderValue(order, ['remainingWeight', 'remaining'])
+                    const orderKey = order.id || order.orderId || order.orderNumber || index
 
-        <div className="field-group page-size-group">
-          <label htmlFor="ordersPageSize">حجم الصفحة</label>
-          <select
-            id="ordersPageSize"
-            value={pageSize}
-            onChange={(event) => {
-              setPageSize(Number(event.target.value))
-              setPageNumber(1)
-            }}
-          >
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
-          </select>
-        </div>
-      </section>
+                    const toggleExpand = async (orderObj, key) => {
+                      if (expandedData[key] && !expandedData[key].isLoading) {
+                        setExpandedData((prev) => {
+                          const next = { ...prev }
+                          delete next[key]
+                          return next
+                        })
+                        return
+                      }
 
-      {error ? <p className="error-box inline-error">{error}</p> : null}
+                      setExpandedData((prev) => ({
+                        ...prev,
+                        [key]: { ...(prev[key] || {}), isLoading: true, error: '' },
+                      }))
 
-      <div className="table-wrap orders-table-wrap" style={{ direction: 'rtl' }}>
-        <table style={{ direction: 'rtl' }}>
-          <thead>
-            <tr>
-              <th>رقم الطلبية</th>
-              <th>اسم الزبون</th>
-              <th>التاريخ</th>
-              <th>حالة الطلبية</th>
-              <th>عدد التفاصيل</th>
-              <th>الوزن الكلي</th>
-              <th>الوزن المنتج</th>
-              <th>الوزن المتبقي</th>
-              <th>التقدم</th>
-              <th>ملاحظات</th>
-              <th>الاجراءات</th>
-            </tr>
-          </thead>
-          <tbody>
+                      try {
+                        const idForRequest = orderObj?.id || orderObj?.orderId || key
+                        const response = await apiRequest(`${CUSTOMER_ORDERS_URL}/expand/${idForRequest}`)
+                        const data = response.data || {}
+                        const fabrics = Array.isArray(data.fabrics) ? data.fabrics : []
+
+                        setExpandedData((prev) => ({
+                          ...prev,
+                          [key]: { isLoading: false, fabrics, error: '' },
+                        }))
+                      } catch (err) {
+                        setExpandedData((prev) => ({
+                          ...prev,
+                          [key]: { isLoading: false, fabrics: [], error: err?.message || 'تعذر جلب تفاصيل الطلبية.' },
+                        }))
+                        showNotice('error', err?.message || 'تعذر جلب تفاصيل الطلبية.')
+                      }
+                    }
+
+                    return (
+                      <React.Fragment key={orderKey}>
+                        <tr
+                          className={`cursor-pointer transition hover:bg-slate-50 ${expandedData[orderKey] ? 'bg-slate-50' : ''}`}
+                          onClick={() => toggleExpand(order, orderKey)}
+                        >
+                          <td className="px-4 py-4 text-right font-medium text-slate-900">{getOrderValue(order, ['orderNo', 'orderNumber', 'code'])}</td>
+                          <td className="px-4 py-4 text-right text-slate-700">{getOrderValue(order, ['customerName', 'clientName'])}</td>
+                          <td className="px-4 py-4 text-right text-slate-700">{getOrderValue(order, ['orderDate', 'createdAt'])}</td>
+                          <td className="px-4 py-4 text-right">
+                            <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
+                              {getOrderStatusLabel(order.status)}
+                            </span>
+                          </td>
+                          <td className="px-4 py-4 text-right text-slate-700">{getOrderValue(order, ['detailsCount'])}</td>
+                          <td className="px-4 py-4 text-right text-slate-700">{formatDisplayNumber(getOrderValue(order, ['totalWeight']))}</td>
+                          <td className="px-4 py-4 text-right text-slate-700">{formatDisplayNumber(producedWeight)}</td>
+                          <td className="px-4 py-4 text-right text-slate-700">{formatDisplayNumber(remainingWeight)}</td>
+                          <td className="px-4 py-4 text-right">
+                            <div className="flex items-center gap-2">
+                              <div className="h-2.5 w-24 overflow-hidden rounded-full bg-slate-200" aria-label={`نسبة التقدم ${progressPercent.toFixed(1)}%`}>
+                                <div className="h-full rounded-full bg-slate-900" style={{ width: `${progressPercent}%` }} />
+                              </div>
+                              <span className="text-xs font-medium text-slate-700">{progressPercent.toFixed(1)}%</span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-4 text-right text-slate-700">{getOrderValue(order, ['notes'])}</td>
+                          <td className="px-4 py-4 text-center">
+                            <div className="flex items-center justify-center gap-2">
+                              <button
+                                type="button"
+                                title="تعديل الطلبية"
+                                disabled={!order.id}
+                                onClick={(e) => { e.stopPropagation(); openEditModal(order.id) }}
+                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-600 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                              >
+                                ✏️
+                              </button>
+                              <button
+                                type="button"
+                                title="حذف الطلبية"
+                                disabled={!order.id}
+                                onClick={(e) => { e.stopPropagation(); deleteOrder(order.id) }}
+                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-red-300 bg-red-50 text-red-600 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+                              >
+                                🗑️
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+
+                        {expandedData[orderKey] && expandedData[orderKey].isLoading ? (
+                          <tr>
+                            <td colSpan={11} className="px-4 py-6 text-center text-slate-500">جاري تحميل تفاصيل الطلبية...</td>
+                          </tr>
+                        ) : expandedData[orderKey] && expandedData[orderKey].fabrics && expandedData[orderKey].fabrics.length ? (
+                          <tr className="bg-slate-50">
+                            <td colSpan={11} className="px-4 py-4">
+                              <div className="rounded-xl border border-slate-200 bg-white p-3">
+                                <table className="w-full text-sm">
+                                  <thead>
+                                    <tr className="border-b border-slate-200">
+                                      <th className="px-3 py-2 text-right text-xs font-semibold text-slate-600">النوع</th>
+                                      <th className="px-3 py-2 text-right text-xs font-semibold text-slate-600">GSM</th>
+                                      <th className="px-3 py-2 text-right text-xs font-semibold text-slate-600">الوزن المطلوب</th>
+                                      <th className="px-3 py-2 text-right text-xs font-semibold text-slate-600">الوزن المنتج</th>
+                                      <th className="px-3 py-2 text-right text-xs font-semibold text-slate-600">الوزن المتبقي</th>
+                                      <th className="px-3 py-2 text-right text-xs font-semibold text-slate-600">التقدم %</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {expandedData[orderKey].fabrics.map((fab, i) => (
+                                      <tr key={i} className="border-b border-slate-100 last:border-b-0">
+                                        <td className="px-3 py-2 text-right text-slate-700" dir="ltr">{fab.fabricGender || '-'}</td>
+                                        <td className="px-3 py-2 text-right text-slate-700">{fab.fabricGSM ?? '-'}</td>
+                                        <td className="px-3 py-2 text-right text-slate-700">{formatDisplayNumber(fab.requiredWeight)}</td>
+                                        <td className="px-3 py-2 text-right text-slate-700">{formatDisplayNumber(fab.producedWeight)}</td>
+                                        <td className="px-3 py-2 text-right text-slate-700">{formatDisplayNumber(fab.remainingWeight)}</td>
+                                        <td className="px-3 py-2 text-right text-slate-700">{(Number(fab.progressPercent) || 0).toFixed(2)}%</td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </td>
+                          </tr>
+                        ) : null}
+                      </React.Fragment>
+                    )
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="md:hidden">
             {isLoading ? (
-              <tr>
-                <td colSpan={11} className="table-state">جاري تحميل الطلبيات...</td>
-              </tr>
+              <div className="px-4 py-12 text-center text-slate-500">جاري تحميل الطلبيات...</div>
             ) : orders.length === 0 ? (
-              <tr>
-                <td colSpan={11} className="table-state">لا توجد طلبيات مطابقة.</td>
-              </tr>
+              <div className="px-4 py-12 text-center text-slate-500">لا توجد طلبيات مطابقة.</div>
             ) : (
-              orders.map((order, index) => {
-                const progressPercent = calculateOrderProgressPercent(order)
-                const producedWeight = getOrderValue(order, ['producedWeight', 'produced'])
-                const remainingWeight = getOrderValue(order, ['remainingWeight', 'remaining'])
-                const orderKey = order.id || order.orderId || order.orderNumber || index
+              <div className="divide-y divide-slate-200">
+                {orders.map((order, index) => {
+                  const progressPercent = calculateOrderProgressPercent(order)
+                  const orderKey = order.id || order.orderId || order.orderNumber || index
 
-                const toggleExpand = async (orderObj, key) => {
-                  // collapse if already loaded and not currently loading
-                  if (expandedData[key] && !expandedData[key].isLoading) {
-                    setExpandedData((prev) => {
-                      const next = { ...prev }
-                      delete next[key]
-                      return next
-                    })
-                    return
-                  }
-
-                  // start loading
-                  setExpandedData((prev) => ({
-                    ...prev,
-                    [key]: { ...(prev[key] || {}), isLoading: true, error: '' },
-                  }))
-
-                  try {
-                    const idForRequest = orderObj?.id || orderObj?.orderId || key
-
-                    const response = await apiRequest(`${CUSTOMER_ORDERS_URL}/expand/${idForRequest}`)
-                    const data = response.data || {}
-                    const fabrics = Array.isArray(data.fabrics) ? data.fabrics : []
-
-                    setExpandedData((prev) => ({
-                      ...prev,
-                      [key]: { isLoading: false, fabrics, error: '' },
-                    }))
-                  } catch (err) {
-                    setExpandedData((prev) => ({
-                      ...prev,
-                      [key]: { isLoading: false, fabrics: [], error: err?.message || 'تعذر جلب تفاصيل الطلبية.' },
-                    }))
-                    showNotice('error', err?.message || 'تعذر جلب تفاصيل الطلبية.')
-                  }
-                }
-
-                return (
-                  <React.Fragment key={orderKey}>
-                    <tr
-                      className={`expandable-row ${expandedData[orderKey] ? 'expanded-parent' : ''}`}
-                      onClick={() => toggleExpand(order, orderKey)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      <td>{getOrderValue(order, ['orderNo', 'orderNumber', 'code'])}</td>
-                      <td>{getOrderValue(order, ['customerName', 'clientName'])}</td>
-                      <td>{getOrderValue(order, ['orderDate', 'createdAt'])}</td>
-                      <td>{getOrderStatusLabel(order.status)}</td>
-                      <td>{getOrderValue(order, ['detailsCount'])}</td>
-                      <td>{formatDisplayNumber(getOrderValue(order, ['totalWeight']))}</td>
-                      <td>{formatDisplayNumber(producedWeight)}</td>
-                      <td>{formatDisplayNumber(remainingWeight)}</td>
-                      <td>
-                        <div className="progress-cell">
-                          <div className="progress-track" aria-label={`نسبة التقدم ${progressPercent.toFixed(1)}%`}>
-                            <div className="progress-fill" style={{ width: `${progressPercent}%` }} />
-                          </div>
-                          <span className="progress-text">{progressPercent.toFixed(1)}%</span>
+                  return (
+                    <div key={orderKey} className="p-4">
+                      <div className="mb-3 flex items-start justify-between gap-3">
+                        <div>
+                          <div className="text-xs text-slate-500">رقم الطلبية</div>
+                          <div className="mt-1 text-base font-semibold text-slate-900">{getOrderValue(order, ['orderNo', 'orderNumber', 'code'])}</div>
                         </div>
-                      </td>
-                      <td>{getOrderValue(order, ['notes'])}</td>
-                      <td>
-                        <div className="row-actions">
+                        <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
+                          {getOrderStatusLabel(order.status)}
+                        </span>
+                      </div>
+
+                      <div className="space-y-2 text-xs text-slate-600">
+                        <div className="flex justify-between gap-4">
+                          <span>الزبون</span>
+                          <span className="font-medium text-slate-900">{getOrderValue(order, ['customerName', 'clientName'])}</span>
+                        </div>
+                        <div className="flex justify-between gap-4">
+                          <span>التاريخ</span>
+                          <span className="font-medium text-slate-900">{getOrderValue(order, ['orderDate', 'createdAt'])}</span>
+                        </div>
+                        <div className="flex justify-between gap-4">
+                          <span>الوزن الكلي</span>
+                          <span className="font-medium text-slate-900">{formatDisplayNumber(getOrderValue(order, ['totalWeight']))}</span>
+                        </div>
+                        <div className="flex justify-between gap-4">
+                          <span>التقدم</span>
+                          <span className="font-medium text-slate-900">{progressPercent.toFixed(1)}%</span>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 flex items-center justify-between gap-2">
+                        <button
+                          type="button"
+                          onClick={() => toggleExpand(order, orderKey)}
+                          className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700"
+                        >
+                          {expandedData[orderKey] ? 'إخفاء التفاصيل' : 'عرض التفاصيل'}
+                        </button>
+                        <div className="flex gap-2">
                           <button
                             type="button"
-                            className="action-btn edit"
-                            disabled={!order.id}
-                            onClick={(e) => { e.stopPropagation(); openEditModal(order.id) }}
+                            title="تعديل الطلبية"
+                            onClick={() => openEditModal(order.id)}
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-600"
                           >
-                            تعديل
+                            ✏️
                           </button>
                           <button
                             type="button"
-                            className="action-btn delete"
-                            disabled={!order.id}
-                            onClick={(e) => { e.stopPropagation(); deleteOrder(order.id) }}
+                            title="حذف الطلبية"
+                            onClick={() => deleteOrder(order.id)}
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-red-300 bg-red-50 text-red-600"
                           >
-                            حذف
+                            🗑️
                           </button>
                         </div>
-                      </td>
-                    </tr>
+                      </div>
 
-                    {expandedData[orderKey] && expandedData[orderKey].isLoading ? (
-                      <tr className="expanded-row">
-                        <td colSpan={11} className="table-state">جاري تحميل تفاصيل الطلبية...</td>
-                      </tr>
-                    ) : expandedData[orderKey] && expandedData[orderKey].fabrics && expandedData[orderKey].fabrics.length ? (
-                      <tr className="expanded-row">
-                        <td colSpan={11}>
-                          <div className="nested-table-wrapper">
-                            <table className="nested-table">
-                              <thead>
-                                  <tr>
-                                    <th>النوع</th>
-                                    <th>GSM</th>
-                                    <th>الوزن المطلوب</th>
-                                    <th>الوزن المنتج</th>
-                                    <th>الوزن المتبقي</th>
-                                    <th>التقدم %</th>
-                                  </tr>
-                              </thead>
-                              <tbody>
-                                {expandedData[orderKey].fabrics.map((fab, i) => (
-                                  <tr key={i}>
-                                    <td>{fab.fabricGender || '-'}</td>
-                                    <td>{fab.fabricGSM ?? '-'}</td>
-                                    <td>{formatDisplayNumber(fab.requiredWeight)}</td>
-                                    <td>{formatDisplayNumber(fab.producedWeight)}</td>
-                                    <td>{formatDisplayNumber(fab.remainingWeight)}</td>
-                                    <td>{(Number(fab.progressPercent) || 0).toFixed(2)}%</td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
-                        </td>
-                      </tr>
-                    ) : null}
-                  </React.Fragment>
-                )
-              })
+                      {expandedData[orderKey] && expandedData[orderKey].fabrics && (
+                        <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+                          {expandedData[orderKey].isLoading ? (
+                            <div className="text-xs text-slate-500">جاري تحميل تفاصيل الطلبية...</div>
+                          ) : expandedData[orderKey].fabrics.length ? (
+                            <div className="space-y-2 text-xs">
+                              {expandedData[orderKey].fabrics.map((fab, i) => (
+                                <div key={i} className="rounded-lg border border-slate-200 bg-white p-2">
+                                  <div className="flex justify-between gap-2">
+                                    <span className="text-slate-500">النوع</span>
+                                    <span className="font-medium text-slate-900">{fab.fabricGender || '-'}</span>
+                                  </div>
+                                  <div className="mt-1 flex justify-between gap-2">
+                                    <span className="text-slate-500">GSM</span>
+                                    <span className="font-medium text-slate-900">{fab.fabricGSM ?? '-'}</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-xs text-slate-500">لا توجد تفاصيل.</div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
             )}
-          </tbody>
-        </table>
-      </div>
+          </div>
+        </div>
 
-      <footer className="table-footer">
-        <div className="table-footer-summary">
-          <p>
-            عدد النتائج: <strong>{totalCount}</strong>
-          </p>
-          <p>
-            الوزن الكلي: <strong>{orders.reduce((sum, order) => sum + (Number(order.totalWeight) || 0), 0)}</strong>
-          </p>
-          <button type="button" className="print-btn" onClick={handlePrintOrders}>
-            طباعة
-          </button>
-        </div>
-        <div className="pagination-controls">
-          <button
-            type="button"
-            className="pager-btn"
-            disabled={pageNumber <= 1 || isLoading}
-            onClick={() => setPageNumber((prev) => Math.max(prev - 1, 1))}
-          >
-            السابق
-          </button>
-          <span>
-            الصفحة {pageNumber} من {totalPages}
-          </span>
-          <button
-            type="button"
-            className="pager-btn"
-            disabled={pageNumber >= totalPages || isLoading}
-            onClick={() => setPageNumber((prev) => Math.min(prev + 1, totalPages))}
-          >
-            التالي
-          </button>
-        </div>
-      </footer>
+        <footer className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-2 text-sm text-slate-600 sm:flex-row sm:items-center sm:gap-4">
+            <p>عدد النتائج: <strong className="text-slate-900">{totalCount}</strong></p>
+            <p>الوزن الكلي: <strong className="text-slate-900">{orders.reduce((sum, order) => sum + (Number(order.totalWeight) || 0), 0)}</strong></p>
+            <button type="button" className={buildButtonClasses('secondary')} onClick={handlePrintOrders}>طباعة</button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              className={`${buildButtonClasses('secondary')} disabled:cursor-not-allowed disabled:opacity-50`}
+              disabled={pageNumber <= 1 || isLoading}
+              onClick={() => setPageNumber((prev) => Math.max(prev - 1, 1))}
+            >
+              السابق
+            </button>
+            <span className="rounded-md bg-slate-100 px-2.5 py-1 text-sm font-medium text-slate-700">الصفحة {pageNumber} من {totalPages}</span>
+            <button
+              type="button"
+              className={`${buildButtonClasses('secondary')} disabled:cursor-not-allowed disabled:opacity-50`}
+              disabled={pageNumber >= totalPages || isLoading}
+              onClick={() => setPageNumber((prev) => Math.min(prev + 1, totalPages))}
+            >
+              التالي
+            </button>
+          </div>
+        </footer>
+      </div>
 
       <OrderModal
         isOpen={isModalOpen}

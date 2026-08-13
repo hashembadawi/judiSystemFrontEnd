@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import './UsersSection.css'
 import UserModal from './UserModal'
 
 const USERS_URL = '/api/users'
@@ -224,157 +223,275 @@ function UsersSection({ apiRequest, showNotice, isActive }) {
 
   return (
     <>
-      <header className="content-header">
-        <div>
-          <h3>ادارة المستخدمين</h3>
-          <p>عرض وتعديل وإضافة وحذف المستخدمين.</p>
-        </div>
-        <button type="button" className="add-button" onClick={openCreateModal}>
-          + اضافة مستخدم
-        </button>
-      </header>
+      <div className="space-y-6">
+        <header className="rounded-2xl border border-slate-200 bg-white px-6 py-7 shadow-sm">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">إدارة النظام</p>
+              <h3 className="mt-2 text-2xl font-semibold text-slate-900">المستخدمون</h3>
+              <p className="mt-2 text-sm text-slate-600">إدارة مستخدمي النظام والصلاحيات</p>
+            </div>
 
-      <section className="filters-panel" aria-label="فلترة المستخدمين">
-        <div className="field-group">
-          <label htmlFor="usersSearch">بحث</label>
-          <input
-            id="usersSearch"
-            type="text"
-            value={searchText}
-            onChange={(event) => {
-              setSearchText(event.target.value)
-              setPageNumber(1)
-            }}
-            placeholder="اسم المستخدم او الاسم الحقيقي"
-          />
-        </div>
+            <button
+              type="button"
+              onClick={openCreateModal}
+              className="inline-flex items-center justify-center rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-slate-800 active:bg-slate-950"
+            >
+              إضافة مستخدم
+            </button>
+          </div>
 
-        <div className="field-group">
-          <label htmlFor="userTypeFilter">نوع المستخدم</label>
-          <select
-            id="userTypeFilter"
-            value={filterUserType}
-            onChange={(event) => {
-              setFilterUserType(Number(event.target.value))
-              setPageNumber(1)
-            }}
-          >
-            <option value={0}>الكل</option>
-            {USER_TYPE_OPTIONS.map((typeOption) => (
-              <option key={typeOption.value} value={typeOption.value}>
-                {typeOption.label}
-              </option>
-            ))}
-          </select>
-        </div>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <label htmlFor="usersSearch" className="block text-xs font-medium text-slate-600 mb-2">البحث</label>
+              <input
+                id="usersSearch"
+                type="text"
+                value={searchText}
+                onChange={(event) => {
+                  setSearchText(event.target.value)
+                  setPageNumber(1)
+                }}
+                placeholder="ابحث..."
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+              />
+            </div>
 
-        <div className="field-group page-size-group">
-          <label htmlFor="usersPageSize">حجم الصفحة</label>
-          <select
-            id="usersPageSize"
-            value={pageSize}
-            onChange={(event) => {
-              setPageSize(Number(event.target.value))
-              setPageNumber(1)
-            }}
-          >
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
-          </select>
-        </div>
-      </section>
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <label htmlFor="userTypeFilter" className="block text-xs font-medium text-slate-600 mb-2">نوع المستخدم</label>
+              <select
+                id="userTypeFilter"
+                value={filterUserType}
+                onChange={(event) => {
+                  setFilterUserType(Number(event.target.value))
+                  setPageNumber(1)
+                }}
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+              >
+                <option value={0}>الكل</option>
+                {USER_TYPE_OPTIONS.map((typeOption) => (
+                  <option key={typeOption.value} value={typeOption.value}>
+                    {typeOption.label}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-      {error ? <p className="error-box inline-error">{error}</p> : null}
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <label htmlFor="usersPageSize" className="block text-xs font-medium text-slate-600 mb-2">حجم الصفحة</label>
+              <select
+                id="usersPageSize"
+                value={pageSize}
+                onChange={(event) => {
+                  setPageSize(Number(event.target.value))
+                  setPageNumber(1)
+                }}
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+              >
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+            </div>
+          </div>
+        </header>
 
-      <div className="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>المعرف</th>
-              <th>الاسم الحقيقي</th>
-              <th>اسم المستخدم</th>
-              <th>الهاتف</th>
-              <th>النوع</th>
-              <th>العنوان</th>
-              <th>الاجراءات</th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading ? (
-              <tr>
-                <td colSpan={7} className="table-state">جاري تحميل البيانات...</td>
-              </tr>
-            ) : users.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="table-state">لا توجد بيانات مطابقة.</td>
-              </tr>
-            ) : (
-              users.map((user) => (
-                <tr key={user.id} onClick={() => openEditModal(user.id)}>
-                  <td>{user.id}</td>
-                  <td>{user.realName}</td>
-                  <td>{user.userName}</td>
-                  <td>{user.phoneNumber}</td>
-                  <td>{user.userTypeName || getUserTypeLabel(user.userType)}</td>
-                  <td>{user.address}</td>
-                  <td>
-                    <div className="row-actions">
-                      <button
-                        type="button"
-                        className="action-btn edit"
-                        onClick={(event) => {
-                          event.stopPropagation()
-                          openEditModal(user.id)
-                        }}
-                      >
-                        تعديل
-                      </button>
-                      <button
-                        type="button"
-                        className="action-btn delete"
-                        onClick={(event) => {
-                          event.stopPropagation()
-                          deleteUser(user.id)
-                        }}
-                      >
-                        حذف
-                      </button>
-                    </div>
-                  </td>
+        {error ? (
+          <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+            {error}
+          </div>
+        ) : null}
+
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="flex flex-col gap-4 border-b border-slate-200 bg-slate-50 px-4 py-4 sm:px-6 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-medium text-slate-600">إجمالي المستخدمين</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-900">{totalCount}</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+              <span className="rounded-md bg-slate-200 px-2.5 py-1 font-medium text-slate-700">صفحة {pageNumber} من {totalPages}</span>
+              <span className="rounded-md bg-slate-200 px-2.5 py-1 font-medium text-slate-700">{pageSize} لكل صفحة</span>
+            </div>
+          </div>
+
+          {/* عرض الجدول على الأجهزة الكبيرة فقط */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-200 bg-white">
+                  <th className="px-6 py-3 text-right">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-600">المعرف</span>
+                  </th>
+                  <th className="px-6 py-3 text-right">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-600">الاسم الحقيقي</span>
+                  </th>
+                  <th className="px-6 py-3 text-right">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-600">اسم المستخدم</span>
+                  </th>
+                  <th className="px-6 py-3 text-right">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-600">الهاتف</span>
+                  </th>
+                  <th className="px-6 py-3 text-right">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-600">النوع</span>
+                  </th>
+                  <th className="px-6 py-3 text-right">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-600">العنوان</span>
+                  </th>
+                  <th className="px-6 py-3 text-center">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-600">الإجراءات</span>
+                  </th>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              </thead>
+              <tbody className="divide-y divide-slate-200">
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-12 text-center text-slate-500">
+                      جاري تحميل البيانات...
+                    </td>
+                  </tr>
+                ) : users.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-12 text-center text-slate-500">
+                      لا توجد بيانات
+                    </td>
+                  </tr>
+                ) : (
+                  users.map((user) => (
+                    <tr
+                      key={user.id}
+                      onClick={() => openEditModal(user.id)}
+                      className="cursor-pointer transition hover:bg-slate-50"
+                    >
+                      <td className="px-6 py-4 text-right">
+                        <span className="text-sm font-medium text-slate-900">{user.id}</span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <span className="text-sm text-slate-900">{user.realName}</span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <span className="text-sm font-mono text-slate-700">{user.userName}</span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <span className="text-sm text-slate-600">{user.phoneNumber || '-'}</span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <span className="inline-flex rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
+                          {user.userTypeName || getUserTypeLabel(user.userType)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <span className="text-sm text-slate-600 line-clamp-2">{user.address || '-'}</span>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <div className="flex gap-2.5 justify-center items-center">
+                          <button
+                            type="button"
+                            title="تعديل المستخدم"
+                            onClick={(event) => {
+                              event.stopPropagation()
+                              openEditModal(user.id)
+                            }}
+                            className="inline-flex items-center justify-center h-9 w-9 rounded-md border border-slate-300 text-slate-600 hover:bg-slate-100 hover:border-slate-400 transition duration-200"
+                          >
+                            <span className="text-lg">✏️</span>
+                          </button>
+                          <button
+                            type="button"
+                            title="حذف المستخدم"
+                            onClick={(event) => {
+                              event.stopPropagation()
+                              deleteUser(user.id)
+                            }}
+                            className="inline-flex items-center justify-center h-9 w-9 rounded-md border border-red-300 text-red-600 bg-red-50 hover:bg-red-100 hover:border-red-400 transition duration-200"
+                          >
+                            <span className="text-lg">🗑️</span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
 
-      <footer className="table-footer">
-        <p>
-          عدد النتائج: <strong>{totalCount}</strong>
-        </p>
-        <div className="pagination-controls">
-          <button
-            type="button"
-            className="pager-btn"
-            disabled={pageNumber <= 1 || isLoading}
-            onClick={() => setPageNumber((prev) => Math.max(prev - 1, 1))}
-          >
-            السابق
-          </button>
-          <span>
-            الصفحة {pageNumber} من {totalPages}
-          </span>
-          <button
-            type="button"
-            className="pager-btn"
-            disabled={pageNumber >= totalPages || isLoading}
-            onClick={() => setPageNumber((prev) => Math.min(prev + 1, totalPages))}
-          >
-            التالي
-          </button>
+          {/* عرض البطاقات على الهواتف والأجهزة اللوحية */}
+          <div className="md:hidden">
+            {isLoading ? (
+              <div className="px-4 py-12 text-center text-slate-500">جاري تحميل البيانات...</div>
+            ) : users.length === 0 ? (
+              <div className="px-4 py-12 text-center text-slate-500">لا توجد بيانات</div>
+            ) : (
+              <div className="divide-y divide-slate-200">
+                {users.map((user) => (
+                  <div
+                    key={user.id}
+                    onClick={() => openEditModal(user.id)}
+                    className="cursor-pointer p-4 transition hover:bg-slate-50"
+                  >
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="inline-flex items-center justify-center h-6 w-6 rounded-md bg-slate-100 text-xs font-semibold text-slate-700">
+                            {user.id}
+                          </span>
+                          <span className="text-sm font-semibold text-slate-900 truncate">{user.realName}</span>
+                        </div>
+                        <span className="text-xs text-slate-500 font-mono">{user.userName}</span>
+                      </div>
+                      <div className="flex gap-1.5 flex-shrink-0">
+                        <button
+                          type="button"
+                          title="تعديل المستخدم"
+                          onClick={(event) => {
+                            event.stopPropagation()
+                            openEditModal(user.id)
+                          }}
+                          className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-slate-300 text-slate-600 hover:bg-slate-100 transition duration-200"
+                        >
+                          <span className="text-base">✏️</span>
+                        </button>
+                        <button
+                          type="button"
+                          title="حذف المستخدم"
+                          onClick={(event) => {
+                            event.stopPropagation()
+                            deleteUser(user.id)
+                          }}
+                          className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-red-300 text-red-600 bg-red-50 hover:bg-red-100 transition duration-200"
+                        >
+                          <span className="text-base">🗑️</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 text-xs">
+                      {user.phoneNumber && (
+                        <div className="flex justify-between">
+                          <span className="text-slate-600">الهاتف:</span>
+                          <span className="font-medium text-slate-900">{user.phoneNumber}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">النوع:</span>
+                        <span className="inline-flex rounded-md bg-slate-100 px-2 py-0.5 font-medium text-slate-700">
+                          {user.userTypeName || getUserTypeLabel(user.userType)}
+                        </span>
+                      </div>
+                      {user.address && (
+                        <div className="flex justify-between">
+                          <span className="text-slate-600">العنوان:</span>
+                          <span className="font-medium text-slate-900 text-right max-w-xs">{user.address}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-      </footer>
+      </div>
 
       <UserModal
         isOpen={isModalOpen}
