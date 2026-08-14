@@ -146,14 +146,14 @@ function FasonFabricTransactionModal({
                     <table className="w-full text-sm" style={{ direction: 'ltr', tableLayout: 'auto' }}>
                       <thead>
                         <tr className="border-b border-slate-200 bg-slate-50">
-                          <th className="px-3 py-3 text-left" style={{ minWidth: '100px' }}><span className="text-xs font-semibold text-slate-600">Fabrika</span></th>
-                          <th className="px-3 py-3 text-left" style={{ minWidth: '140px' }}><span className="text-xs font-semibold text-slate-600">Dokuma Sipariş</span></th>
-                          <th className="px-4 py-3 text-left" style={{ minWidth: '250px' }}><span className="text-xs font-semibold text-slate-600">Kumaş Cinsi</span></th>
-                          <th className="px-3 py-3 text-left" style={{ minWidth: '60px' }}><span className="text-xs font-semibold text-slate-600">GR</span></th>
-                          <th className="px-3 py-3 text-left" style={{ minWidth: '60px' }}><span className="text-xs font-semibold text-slate-600">LOT</span></th>
-                          <th className="px-3 py-3 text-left" style={{ minWidth: '65px' }}><span className="text-xs font-semibold text-slate-600">Adet</span></th>
-                          <th className="px-3 py-3 text-left" style={{ minWidth: '70px' }}><span className="text-xs font-semibold text-slate-600">Ağırlık</span></th>
-                          <th className="px-3 py-3 text-left" style={{ minWidth: '55px' }}><span className="text-xs font-semibold text-slate-600">Tip</span></th>
+                          <th className="px-3 py-3 text-left" style={{ minWidth: '100px' }}><span className="text-sm font-semibold text-slate-600">Fabrika</span></th>
+                          <th className="px-3 py-3 text-left" style={{ minWidth: '140px' }}><span className="text-sm font-semibold text-slate-600">Dokuma Sipariş</span></th>
+                          <th className="px-4 py-3 text-left" style={{ minWidth: '300px' }}><span className="text-sm font-semibold text-slate-600">Kumaş Cinsi</span></th>
+                          <th className="px-3 py-3 text-left" style={{ minWidth: '60px' }}><span className="text-sm font-semibold text-slate-600">GR</span></th>
+                          <th className="px-3 py-3 text-left" style={{ minWidth: '60px' }}><span className="text-sm font-semibold text-slate-600">LOT</span></th>
+                          <th className="px-3 py-3 text-left" style={{ minWidth: '65px' }}><span className="text-sm font-semibold text-slate-600">Adet</span></th>
+                          <th className="px-3 py-3 text-left" style={{ minWidth: '70px' }}><span className="text-sm font-semibold text-slate-600">Ağırlık</span></th>
+                          <th className="px-3 py-3 text-left" style={{ minWidth: '100px' }}><span className="text-xs font-semibold text-slate-600">Tip</span></th>
                           <th className="px-3 py-3 text-center"><span className="text-xs font-semibold text-slate-600">İşlemler</span></th>
                         </tr>
                       </thead>
@@ -166,7 +166,7 @@ function FasonFabricTransactionModal({
                                 onChange={(event) => onFactorySelect(index, event.target.value)}
                                 className={`${buildInputClasses(false)} w-full text-xs`}
                                 dir="ltr"
-                                style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
+                                style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '10px' }}
                               >
                                 <option value="">Fabrika seçin</option>
                                 {factoryOptions.map((factory) => (
@@ -183,7 +183,7 @@ function FasonFabricTransactionModal({
                                 disabled={!detail.FactoryId}
                                 className={`${buildInputClasses(false)} w-full text-xs`}
                                 dir="ltr"
-                                style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
+                                style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '10px' }}
                               >
                                 <option value="">Sipariş seçin</option>
                                 {(weavingOrdersByRow[index] ?? []).map((order) => (
@@ -200,7 +200,7 @@ function FasonFabricTransactionModal({
                                 disabled={!detail.OrderId}
                                 className={`${buildInputClasses(false)} w-full text-xs`}
                                 dir="ltr"
-                                style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
+                                style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '10px' }}
                               >
                                 <option value="">Kumaş seçin</option>
                                 {(fabricsByRow[index] ?? []).map((item, itemIndex) => {
@@ -221,7 +221,7 @@ function FasonFabricTransactionModal({
                                 onChange={(event) => onDetailFieldChange(index, 'FabricGSM', event.target.value)}
                                 className={`${buildInputClasses(false)} w-full text-xs`}
                                 dir="ltr"
-                                style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
+                                style={{ unicodeBidi: 'plaintext', textAlign: 'left' , fontSize: '10px' }}
                               />
                             </td>
                             <td className="px-3 py-3">
@@ -231,7 +231,7 @@ function FasonFabricTransactionModal({
                                 onChange={(event) => onDetailFieldChange(index, 'FabricLot', event.target.value)}
                                 className={`${buildInputClasses(false)} w-full text-xs`}
                                 dir="ltr"
-                                style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
+                                style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '10px' }}
                               />
                             </td>
                             <td className="px-3 py-3">
@@ -241,7 +241,7 @@ function FasonFabricTransactionModal({
                                 onChange={(event) => onDetailFieldChange(index, 'Count', event.target.value)}
                                 className={`${buildInputClasses(false)} w-full text-xs`}
                                 dir="ltr"
-                                style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
+                                style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '10px' }}
                               />
                             </td>
                             <td className="px-3 py-3">
@@ -252,7 +252,7 @@ function FasonFabricTransactionModal({
                                 onChange={(event) => onDetailFieldChange(index, 'Weight', event.target.value)}
                                 className={`${buildInputClasses(false)} w-full text-xs`}
                                 dir="ltr"
-                                style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
+                                style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '10px' }}
                               />
                             </td>
                             <td className="px-3 py-3">
@@ -261,7 +261,7 @@ function FasonFabricTransactionModal({
                                 onChange={(event) => onDetailFieldChange(index, 'FabricType', Number(event.target.value))}
                                 className={`${buildInputClasses(false)} w-full text-xs`}
                                 dir="ltr"
-                                style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
+                                style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '10px' }}
                               >
                                 {(fabricTypeOptions ?? []).map((option) => (
                                   <option key={option.id ?? option.value ?? option.text} value={option.id ?? option.value ?? option.text}>
