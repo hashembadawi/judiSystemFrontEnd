@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { buildButtonClasses, buildInputClasses } from '../../styles/designSystem'
 import BoyaliSiparisTakipModal from './BoyaliSiparisTakipModal'
-import './BoyaliSiparisTakip.css'
 
 const FILL_OPTIONS_URL = '/api/fill-options?requestedValues=1'
 const BOYALI_SIPARIS_URL = '/api/order-factory-transaction-takip/fillBoyaliSiparis'
@@ -328,22 +328,27 @@ function BoyaliSiparisTakipSection({ apiRequest, showNotice, isActive }) {
   }, [apiRequest, closeModal, loadOrders, orderForm, selectedFactoryId, showNotice])
 
   return (
-    <section className="boyali-siparis-section" dir="ltr">
-      <div className="content-header">
-        <div>
-          <h3>BOYALI SİPARİŞ TAKİP</h3>
-          <p>Seçilen boya fabrikasına ait siparişleri listeleyin.</p>
+    <section className="space-y-6" dir="ltr" style={{ direction: 'ltr' }}>
+      <div className="rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm ring-1 ring-slate-100 sm:px-6" dir="ltr">
+        <div className="mb-5 flex items-start justify-between gap-4 border-b border-slate-200 pb-4" dir="ltr">
+          <div className="text-left">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-500">Boya Takip</p>
+            <h3 className="mt-2 text-2xl font-semibold text-slate-900">Boyalı Sipariş Takip</h3>
+          </div>
         </div>
-      </div>
 
-      <div className="boyali-controls">
-        <div className="field-group">
-          <label htmlFor="boyali-factory-select">Boya Fabrikası</label>
+        <div className="max-w-xs" dir="ltr">
+          <label htmlFor="boyali-factory-select" className="mb-1.5 block text-sm font-medium text-slate-700 text-left">
+            Boya Fabrikası
+          </label>
           <select
             id="boyali-factory-select"
             value={selectedFactoryId}
             onChange={handleFactoryChange}
             disabled={isLoadingOptions}
+            className={`${buildInputClasses(false)} w-full`}
+            dir="ltr"
+            style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '11px' }}
           >
             {factoryOptions.map((factory) => (
               <option key={factory.id} value={factory.id}>
@@ -354,40 +359,50 @@ function BoyaliSiparisTakipSection({ apiRequest, showNotice, isActive }) {
         </div>
       </div>
 
-      {error ? <p className="inline-error error-box">{error}</p> : null}
+      {error ? (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800 text-left" dir="ltr">
+          {error}
+        </div>
+      ) : null}
 
       {isLoadingOrders ? (
-        <p className="table-state">Siparişler yükleniyor...</p>
+        <div className="rounded-2xl border border-slate-200 bg-white px-4 py-10 text-center text-sm text-slate-500 shadow-sm ring-1 ring-slate-100">
+          Siparişler yükleniyor...
+        </div>
       ) : null}
 
       {!isLoadingOrders && orders.length === 0 && !error ? (
-        <p className="table-state">Seçilen fabrika için sipariş bulunamadı.</p>
+        <div className="rounded-2xl border border-slate-200 bg-white px-4 py-10 text-center text-sm text-slate-500 shadow-sm ring-1 ring-slate-100">
+          Seçilen fabrika için sipariş bulunamadı.
+        </div>
       ) : null}
 
       {orders.length > 0 ? (
-        <div className="table-wrapper">
-          <table className="boyali-orders-table">
-            <thead>
-              <tr>
-                <th>Sipariş No</th>
-                <th>Fabrika</th>
-                <th>Tarih</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((order, index) => (
-                <tr
-                  key={order.id ?? `${order.orderNo}-${index}`}
-                  onClick={() => openOrderDetails(order)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <td>{order.orderNo ?? '-'}</td>
-                  <td>{getFactoryName(order.factoryId)}</td>
-                  <td>{order.date ? new Date(order.date).toLocaleDateString('tr-TR') : '-'}</td>
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-100" dir="ltr">
+          <div className="overflow-x-auto" dir="ltr">
+            <table className="w-full text-sm" dir="ltr" style={{ direction: 'ltr' }}>
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50">
+                  <th className="px-6 py-3 text-left"><span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-600">Sipariş No</span></th>
+                  <th className="px-6 py-3 text-left"><span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-600">Fabrika</span></th>
+                  <th className="px-6 py-3 text-left"><span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-600">Tarih</span></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-slate-200" dir="ltr">
+                {orders.map((order, index) => (
+                  <tr
+                    key={order.id ?? `${order.orderNo}-${index}`}
+                    onClick={() => openOrderDetails(order)}
+                    className="cursor-pointer transition hover:bg-slate-50"
+                  >
+                    <td className="px-6 py-4 text-left"><span className="text-sm font-medium text-slate-900">{order.orderNo ?? '-'}</span></td>
+                    <td className="px-6 py-4 text-left"><span className="text-sm text-slate-700">{getFactoryName(order.factoryId)}</span></td>
+                    <td className="px-6 py-4 text-left"><span className="text-sm text-slate-700">{order.date ? new Date(order.date).toLocaleDateString('tr-TR') : '-'}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       ) : null}
 
