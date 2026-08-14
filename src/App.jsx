@@ -418,7 +418,6 @@ function App() {
     })
 
     if (selectedItem) {
-      updateFasonFabricDetailField(index, 'OrderId', selectedItem.orderId ?? selectedItem.OrderId ?? '')
       updateFasonFabricDetailField(index, 'FabricGSM', selectedItem.fabricGr ?? selectedItem.FabricGr ?? '')
       updateFasonFabricDetailField(index, 'FabricLot', selectedItem.fabricLot ?? selectedItem.FabricLot ?? '')
       updateFasonFabricDetailField(index, 'Weight', selectedItem.weight ?? selectedItem.Weight ?? '')
