@@ -374,29 +374,29 @@ function AddFabricTransactionModal({
                     <table className="w-full text-sm" style={{ direction: 'ltr', tableLayout: 'auto' }}>
                       <thead>
                         <tr className="border-b border-slate-200 bg-slate-50">
-                          <th className="px-4 py-3 text-left" style={{ minWidth: '180px' }}><span className="text-xs font-semibold text-slate-600">Sipariş</span></th>
-                          <th className="px-4 py-3 text-left" style={{ minWidth: '300px' }}><span className="text-xs font-semibold text-slate-600">Kumaş Cinsi</span></th>
-                          <th className="px-3 py-3 text-left" style={{ minWidth: '60px' }}><span className="text-xs font-semibold text-slate-600">GR</span></th>
-                          <th className="px-3 py-3 text-left" style={{ minWidth: '60px' }}><span className="text-xs font-semibold text-slate-600">LOT</span></th>
-                          <th className="px-3 py-3 text-left" style={{ minWidth: '65px' }}><span className="text-xs font-semibold text-slate-600">Makine</span></th>
-                          <th className="px-3 py-3 text-left" style={{ minWidth: '90px' }}><span className="text-xs font-semibold text-slate-600">Operator</span></th>
-                          <th className="px-3 py-3 text-left" style={{ minWidth: '70px' }}><span className="text-xs font-semibold text-slate-600">Ağırlık</span></th>
-                          <th className="px-3 py-3 text-left" style={{ minWidth: '90px' }}><span className="text-xs font-semibold text-slate-600">Fabrika</span></th>
-                          <th className="px-3 py-3 text-left" style={{ minWidth: '55px' }}><span className="text-xs font-semibold text-slate-600">Tip</span></th>
-                          <th className="px-3 py-3 text-center"><span className="text-xs font-semibold text-slate-600">İşlemler</span></th>
+                          <th className="px-4 py-3 text-left" style={{ minWidth: '100px' }}><span className="text-sm font-semibold text-slate-600">Sipariş</span></th>
+                          <th className="px-4 py-3 text-left" style={{ minWidth: '280px' }}><span className="text-sm font-semibold text-slate-600">Kumaş Cinsi</span></th>
+                          <th className="px-3 py-3 text-left" style={{ minWidth: '50px' }}><span className="text-sm font-semibold text-slate-600">GR</span></th>
+                          <th className="px-3 py-3 text-left" style={{ minWidth: '65px' }}><span className="text-sm font-semibold text-slate-600">LOT</span></th>
+                          <th className="px-3 py-3 text-left" style={{ minWidth: '40px' }}><span className="text-sm font-semibold text-slate-600">Makine</span></th>
+                          <th className="px-3 py-3 text-left" style={{ minWidth: '120px' }}><span className="text-sm font-semibold text-slate-600">Operator</span></th>
+                          <th className="px-3 py-3 text-left" style={{ minWidth: '40px' }}><span className="text-sm font-semibold text-slate-600">Ağırlık</span></th>
+                          <th className="px-3 py-3 text-left" style={{ minWidth: '100px' }}><span className="text-sm font-semibold text-slate-600">Fabrika</span></th>
+                          <th className="px-3 py-3 text-left" style={{ minWidth: '100px' }}><span className="text-sm font-semibold text-slate-600">Tip</span></th>
+                          <th className="px-3 py-3 text-center"><span className="text-sm font-semibold text-slate-600">İşlemler</span></th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-200">
                         {form.Details.map((detail, index) => (
                           <tr key={index} className="hover:bg-slate-50">
-                            <td className="px-4 py-3" style={{ minWidth: '180px' }}>
+                            <td className="px-4 py-3" style={{ minWidth: '100px' }}>
                               <select
                                 value={detail.OrderId ?? ''}
                                 onChange={(e) => handleRowWeavingOrderSelect(index, e.target.value)}
                                 disabled={detail.Locked}
                                 className={`${buildInputClasses(false)} w-full text-xs`}
                                 dir="ltr"
-                                style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
+                                style={{ unicodeBidi: 'plaintext', textAlign: 'left',fontSize: '9px', minWidth: '100%' }}
                               >
                                 <option value="">Sipariş seçin</option>
                                 {weavingOrders.map((wo) => (
@@ -406,14 +406,14 @@ function AddFabricTransactionModal({
                                 ))}
                               </select>
                             </td>
-                            <td className="px-4 py-3" style={{ minWidth: '300px' }}>
+                            <td className="px-4 py-3" style={{ minWidth: '280px' }}>
                               <select
                                 value={detail.FabricGender ?? ''}
                                 onChange={(event) => handleFabricGenderSelect(index, event.target.value)}
                                 disabled={detail.Locked}
                                 className={`${buildInputClasses(false)} w-full text-xs`}
                                 dir="ltr"
-                                style={{ unicodeBidi: 'plaintext', textAlign: 'left', minWidth: '100%' }}
+                                style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '10px', minWidth: '100%' }}
                               >
                                 <option value="">Kumaş seçin</option>
                                 {((fabricsByRow[index] && fabricsByRow[index].length) ? fabricsByRow[index] : []).map((option, optionIndex) => {
@@ -434,7 +434,7 @@ function AddFabricTransactionModal({
                                 disabled={detail.Locked}
                                 className={`${buildInputClasses(false)} w-full text-xs`}
                                 dir="ltr"
-                                style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
+                                style={{ unicodeBidi: 'plaintext',  textAlign: 'left', fontSize: '10px' }}
                               />
                             </td>
                             <td className="px-3 py-3">
@@ -445,7 +445,7 @@ function AddFabricTransactionModal({
                                 disabled={detail.Locked}
                                 className={`${buildInputClasses(false)} w-full text-xs`}
                                 dir="ltr"
-                                style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
+                                style={{ unicodeBidi: 'plaintext',  textAlign: 'left', fontSize: '10px' }}
                               />
                             </td>
                             <td className="px-3 py-3">
@@ -456,7 +456,7 @@ function AddFabricTransactionModal({
                                 disabled={detail.Locked}
                                 className={`${buildInputClasses(false)} w-full text-xs`}
                                 dir="ltr"
-                                style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
+                                style={{ unicodeBidi: 'plaintext',  textAlign: 'left', fontSize: '10px' }}
                               />
                             </td>
                             <td className="px-3 py-3">
@@ -468,7 +468,7 @@ function AddFabricTransactionModal({
                                 disabled={detail.Locked}
                                 className={`${buildInputClasses(false)} w-full text-xs`}
                                 dir="ltr"
-                                style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
+                                style={{ unicodeBidi: 'plaintext',  textAlign: 'left', fontSize: '10px'  }}
                               />
                             </td>
                             <td className="px-3 py-3">
@@ -480,7 +480,7 @@ function AddFabricTransactionModal({
                                 disabled={detail.Locked}
                                 className={`${buildInputClasses(false)} w-full text-xs`}
                                 dir="ltr"
-                                style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
+                                style={{ unicodeBidi: 'plaintext', textAlign: 'left' , fontSize: '10px' }}
                               />
                             </td>
                             <td className="px-3 py-3">
@@ -490,7 +490,7 @@ function AddFabricTransactionModal({
                                 disabled={detail.Locked}
                                 className={`${buildInputClasses(false)} w-full text-xs`}
                                 dir="ltr"
-                                style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
+                                style={{ unicodeBidi: 'plaintext', textAlign: 'left' , fontSize: '10px' }}
                               >
                                 <option value="">Fabrika seçin</option>
                                 {factoryOptions.map((factory) => (
@@ -507,7 +507,7 @@ function AddFabricTransactionModal({
                                 disabled={detail.Locked}
                                 className={`${buildInputClasses(false)} w-full text-xs`}
                                 dir="ltr"
-                                style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
+                                style={{ unicodeBidi: 'plaintext', textAlign: 'left' , fontSize: '10px' }}
                               >
                                 <option value="">Tip seçin</option>
                                 {fabricTypeOptions.map((type) => (
