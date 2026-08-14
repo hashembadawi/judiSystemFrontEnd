@@ -357,19 +357,18 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
 
   return (
     <div className="space-y-6" dir="ltr" style={{ direction: 'ltr' }}>
-      <section className="rounded-2xl border border-slate-200 bg-white px-6 py-5 shadow-sm" dir="ltr">
-        <div className="mb-5 border-b border-slate-200 pb-4 flex items-start justify-between" dir="ltr">
-          <button type="button" className={buildButtonClasses('primary')} onClick={openCreateModal}>
-            YENİ SİPARİŞ
-          </button>
+      <section className="rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm ring-1 ring-slate-100 sm:px-6" dir="ltr">
+        <div className="mb-5 flex items-start justify-between gap-4 border-b border-slate-200 pb-4" dir="ltr">
           <div className="text-left">
-            <p className="text-xs font-semibold uppercase tracking-widest text-slate-500 text-left">Boya Hareketi</p>
-            <h3 className="mt-2 text-2xl font-semibold text-slate-900 text-left">BOYALI SİPARİŞ</h3>
+            <h3 className="mt-2 text-2xl font-semibold text-slate-900">Boyalı Sipariş</h3>
           </div>
+          <button type="button" className={buildButtonClasses('primary')} onClick={openCreateModal}>
+            Yeni Sipariş
+          </button>
         </div>
 
         <div className="flex flex-wrap items-end gap-4" dir="ltr">
-          <div className="flex-1 min-w-max space-y-2" dir="ltr">
+          <div className="min-w-[220px] flex-1 space-y-2" dir="ltr">
             <label htmlFor="orderFactorySearch" className="block text-sm font-medium text-slate-700 text-left">Ara</label>
             <input
               id="orderFactorySearch"
@@ -380,13 +379,13 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
                 setPageNumber(1)
               }}
               placeholder="Sipariş veya fabrika numarasına göre ara"
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+              className={`${buildInputClasses(false)} w-full`}
               dir="ltr"
-              style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
+              style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '11px' }}
             />
           </div>
 
-          <div className="min-w-max space-y-2" dir="ltr">
+          <div className="min-w-[150px] space-y-2" dir="ltr">
             <label htmlFor="orderFactoryPageSize" className="block text-sm font-medium text-slate-700 text-left">Sayfa boyutu</label>
             <select
               id="orderFactoryPageSize"
@@ -395,7 +394,7 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
                 setPageSize(Number(event.target.value))
                 setPageNumber(1)
               }}
-              className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+              className={`${buildInputClasses(false)} w-full`}
               dir="ltr"
               style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
             >
@@ -413,18 +412,18 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
         </div>
       ) : null}
 
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm" dir="ltr">
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-100" dir="ltr">
         <div className="overflow-x-auto" dir="ltr">
           <table className="w-full text-sm" dir="ltr" style={{ direction: 'ltr' }}>
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50">
-                <th className="px-6 py-3 text-left"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Sipariş No</span></th>
-                <th className="px-6 py-3 text-left"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Fabrika</span></th>
-                <th className="px-6 py-3 text-left"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Tarih</span></th>
-                <th className="px-6 py-3 text-left"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Hareket Durumu</span></th>
-                <th className="px-6 py-3 text-left"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Detay Sayısı</span></th>
-                <th className="px-6 py-3 text-left"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Renkler</span></th>
-                <th className="px-6 py-3 text-left"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">İşlemler</span></th>
+                <th className="px-6 py-3 text-left"><span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-600">Sipariş No</span></th>
+                <th className="px-6 py-3 text-left"><span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-600">Fabrika</span></th>
+                <th className="px-6 py-3 text-left"><span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-600">Tarih</span></th>
+                <th className="px-6 py-3 text-left"><span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-600">Hareket Durumu</span></th>
+                <th className="px-6 py-3 text-left"><span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-600">Detay Sayısı</span></th>
+                <th className="px-6 py-3 text-left"><span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-600">Renkler</span></th>
+                <th className="px-6 py-3 text-left"><span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-600">İşlemler</span></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200" dir="ltr">
@@ -454,7 +453,7 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
                         <button
                           type="button"
                           onClick={() => openEditModal(transaction.id)}
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-blue-300 bg-blue-50 text-blue-600 text-lg transition hover:bg-blue-100"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-blue-300 bg-blue-50 text-blue-600 text-base transition hover:bg-blue-100"
                           title="Düzenle"
                           aria-label={`Düzenle ${transaction.orderNo ?? ''}`}
                         >
@@ -463,7 +462,7 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
                         <button
                           type="button"
                           onClick={() => deleteTransaction(transaction.id)}
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-red-300 bg-red-50 text-red-600 text-lg transition hover:bg-red-100"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-red-300 bg-red-50 text-red-600 text-base transition hover:bg-red-100"
                           title="Sil"
                           aria-label={`Sil ${transaction.orderNo ?? ''}`}
                         >
@@ -479,7 +478,7 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
         </div>
       </div>
 
-      <footer className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-6" dir="ltr">
+      <footer className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm ring-1 ring-slate-100 sm:flex-row sm:items-center sm:justify-between sm:px-6" dir="ltr">
         <div className="text-left text-sm text-slate-700" dir="ltr">
           <p className="text-left">Sonuç sayısı: <strong className="text-slate-900">{totalCount}</strong></p>
         </div>
