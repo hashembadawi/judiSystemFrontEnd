@@ -90,32 +90,30 @@ function DepoHamFabricSection({ apiRequest, showNotice, isActive }) {
 
   return (
     <div className="space-y-6" dir="ltr">
-      <header className="rounded-2xl border border-slate-200 bg-white px-6 py-7 shadow-sm">
+      <header className="rounded-2xl border border-sky-200 bg-gradient-to-r from-sky-100 via-sky-50 to-blue-50 px-4 py-6 shadow-sm sm:px-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Depo</p>
-            <h3 className="mt-2 text-2xl font-semibold text-slate-900">DEPO HAM KUMAŞ</h3>
-            <p className="mt-2 text-sm text-slate-600">Ham kumaş stoklarını sayfalandırılmış şekilde görüntüleyin.</p>
+            <h3 className="text-2xl font-bold text-sky-900">DEPO HAM KUMAŞ</h3>
           </div>
         </div>
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-            <label htmlFor="depoHamSearch" className="mb-2 block text-xs font-medium text-slate-600">Arama</label>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-2">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="depoHamSearch" className="text-xs font-medium text-slate-600">Arama</label>
             <input
               id="depoHamSearch"
               type="text"
               value={searchText}
               onChange={(event) => handleSearchChange(event.target.value)}
               placeholder="Sipariş, kumaş adı veya fabrika ile ara"
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+              className="w-full rounded-lg border-0 bg-slate-100 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:bg-slate-50"
               dir="ltr"
               style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
             />
           </div>
 
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-            <label htmlFor="depoHamPageSize" className="mb-2 block text-xs font-medium text-slate-600">Sayfa boyutu</label>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="depoHamPageSize" className="text-xs font-medium text-slate-600">Sayfa boyutu</label>
             <select
               id="depoHamPageSize"
               value={pageSize}
@@ -123,7 +121,7 @@ function DepoHamFabricSection({ apiRequest, showNotice, isActive }) {
                 setPageSize(Number(event.target.value))
                 setPageNumber(1)
               }}
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+              className="w-full rounded-lg border-0 bg-slate-100 px-3 py-2 text-sm text-slate-900 outline-none transition focus:bg-slate-50"
               dir="ltr"
               style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
             >
@@ -142,18 +140,6 @@ function DepoHamFabricSection({ apiRequest, showNotice, isActive }) {
       ) : null}
 
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="flex flex-col gap-4 border-b border-slate-200 bg-slate-50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <div>
-            <p className="text-xs font-medium text-slate-600">Toplam sonuç</p>
-            <p className="mt-1 text-2xl font-semibold text-slate-900">{totalCount}</p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
-            <span className="rounded-md bg-slate-200 px-2.5 py-1 font-medium text-slate-700">Sayfa {pageNumber} / {totalPages}</span>
-            <span className="rounded-md bg-slate-200 px-2.5 py-1 font-medium text-slate-700">{pageSize} / sayfa</span>
-          </div>
-        </div>
-
         <div className="hidden overflow-x-auto md:block">
           <table className="w-full text-sm" style={{ direction: 'ltr' }}>
             <thead>

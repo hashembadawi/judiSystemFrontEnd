@@ -332,35 +332,36 @@ function BoyaliSiparisTakipSection({ apiRequest, showNotice, isActive }) {
 
   return (
     <section className="space-y-6" dir="ltr" style={{ direction: 'ltr' }}>
-      <div className="rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm ring-1 ring-slate-100 sm:px-6" dir="ltr">
-        <div className="mb-5 flex items-start justify-between gap-4 border-b border-slate-200 pb-4" dir="ltr">
-          <div className="text-left">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-500">Boya Takip</p>
-            <h3 className="mt-2 text-2xl font-semibold text-slate-900">Boyalı Sipariş Takip</h3>
+      <header className="rounded-2xl border border-sky-200 bg-gradient-to-r from-sky-100 via-sky-50 to-blue-50 px-4 py-6 shadow-sm sm:px-6" dir="ltr">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h3 className="text-2xl font-bold text-sky-900">Boyalı Sipariş Takip</h3>
           </div>
         </div>
 
-        <div className="max-w-xs" dir="ltr">
-          <label htmlFor="boyali-factory-select" className="mb-1.5 block text-sm font-medium text-slate-700 text-left">
-            Boya Fabrikası
-          </label>
-          <select
-            id="boyali-factory-select"
-            value={selectedFactoryId}
-            onChange={handleFactoryChange}
-            disabled={isLoadingOptions}
-            className={`${buildInputClasses(false)} w-full`}
-            dir="ltr"
-            style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '11px' }}
-          >
-            {factoryOptions.map((factory) => (
-              <option key={factory.id} value={factory.id}>
-                {factory.name}
-              </option>
-            ))}
-          </select>
+        <div className="mt-5 grid gap-3 sm:grid-cols-1 lg:grid-cols-2">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="boyali-factory-select" className="text-xs font-medium text-slate-600 text-left">
+              Boya Fabrikası
+            </label>
+            <select
+              id="boyali-factory-select"
+              value={selectedFactoryId}
+              onChange={handleFactoryChange}
+              disabled={isLoadingOptions}
+              className="w-full rounded-lg border-0 bg-slate-100 px-3 py-2 text-sm text-slate-900 outline-none transition focus:bg-slate-50"
+              dir="ltr"
+              style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
+            >
+              {factoryOptions.map((factory) => (
+                <option key={factory.id} value={factory.id}>
+                  {factory.name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-      </div>
+      </header>
 
       {error ? (
         <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800 text-left" dir="ltr">

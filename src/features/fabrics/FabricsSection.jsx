@@ -174,21 +174,23 @@ function FabricsSection({ apiRequest, showNotice, isActive, currentUserName = ''
   return (
     <>
       <div className="space-y-6" dir="ltr">
-        <section className="rounded-2xl border border-slate-200 bg-white px-6 py-5 shadow-sm" aria-label="Günlük kumaş hareketleri arama">
-          <div className="mb-5 border-b border-slate-200 pb-4">
-            <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Kumaş Hareketleri</p>
-            <h3 className="mt-2 text-2xl font-semibold text-slate-900">Günlük Kumaş Hareketi</h3>
+        <section className="rounded-2xl border border-sky-200 bg-gradient-to-r from-sky-100 via-sky-50 to-blue-50 px-4 py-6 shadow-sm sm:px-6" aria-label="Günlük kumaş hareketleri arama">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <h3 className="text-2xl font-bold text-sky-900">Günlük Kumaş Hareketi</h3>
+            </div>
           </div>
-          <div className="flex flex-wrap items-end gap-4">
-            <div className="flex-1 min-w-max space-y-2 text-left">
-              <label htmlFor="fabricsSearch" className="block text-sm font-medium text-slate-700">Arama</label>
+
+          <div className="mt-5 grid gap-3 lg:grid-cols-5">
+            <div className="flex flex-col gap-2 text-left">
+              <label htmlFor="fabricsSearch" className="text-xs font-medium text-slate-600">Arama</label>
               <input
                 id="fabricsSearch"
                 type="text"
                 value={searchText}
                 onChange={(event) => handleSearchChange(event.target.value)}
                 placeholder="Sipariş, kumaş türü veya kişi ile arayın"
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                className="w-full rounded-lg border-0 bg-slate-100 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:bg-slate-50"
                 dir="ltr"
                 style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
               />
@@ -205,39 +207,39 @@ function FabricsSection({ apiRequest, showNotice, isActive, currentUserName = ''
               />
             </div>
 
-            <div className="min-w-max space-y-2 text-left">
-              <label htmlFor="dateFrom" className="block text-sm font-medium text-slate-700">Başlangıç Tarihi</label>
+            <div className="flex flex-col gap-2 text-left">
+              <label htmlFor="dateFrom" className="text-xs font-medium text-slate-600">Başlangıç Tarihi</label>
               <input
                 id="dateFrom"
                 type="date"
                 value={dateFrom}
                 onChange={(event) => handleDateFromChange(event.target.value)}
-                className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                className="rounded-lg border-0 bg-slate-100 px-3 py-2 text-sm text-slate-900 outline-none transition focus:bg-slate-50"
                 dir="ltr"
                 style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
               />
             </div>
 
-            <div className="min-w-max space-y-2 text-left">
-              <label htmlFor="dateTo" className="block text-sm font-medium text-slate-700">Bitiş Tarihi</label>
+            <div className="flex flex-col gap-2 text-left">
+              <label htmlFor="dateTo" className="text-xs font-medium text-slate-600">Bitiş Tarihi</label>
               <input
                 id="dateTo"
                 type="date"
                 value={dateTo}
                 onChange={(event) => handleDateToChange(event.target.value)}
-                className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                className="rounded-lg border-0 bg-slate-100 px-3 py-2 text-sm text-slate-900 outline-none transition focus:bg-slate-50"
                 dir="ltr"
                 style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
               />
             </div>
 
-            <div className="min-w-max space-y-2 text-left">
-              <label htmlFor="fabricsPageSize" className="block text-sm font-medium text-slate-700">Sayfa Boyutu</label>
+            <div className="flex flex-col gap-2 text-left">
+              <label htmlFor="fabricsPageSize" className="text-xs font-medium text-slate-600">Sayfa Boyutu</label>
               <select
                 id="fabricsPageSize"
                 value={pageSize}
                 onChange={(event) => handlePageSizeChange(Number(event.target.value))}
-                className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                className="rounded-lg border-0 bg-slate-100 px-3 py-2 text-sm text-slate-900 outline-none transition focus:bg-slate-50"
                 dir="ltr"
                 style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
               >

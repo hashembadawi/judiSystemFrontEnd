@@ -487,51 +487,54 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
 
   return (
     <div className="space-y-4" dir="ltr" style={{ direction: 'ltr' }}>
-      <header className="rounded-xl bg-white px-3 py-3 shadow-sm">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <header className="rounded-2xl border border-sky-200 bg-gradient-to-r from-sky-100 via-sky-50 to-blue-50 px-4 py-6 shadow-sm sm:px-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="text-left">
-            <h3 className="text-lg font-semibold text-slate-900">Dokuma Siparişleri Yönetimi</h3>
+            <h3 className="text-2xl font-bold text-sky-900">Dokuma Siparişleri Yönetimi</h3>
           </div>
 
           <button
             type="button"
             onClick={openCreateModal}
-            className="inline-flex items-center justify-center rounded-md bg-slate-900 px-3 py-2 text-xs font-medium text-white transition hover:bg-slate-800"
+            className="inline-flex items-center justify-center rounded-lg bg-sky-700 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-sky-800 active:bg-sky-900"
           >
             + Ekle
           </button>
         </div>
 
-        <div className="mt-3 flex flex-wrap items-end gap-2">
+        <div className="mt-5 flex flex-wrap items-end gap-2">
           <div className="min-w-[180px] flex-1">
-            <label htmlFor="weavingOrdersSearch" className="mb-1 block text-[10px] font-medium text-slate-500 text-left">Arama metni</label>
+            <label htmlFor="weavingOrdersSearch" className="mb-1 block text-xs font-medium text-slate-600 text-left">Arama metni</label>
             <input
               id="weavingOrdersSearch"
               type="text"
               value={searchText}
-              onChange={(event) => setSearchText(event.target.value)}
+              onChange={(event) => {
+                setSearchText(event.target.value)
+                setPageNumber(1)
+              }}
               placeholder="Sipariş numarası, isim veya tarih"
-              className="w-full rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-slate-300"
+              className="w-full rounded-lg border-0 bg-slate-100 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:bg-slate-50"
               style={{ direction: 'ltr', textAlign: 'left' }}
             />
           </div>
 
           <div className="min-w-[120px]">
-            <label htmlFor="weavingOrdersDateToggle" className="mb-1 block text-[10px] font-medium text-slate-500 text-left">Tarih filtresi</label>
-            <div className="flex h-[34px] items-center gap-2 rounded-md border border-slate-200 bg-white px-2.5">
+            <label htmlFor="weavingOrdersDateToggle" className="mb-1 block text-xs font-medium text-slate-600 text-left">Tarih filtresi</label>
+            <div className="flex h-10 items-center gap-2 rounded-lg bg-slate-100 px-3">
               <input
                 id="weavingOrdersDateToggle"
                 type="checkbox"
                 checked={optionDate}
                 onChange={(event) => setOptionDate(event.target.checked)}
-                className="h-3.5 w-3.5 rounded border-slate-300 text-slate-700"
+                className="h-4 w-4 rounded border-slate-300 text-sky-700"
               />
-              <label htmlFor="weavingOrdersDateToggle" className="text-[11px] text-slate-700">Tarih aralığı</label>
+              <label htmlFor="weavingOrdersDateToggle" className="text-sm text-slate-700">Tarih aralığı</label>
             </div>
           </div>
 
           <div className="min-w-[90px]">
-            <label htmlFor="weavingOrdersPageSize" className="mb-1 block text-[10px] font-medium text-slate-500 text-left">Sayfa</label>
+            <label htmlFor="weavingOrdersPageSize" className="mb-1 block text-xs font-medium text-slate-600 text-left">Sayfa</label>
             <select
               id="weavingOrdersPageSize"
               value={pageSize}
@@ -539,7 +542,7 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
                 setPageSize(Number(event.target.value))
                 setPageNumber(1)
               }}
-              className="h-[50px] w-full rounded-md border border-slate-200 bg-white px-2.5 text-center text-xs text-slate-900 outline-none transition focus:border-slate-300"
+              className="h-10 w-full rounded-lg border-0 bg-slate-100 px-3 text-center text-sm text-slate-900 outline-none transition focus:bg-slate-50"
               style={{ direction: 'ltr', textAlign: 'center' }}
             >
               <option value={10}>10</option>
@@ -549,27 +552,25 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
           </div>
 
           <div className="min-w-[120px]">
-            <label htmlFor="weavingOrdersDateFrom" className="mb-1 block text-[10px] font-medium text-slate-500 text-left">Başlangıç</label>
+            <label htmlFor="weavingOrdersDateFrom" className="mb-1 block text-xs font-medium text-slate-600 text-left">Başlangıç</label>
             <input
               id="weavingOrdersDateFrom"
               type="date"
               value={dateFrom}
               onChange={(event) => setDateFrom(event.target.value)}
-              disabled={!optionDate}
-              className="h-[34px] w-full rounded-md border border-slate-200 bg-white px-2.5 text-xs text-slate-900 outline-none transition focus:border-slate-300 disabled:cursor-not-allowed disabled:bg-slate-100"
+              className="w-full rounded-lg border-0 bg-slate-100 px-3 py-2 text-sm text-slate-900 outline-none transition focus:bg-slate-50"
               style={{ direction: 'ltr', textAlign: 'left' }}
             />
           </div>
 
           <div className="min-w-[120px]">
-            <label htmlFor="weavingOrdersDateTo" className="mb-1 block text-[10px] font-medium text-slate-500 text-left">Bitiş</label>
+            <label htmlFor="weavingOrdersDateTo" className="mb-1 block text-xs font-medium text-slate-600 text-left">Bitiş</label>
             <input
               id="weavingOrdersDateTo"
               type="date"
               value={dateTo}
               onChange={(event) => setDateTo(event.target.value)}
-              disabled={!optionDate}
-              className="h-[34px] w-full rounded-md border border-slate-200 bg-white px-2.5 text-xs text-slate-900 outline-none transition focus:border-slate-300 disabled:cursor-not-allowed disabled:bg-slate-100"
+              className="w-full rounded-lg border-0 bg-slate-100 px-3 py-2 text-sm text-slate-900 outline-none transition focus:bg-slate-50"
               style={{ direction: 'ltr', textAlign: 'left' }}
             />
           </div>

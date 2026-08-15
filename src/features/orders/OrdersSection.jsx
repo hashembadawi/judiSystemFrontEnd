@@ -539,22 +539,22 @@ function OrdersSection({ apiRequest, showNotice, isActive, currentUserName = '' 
   return (
     <>
       <div className="space-y-6" style={{ direction: 'rtl' }}>
-        <header className={`${SECTION_STYLES.container} overflow-hidden rounded-2xl border border-slate-200 bg-white px-6 py-7 shadow-sm`}>
+        <header className="rounded-2xl border border-sky-200 bg-gradient-to-r from-sky-100 via-sky-50 to-blue-50 px-4 py-6 shadow-sm sm:px-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h3 className="mt-2 text-2xl font-semibold text-slate-900">ادارة الطلبيات</h3>
+              <h3 className="text-2xl font-bold text-sky-900">ادارة الطلبيات</h3>
             </div>
 
             <button
               type="button"
               onClick={openCreateModal}
-              className="inline-flex items-center justify-center rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-slate-800 active:bg-slate-950"
+              className="inline-flex items-center justify-center rounded-lg bg-sky-700 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-sky-800 active:bg-sky-900"
             >
               إضافة طلبية
             </button>
           </div>
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <div className="flex flex-col gap-2">
               <label htmlFor="ordersSearch" className="text-xs font-medium text-slate-600">البحث</label>
               <input
@@ -619,17 +619,6 @@ function OrdersSection({ apiRequest, showNotice, isActive, currentUserName = '' 
         ) : null}
 
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <div className="flex flex-col gap-4 border-b border-slate-200 bg-slate-50 px-4 py-4 sm:px-6 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-xs font-medium text-slate-600">إجمالي الطلبيات</p>
-              <p className="mt-1 text-2xl font-semibold text-slate-900">{totalCount}</p>
-            </div>
-            <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
-              <span className="rounded-md bg-slate-200 px-2.5 py-1 font-medium text-slate-700">صفحة {pageNumber} من {totalPages}</span>
-              <span className="rounded-md bg-slate-200 px-2.5 py-1 font-medium text-slate-700">{pageSize} لكل صفحة</span>
-            </div>
-          </div>
-
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead>

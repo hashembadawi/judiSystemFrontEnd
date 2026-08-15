@@ -52,7 +52,6 @@ function OrderModal({
         <section className="w-full max-h-[88vh] overflow-y-auto rounded-2xl bg-white shadow-[0_30px_60px_rgba(15,23,42,0.22)] ring-1 ring-slate-200 sm:max-w-6xl">
           <header className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white/95 px-4 py-4 backdrop-blur-sm sm:px-6">
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-500">طلبية جديدة</p>
               <h4 className="mt-1 text-xl font-semibold text-slate-900">{form.id ? 'تعديل الطلبية' : 'اضافة طلبية جديدة'}</h4>
             </div>
             <button

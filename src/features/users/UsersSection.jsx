@@ -227,7 +227,7 @@ function UsersSection({ apiRequest, showNotice, isActive }) {
         <header className="rounded-2xl border border-sky-200 bg-gradient-to-r from-sky-100 via-sky-50 to-blue-50 px-4 py-6 shadow-sm sm:px-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h3 className="text-3xl font-bold text-sky-900">المستخدمون</h3>
+              <h3 className="text-2xl font-bold text-sky-900">المستخدمون</h3>
             </div>
 
             <button

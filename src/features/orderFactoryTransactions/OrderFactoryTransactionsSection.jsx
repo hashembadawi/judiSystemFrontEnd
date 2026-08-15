@@ -357,19 +357,20 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
 
   return (
     <div className="space-y-6" dir="ltr" style={{ direction: 'ltr' }}>
-      <section className="rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm ring-1 ring-slate-100 sm:px-6" dir="ltr">
-        <div className="mb-5 flex items-start justify-between gap-4 border-b border-slate-200 pb-4" dir="ltr">
-          <div className="text-left">
-            <h3 className="mt-2 text-2xl font-semibold text-slate-900">Boyalı Sipariş</h3>
+      <header className="rounded-2xl border border-sky-200 bg-gradient-to-r from-sky-100 via-sky-50 to-blue-50 px-4 py-6 shadow-sm sm:px-6" dir="ltr">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h3 className="text-2xl font-bold text-sky-900">Boyalı Sipariş</h3>
           </div>
-          <button type="button" className={buildButtonClasses('primary')} onClick={openCreateModal}>
+
+          <button type="button" className="inline-flex items-center justify-center rounded-lg bg-sky-700 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-sky-800 active:bg-sky-900" onClick={openCreateModal}>
             Yeni Sipariş
           </button>
         </div>
 
-        <div className="flex flex-wrap items-end gap-4" dir="ltr">
-          <div className="min-w-[220px] flex-1 space-y-2" dir="ltr">
-            <label htmlFor="orderFactorySearch" className="block text-sm font-medium text-slate-700 text-left">Ara</label>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="orderFactorySearch" className="text-xs font-medium text-slate-600 text-left">Ara</label>
             <input
               id="orderFactorySearch"
               type="text"
@@ -379,14 +380,14 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
                 setPageNumber(1)
               }}
               placeholder="Sipariş veya fabrika numarasına göre ara"
-              className={`${buildInputClasses(false)} w-full`}
+              className="w-full rounded-lg border-0 bg-slate-100 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:bg-slate-50"
               dir="ltr"
-              style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '11px' }}
+              style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
             />
           </div>
 
-          <div className="min-w-[150px] space-y-2" dir="ltr">
-            <label htmlFor="orderFactoryPageSize" className="block text-sm font-medium text-slate-700 text-left">Sayfa boyutu</label>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="orderFactoryPageSize" className="text-xs font-medium text-slate-600 text-left">Sayfa boyutu</label>
             <select
               id="orderFactoryPageSize"
               value={pageSize}
@@ -394,7 +395,7 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
                 setPageSize(Number(event.target.value))
                 setPageNumber(1)
               }}
-              className={`${buildInputClasses(false)} w-full`}
+              className="w-full rounded-lg border-0 bg-slate-100 px-3 py-2 text-sm text-slate-900 outline-none transition focus:bg-slate-50"
               dir="ltr"
               style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
             >
@@ -404,7 +405,7 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
             </select>
           </div>
         </div>
-      </section>
+      </header>
 
       {error ? (
         <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800 text-left" dir="ltr">

@@ -427,24 +427,24 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
 
   return (
     <div className="space-y-6" dir="rtl">
-      <header className="rounded-2xl border border-slate-200 bg-white px-6 py-7 shadow-sm">
+      <header className="rounded-2xl border border-sky-200 bg-gradient-to-r from-sky-100 via-sky-50 to-blue-50 px-4 py-6 shadow-sm sm:px-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h3 className="mt-2 text-2xl font-semibold text-slate-900">إدارة حركات الحياكة</h3>
+            <h3 className="text-2xl font-bold text-sky-900">إدارة حركات الحياكة</h3>
           </div>
 
           <button
             type="button"
             onClick={handleAddTransaction}
-            className="inline-flex items-center justify-center rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-slate-800"
+            className="inline-flex items-center justify-center rounded-lg bg-sky-700 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-sky-800 active:bg-sky-900"
           >
-            + إضافة حركة جديدة
+            إضافة حركة جديدة
           </button>
         </div>
 
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-            <label htmlFor="weavingSearch" className="mb-2 block text-xs font-medium text-slate-600">بحث</label>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="weavingSearch" className="text-xs font-medium text-slate-600">بحث</label>
             <input
               id="weavingSearch"
               type="text"
@@ -454,12 +454,12 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
                 setPageNumber(1)
               }}
               placeholder="ابحث بالفاتورة أو اسم المعمل"
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+              className="w-full rounded-lg border-0 bg-slate-100 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:bg-slate-50"
             />
           </div>
 
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-            <label htmlFor="weavingPageSize" className="mb-2 block text-xs font-medium text-slate-600">حجم الصفحة</label>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="weavingPageSize" className="text-xs font-medium text-slate-600">حجم الصفحة</label>
             <select
               id="weavingPageSize"
               value={pageSize}
@@ -467,7 +467,7 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
                 setPageSize(Number(event.target.value))
                 setPageNumber(1)
               }}
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+              className="w-full rounded-lg border-0 bg-slate-100 px-3 py-2 text-sm text-slate-900 outline-none transition focus:bg-slate-50"
             >
               <option value={10}>10</option>
               <option value={20}>20</option>
@@ -482,18 +482,6 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
       ) : null}
 
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="flex flex-col gap-4 border-b border-slate-200 bg-slate-50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <div>
-            <p className="text-xs font-medium text-slate-600">إجمالي الحركات</p>
-            <p className="mt-1 text-2xl font-semibold text-slate-900">{totalCount}</p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
-            <span className="rounded-md bg-slate-200 px-2.5 py-1 font-medium text-slate-700">الصفحة {pageNumber} من {Math.max(totalPages, 1)}</span>
-            <span className="rounded-md bg-slate-200 px-2.5 py-1 font-medium text-slate-700">{pageSize} لكل صفحة</span>
-          </div>
-        </div>
-
         <div className="hidden overflow-x-auto md:block">
           <table className="w-full text-sm">
             <thead>

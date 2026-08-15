@@ -456,20 +456,24 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
 
   return (
     <div className="space-y-6" dir="rtl" style={{ direction: 'rtl' }}>
-      <section className="rounded-2xl border border-slate-200 bg-white px-6 py-5 shadow-sm" dir="rtl">
-        <div className="mb-5 border-b border-slate-200 pb-4 flex items-start justify-between" dir="rtl">
-          <div className="text-right">
-            <p className="text-xs font-semibold uppercase tracking-widest text-slate-500 text-right">إدارة الحركات</p>
-            <h3 className="mt-2 text-2xl font-semibold text-slate-900 text-right">إدارة خام مرسل للمصابغ</h3>
+      <header className="rounded-2xl border border-sky-200 bg-gradient-to-r from-sky-100 via-sky-50 to-blue-50 px-4 py-6 shadow-sm sm:px-6" dir="rtl">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h3 className="text-2xl font-bold text-sky-900">إدارة خام مرسل للمصابغ</h3>
           </div>
-          <button type="button" className={buildButtonClasses('primary')} onClick={openCreateModal}>
-            + إضافة حركة جديدة
+
+          <button
+            type="button"
+            onClick={openCreateModal}
+            className="inline-flex items-center justify-center rounded-lg bg-sky-700 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-sky-800 active:bg-sky-900"
+          >
+            إضافة حركة جديدة
           </button>
         </div>
 
-        <div className="flex flex-wrap items-end gap-4" dir="rtl">
-          <div className="flex-1 min-w-max space-y-2" dir="rtl">
-            <label htmlFor="hamBoyaSearch" className="block text-sm font-medium text-slate-700 text-right">بحث</label>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="hamBoyaSearch" className="text-xs font-medium text-slate-600 text-right">البحث</label>
             <input
               id="hamBoyaSearch"
               type="text"
@@ -478,15 +482,15 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
                 setSearchText(event.target.value)
                 setPageNumber(1)
               }}
-              placeholder="ابحث برقم الفاتورة أو المصنع أو السائق"
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+              placeholder="رقم الفاتورة، المصنع، أو السائق"
+              className="w-full rounded-lg border-0 bg-slate-100 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:bg-slate-50"
               dir="ltr"
               style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
             />
           </div>
 
-          <div className="min-w-max space-y-2" dir="rtl">
-            <label htmlFor="hamBoyaPageSize" className="block text-sm font-medium text-slate-700 text-right">حجم الصفحة</label>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="hamBoyaPageSize" className="text-xs font-medium text-slate-600 text-right">حجم الصفحة</label>
             <select
               id="hamBoyaPageSize"
               value={pageSize}
@@ -494,7 +498,7 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
                 setPageSize(Number(event.target.value))
                 setPageNumber(1)
               }}
-              className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+              className="w-full rounded-lg border-0 bg-slate-100 px-3 py-2 text-sm text-slate-900 outline-none transition focus:bg-slate-50"
               dir="ltr"
               style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
             >
@@ -504,7 +508,7 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
             </select>
           </div>
         </div>
-      </section>
+      </header>
 
       {error ? (
         <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800 text-right" dir="rtl">
@@ -514,59 +518,61 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
 
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm" dir="rtl">
         <div className="overflow-x-auto" dir="rtl">
-          <table className="w-full text-sm" dir="rtl" style={{ direction: 'rtl' }}>
+          <table className="w-full text-xs" dir="rtl" style={{ direction: 'rtl' }}>
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50">
-                <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">رقم الفاتورة</span></th>
-                <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">المصنع</span></th>
-                <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">التاريخ</span></th>
-                <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">الكاتب</span></th>
-                <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">لوحة السيارة</span></th>
-                <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">صاحب السيارة</span></th>
-                <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">عدد التفاصيل</span></th>
-                <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">الوزن الكلي</span></th>
-                <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">عدد الأثواب</span></th>
-                <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">الإجراءات</span></th>
+                <th className="px-3 py-2 text-right"><span className="font-semibold text-slate-600">رقم الفاتورة</span></th>
+                <th className="px-3 py-2 text-right"><span className="font-semibold text-slate-600">المصنع</span></th>
+                <th className="px-3 py-2 text-right"><span className="font-semibold text-slate-600">التاريخ</span></th>
+                <th className="px-3 py-2 text-right"><span className="font-semibold text-slate-600">الكاتب</span></th>
+                <th className="px-3 py-2 text-right"><span className="font-semibold text-slate-600">لوحة السيارة</span></th>
+                <th className="px-3 py-2 text-right"><span className="font-semibold text-slate-600">صاحب السيارة</span></th>
+                <th className="px-3 py-2 text-center"><span className="font-semibold text-slate-600">التفاصيل</span></th>
+                <th className="px-3 py-2 text-right"><span className="font-semibold text-slate-600">الوزن</span></th>
+                <th className="px-3 py-2 text-right"><span className="font-semibold text-slate-600">الأثواب</span></th>
+                <th className="px-3 py-2 text-center"><span className="font-semibold text-slate-600">الإجراءات</span></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200" dir="rtl">
               {isLoading ? (
                 <tr>
-                  <td colSpan={10} className="px-6 py-12 text-center text-slate-500 text-right" dir="rtl">جاري تحميل الحركات...</td>
+                  <td colSpan={10} className="px-3 py-8 text-center text-slate-500 text-right" dir="rtl">جاري تحميل الحركات...</td>
                 </tr>
               ) : transactions.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="px-6 py-12 text-center text-slate-500 text-right" dir="rtl">لا توجد بيانات مطابقة.</td>
+                  <td colSpan={10} className="px-3 py-8 text-center text-slate-500 text-right" dir="rtl">لا توجد بيانات مطابقة.</td>
                 </tr>
               ) : (
                 transactions.map((transaction) => (
                   <tr key={transaction.id ?? transaction.faturaNo} className="hover:bg-slate-50" dir="rtl">
-                    <td className="px-6 py-4 text-right"><span className="text-sm text-slate-900 font-medium">{transaction.faturaNo ?? '-'}</span></td>
-                    <td className="px-6 py-4 text-right"><span className="text-sm text-slate-700">{transaction.factoryName ?? '-'}</span></td>
-                    <td className="px-6 py-4 text-right"><span className="text-sm text-slate-700">{transaction.date ?? '-'}</span></td>
-                    <td className="px-6 py-4 text-right"><span className="text-sm text-slate-700">{transaction.writer ?? '-'}</span></td>
-                    <td className="px-6 py-4 text-right"><span className="text-sm text-slate-700">{transaction.carBLK ?? '-'}</span></td>
-                    <td className="px-6 py-4 text-right"><span className="text-sm text-slate-700">{transaction.carOwner ?? '-'}</span></td>
-                    <td className="px-6 py-4 text-right"><span className="text-sm text-slate-700">{transaction.detailsCount ?? '-'}</span></td>
-                    <td className="px-6 py-4 text-right"><span className="text-sm text-slate-700">{transaction.totalWeight ?? '-'}</span></td>
-                    <td className="px-6 py-4 text-right"><span className="text-sm text-slate-700">{transaction.totalTopCount ?? '-'}</span></td>
-                    <td className="px-6 py-4" dir="rtl">
-                      <div className="flex items-center justify-start gap-3" dir="rtl">
+                    <td className="px-3 py-2 text-right"><span className="text-xs text-slate-900 font-medium truncate">{transaction.faturaNo ?? '-'}</span></td>
+                    <td className="px-3 py-2 text-right"><span className="text-xs text-slate-700 truncate">{transaction.factoryName ?? '-'}</span></td>
+                    <td className="px-3 py-2 text-right"><span className="text-xs text-slate-700 whitespace-nowrap">{transaction.date ?? '-'}</span></td>
+                    <td className="px-3 py-2 text-right"><span className="text-xs text-slate-700 truncate">{transaction.writer ?? '-'}</span></td>
+                    <td className="px-3 py-2 text-right"><span className="text-xs text-slate-700 whitespace-nowrap">{transaction.carBLK ?? '-'}</span></td>
+                    <td className="px-3 py-2 text-right"><span className="text-xs text-slate-700 truncate">{transaction.carOwner ?? '-'}</span></td>
+                    <td className="px-3 py-2 text-center"><span className="text-xs text-slate-700">{transaction.detailsCount ?? '-'}</span></td>
+                    <td className="px-3 py-2 text-right"><span className="text-xs text-slate-700">{transaction.totalWeight ?? '-'}</span></td>
+                    <td className="px-3 py-2 text-right"><span className="text-xs text-slate-700">{transaction.totalTopCount ?? '-'}</span></td>
+                    <td className="px-3 py-2 text-center" dir="rtl">
+                      <div className="flex items-center justify-center gap-1" dir="rtl">
                         <button
                           type="button"
-                          onClick={() => deleteTransaction(transaction.id)}
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-red-300 bg-red-50 text-red-600 text-lg transition hover:bg-red-100"
-                          title="حذف"
+                          title="تعديل الحركة"
+                          disabled={!transaction.id}
+                          onClick={() => openEditModal(transaction.id)}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-600 text-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                          🗑️
+                          ✏️
                         </button>
                         <button
                           type="button"
-                          onClick={() => openEditModal(transaction.id)}
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-blue-300 bg-blue-50 text-blue-600 text-lg transition hover:bg-blue-100"
-                          title="تعديل"
+                          title="حذف الحركة"
+                          disabled={!transaction.id}
+                          onClick={() => deleteTransaction(transaction.id)}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-red-300 bg-red-50 text-red-600 text-sm transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                          ✎
+                          🗑️
                         </button>
                       </div>
                     </td>
