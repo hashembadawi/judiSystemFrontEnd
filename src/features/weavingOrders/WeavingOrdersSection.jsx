@@ -486,172 +486,211 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
   )
 
   return (
-    <div className="weaving-orders-section" dir="rtl">
-      <header className="content-header">
-        <div>
-          <h3>Dokuma Siparişleri Yönetimi</h3>
-          <p>API üzerinden siparişleri listeleyin, arayın ve yönetin.</p>
-        </div>
-        <button type="button" className="add-button" onClick={openCreateModal}>
-          + Ekle
-        </button>
-      </header>
+    <div className="space-y-4" dir="ltr" style={{ direction: 'ltr' }}>
+      <header className="rounded-xl bg-white px-3 py-3 shadow-sm">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="text-left">
+            <h3 className="text-lg font-semibold text-slate-900">Dokuma Siparişleri Yönetimi</h3>
+          </div>
 
-      <section className="filters-panel weaving-orders-filters" aria-label="Dokuma siparişleri filtresi">
-        <div className="field-group">
-          <label htmlFor="weavingOrdersSearch">Arama metni</label>
-          <input
-            id="weavingOrdersSearch"
-            type="text"
-            value={searchText}
-            onChange={(event) => setSearchText(event.target.value)}
-            placeholder="Sipariş numarası, isim veya tarih"
-          />
+          <button
+            type="button"
+            onClick={openCreateModal}
+            className="inline-flex items-center justify-center rounded-md bg-slate-900 px-3 py-2 text-xs font-medium text-white transition hover:bg-slate-800"
+          >
+            + Ekle
+          </button>
         </div>
 
-        <div className="field-group">
-          <label htmlFor="weavingOrdersDateToggle">Tarih filtresi</label>
-          <div className="toggle-row">
+        <div className="mt-3 flex flex-wrap items-end gap-2">
+          <div className="min-w-[180px] flex-1">
+            <label htmlFor="weavingOrdersSearch" className="mb-1 block text-[10px] font-medium text-slate-500 text-left">Arama metni</label>
             <input
-              id="weavingOrdersDateToggle"
-              type="checkbox"
-              checked={optionDate}
-              onChange={(event) => setOptionDate(event.target.checked)}
+              id="weavingOrdersSearch"
+              type="text"
+              value={searchText}
+              onChange={(event) => setSearchText(event.target.value)}
+              placeholder="Sipariş numarası, isim veya tarih"
+              className="w-full rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-slate-300"
+              style={{ direction: 'ltr', textAlign: 'left' }}
             />
-            <label htmlFor="weavingOrdersDateToggle">Tarih aralığı kullan</label>
+          </div>
+
+          <div className="min-w-[120px]">
+            <label htmlFor="weavingOrdersDateToggle" className="mb-1 block text-[10px] font-medium text-slate-500 text-left">Tarih filtresi</label>
+            <div className="flex h-[34px] items-center gap-2 rounded-md border border-slate-200 bg-white px-2.5">
+              <input
+                id="weavingOrdersDateToggle"
+                type="checkbox"
+                checked={optionDate}
+                onChange={(event) => setOptionDate(event.target.checked)}
+                className="h-3.5 w-3.5 rounded border-slate-300 text-slate-700"
+              />
+              <label htmlFor="weavingOrdersDateToggle" className="text-[11px] text-slate-700">Tarih aralığı</label>
+            </div>
+          </div>
+
+          <div className="min-w-[90px]">
+            <label htmlFor="weavingOrdersPageSize" className="mb-1 block text-[10px] font-medium text-slate-500 text-left">Sayfa</label>
+            <select
+              id="weavingOrdersPageSize"
+              value={pageSize}
+              onChange={(event) => {
+                setPageSize(Number(event.target.value))
+                setPageNumber(1)
+              }}
+              className="h-[50px] w-full rounded-md border border-slate-200 bg-white px-2.5 text-center text-xs text-slate-900 outline-none transition focus:border-slate-300"
+              style={{ direction: 'ltr', textAlign: 'center' }}
+            >
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
+
+          <div className="min-w-[120px]">
+            <label htmlFor="weavingOrdersDateFrom" className="mb-1 block text-[10px] font-medium text-slate-500 text-left">Başlangıç</label>
+            <input
+              id="weavingOrdersDateFrom"
+              type="date"
+              value={dateFrom}
+              onChange={(event) => setDateFrom(event.target.value)}
+              disabled={!optionDate}
+              className="h-[34px] w-full rounded-md border border-slate-200 bg-white px-2.5 text-xs text-slate-900 outline-none transition focus:border-slate-300 disabled:cursor-not-allowed disabled:bg-slate-100"
+              style={{ direction: 'ltr', textAlign: 'left' }}
+            />
+          </div>
+
+          <div className="min-w-[120px]">
+            <label htmlFor="weavingOrdersDateTo" className="mb-1 block text-[10px] font-medium text-slate-500 text-left">Bitiş</label>
+            <input
+              id="weavingOrdersDateTo"
+              type="date"
+              value={dateTo}
+              onChange={(event) => setDateTo(event.target.value)}
+              disabled={!optionDate}
+              className="h-[34px] w-full rounded-md border border-slate-200 bg-white px-2.5 text-xs text-slate-900 outline-none transition focus:border-slate-300 disabled:cursor-not-allowed disabled:bg-slate-100"
+              style={{ direction: 'ltr', textAlign: 'left' }}
+            />
           </div>
         </div>
+      </header>
 
-        <div className="field-group">
-          <label htmlFor="weavingOrdersPageSize">Sayfa boyutu</label>
-          <select
-            id="weavingOrdersPageSize"
-            value={pageSize}
-            onChange={(event) => {
-              setPageSize(Number(event.target.value))
-              setPageNumber(1)
-            }}
-          >
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
-          </select>
-        </div>
+      {error ? <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800 text-left">{error}</div> : null}
 
-        <div className="field-group">
-          <label htmlFor="weavingOrdersDateFrom">Başlangıç tarihi</label>
-          <input
-            id="weavingOrdersDateFrom"
-            type="date"
-            value={dateFrom}
-            onChange={(event) => setDateFrom(event.target.value)}
-            disabled={!optionDate}
-          />
-        </div>
-
-        <div className="field-group">
-          <label htmlFor="weavingOrdersDateTo">Bitiş tarihi</label>
-          <input
-            id="weavingOrdersDateTo"
-            type="date"
-            value={dateTo}
-            onChange={(event) => setDateTo(event.target.value)}
-            disabled={!optionDate}
-          />
-        </div>
-
-        <button type="button" className="add-button" onClick={handleSearch}>
-          Ara
-        </button>
-      </section>
-
-      {error ? <p className="error-box inline-error">{error}</p> : null}
-
-      <div className="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Sipariş No</th>
-              <th>İsim</th>
-              <th>Tarih</th>
-              <th>Detay Sayısı</th>
-              <th>Toplam Ağırlık</th>
-              <th>İşlemler</th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading ? (
-              <tr>
-                <td colSpan={7} className="table-state">
-                  Dokuma siparişleri yükleniyor...
-                </td>
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="hidden overflow-x-auto md:block">
+          <table className="w-full text-sm" style={{ direction: 'ltr' }}>
+            <thead>
+              <tr className="border-b border-slate-200 bg-slate-100">
+                <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">#</th>
+                <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">Sipariş No</th>
+                <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">İsim</th>
+                <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">Tarih</th>
+                <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">Detay Sayısı</th>
+                <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">Toplam Ağırlık</th>
+                <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-slate-700">İşlemler</th>
               </tr>
-            ) : orders.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="table-state">
-                  Eşleşen sipariş bulunamadı.
-                </td>
-              </tr>
-            ) : (
-              orders.map((order, index) => (
-                <tr key={order.id ?? `${order.orderNo ?? 'row'}-${index}`}>
-                  <td>{index + 1}</td>
-                  <td>{order.orderNo || '-'}</td>
-                  <td>{order.name || '-'}</td>
-                  <td>{order.date || '-'}</td>
-                  <td>{order.detailsCount ?? '-'}</td>
-                  <td>{order.totalWeight ?? '-'}</td>
-                  <td>
-                    <div className="row-actions">
-                      <button
-                        type="button"
-                        className="action-btn edit"
-                        onClick={() => handleEditOrder(order)}
-                      >
-                        Düzenle
-                      </button>
-                      <button
-                        type="button"
-                        className="action-btn delete"
-                        onClick={() => deleteOrder(order.id)}
-                      >
-                        Sil
-                      </button>
-                    </div>
-                  </td>
+            </thead>
+            <tbody className="divide-y divide-slate-200">
+              {isLoading ? (
+                <tr>
+                  <td colSpan={7} className="px-4 py-12 text-center text-slate-500">Dokuma siparişleri yükleniyor...</td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : orders.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-4 py-12 text-center text-slate-500">Eşleşen sipariş bulunamadı.</td>
+                </tr>
+              ) : (
+                orders.map((order, index) => (
+                  <tr key={order.id ?? `${order.orderNo ?? 'row'}-${index}`} className="transition hover:bg-slate-50">
+                    <td className="px-4 py-4 text-left text-slate-900">{index + 1}</td>
+                    <td className="px-4 py-4 text-left text-slate-700">{order.orderNo || '-'}</td>
+                    <td className="px-4 py-4 text-left text-slate-700">{order.name || '-'}</td>
+                    <td className="px-4 py-4 text-left text-slate-700">{order.date || '-'}</td>
+                    <td className="px-4 py-4 text-left text-slate-700">{order.detailsCount ?? '-'}</td>
+                    <td className="px-4 py-4 text-left text-slate-700">{order.totalWeight ?? '-'}</td>
+                    <td className="px-4 py-4 text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleEditOrder(order)}
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-blue-200 bg-blue-50 text-blue-600 transition hover:bg-blue-100"
+                          aria-label="Düzenle"
+                          title="Düzenle"
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => deleteOrder(order.id)}
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-600 transition hover:bg-red-100"
+                          aria-label="Sil"
+                          title="Sil"
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="md:hidden">
+          {isLoading ? (
+            <div className="px-4 py-12 text-center text-slate-500">Dokuma siparişleri yükleniyor...</div>
+          ) : orders.length === 0 ? (
+            <div className="px-4 py-12 text-center text-slate-500">Eşleşen sipariş bulunamadı.</div>
+          ) : (
+            <div className="divide-y divide-slate-200">
+              {orders.map((order, index) => (
+                <div key={order.id ?? `${order.orderNo ?? 'row'}-${index}`} className="p-4">
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">{order.orderNo || '-'}</span>
+                    <span className="text-sm font-semibold text-slate-900">{order.name || '-'}</span>
+                  </div>
+
+                  <div className="space-y-2 text-xs text-slate-700">
+                    <div className="flex items-center justify-between gap-3"><span>Tarih:</span><span className="font-medium text-slate-900">{order.date || '-'}</span></div>
+                    <div className="flex items-center justify-between gap-3"><span>Detay sayısı:</span><span className="font-medium text-slate-900">{order.detailsCount ?? '-'}</span></div>
+                    <div className="flex items-center justify-between gap-3"><span>Toplam ağırlık:</span><span className="font-medium text-slate-900">{order.totalWeight ?? '-'}</span></div>
+                  </div>
+
+                  <div className="mt-4 flex items-center justify-end gap-2">
+                    <button type="button" onClick={() => handleEditOrder(order)} className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-blue-200 bg-blue-50 text-blue-600" aria-label="Düzenle" title="Düzenle">✏️</button>
+                    <button type="button" onClick={() => deleteOrder(order.id)} className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-600" aria-label="Sil" title="Sil">🗑️</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
-      <footer className="table-footer">
-        <div className="table-footer-summary">
-          <p>
-            Toplam sonuç: <strong>{totalCount}</strong>
-          </p>
-          <button type="button" className="secondary-btn" onClick={() => fetchOrders(1)}>
+      <footer className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-2 text-sm text-slate-600 sm:flex-row sm:items-center sm:gap-4">
+          <p>Toplam sonuç: <strong className="text-slate-900">{totalCount}</strong></p>
+          <button type="button" className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50" onClick={() => fetchOrders(1)}>
             Yenile
           </button>
         </div>
 
-        <div className="pagination-controls">
+        <div className="flex items-center gap-2">
           <button
             type="button"
-            className="pager-btn"
+            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
             disabled={pageNumber <= 1 || isLoading}
             onClick={() => changePage('prev')}
           >
             Önceki
           </button>
-          <span>
-            Sayfa {pageNumber} / {totalPages}
-          </span>
+          <span className="rounded-md bg-slate-100 px-2.5 py-1 text-sm font-medium text-slate-700">Sayfa {pageNumber} / {totalPages}</span>
           <button
             type="button"
-            className="pager-btn"
+            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
             disabled={pageNumber >= totalPages || isLoading}
             onClick={() => changePage('next')}
           >

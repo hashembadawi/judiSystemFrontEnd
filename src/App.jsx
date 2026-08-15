@@ -782,7 +782,6 @@ function App() {
         <div className={isSidebarOpen ? 'grid gap-5 xl:grid-cols-[280px_minmax(0,1fr)]' : 'grid gap-5 xl:grid-cols-1'}>
           {isSidebarOpen ? (
             <aside className="sticky top-5 h-fit rounded-3xl border border-slate-200 bg-white/80 p-5 shadow-[0_16px_30px_rgba(15,23,42,0.08)] backdrop-blur-sm" aria-label="قائمة العمليات">
-              <h2 className="mb-4 text-lg font-bold text-slate-900">العمليات</h2>
               <div className="space-y-2">
               {isRestrictedFabricInspectorUser ? (
                 <button

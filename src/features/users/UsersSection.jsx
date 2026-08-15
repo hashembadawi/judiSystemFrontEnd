@@ -224,26 +224,24 @@ function UsersSection({ apiRequest, showNotice, isActive }) {
   return (
     <>
       <div className="space-y-6">
-        <header className="rounded-2xl border border-slate-200 bg-white px-6 py-7 shadow-sm">
+        <header className="rounded-2xl border border-sky-200 bg-gradient-to-r from-sky-100 via-sky-50 to-blue-50 px-4 py-6 shadow-sm sm:px-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">إدارة النظام</p>
-              <h3 className="mt-2 text-2xl font-semibold text-slate-900">المستخدمون</h3>
-              <p className="mt-2 text-sm text-slate-600">إدارة مستخدمي النظام والصلاحيات</p>
+              <h3 className="text-3xl font-bold text-sky-900">المستخدمون</h3>
             </div>
 
             <button
               type="button"
               onClick={openCreateModal}
-              className="inline-flex items-center justify-center rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-slate-800 active:bg-slate-950"
+              className="inline-flex items-center justify-center rounded-lg bg-sky-700 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-sky-800 active:bg-sky-900"
             >
               إضافة مستخدم
             </button>
           </div>
 
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-              <label htmlFor="usersSearch" className="block text-xs font-medium text-slate-600 mb-2">البحث</label>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="flex flex-col gap-2">
+              <label htmlFor="usersSearch" className="text-xs font-medium text-slate-600">البحث</label>
               <input
                 id="usersSearch"
                 type="text"
@@ -253,12 +251,12 @@ function UsersSection({ apiRequest, showNotice, isActive }) {
                   setPageNumber(1)
                 }}
                 placeholder="ابحث..."
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                className="w-full rounded-lg border-0 bg-slate-100 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 outline-none ring-0 transition focus:bg-slate-50"
               />
             </div>
 
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-              <label htmlFor="userTypeFilter" className="block text-xs font-medium text-slate-600 mb-2">نوع المستخدم</label>
+            <div className="flex flex-col gap-2">
+              <label htmlFor="userTypeFilter" className="text-xs font-medium text-slate-600">نوع المستخدم</label>
               <select
                 id="userTypeFilter"
                 value={filterUserType}
@@ -266,7 +264,7 @@ function UsersSection({ apiRequest, showNotice, isActive }) {
                   setFilterUserType(Number(event.target.value))
                   setPageNumber(1)
                 }}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                className="w-full rounded-lg border-0 bg-slate-100 px-3 py-2 text-sm text-slate-900 outline-none transition focus:bg-slate-50"
               >
                 <option value={0}>الكل</option>
                 {USER_TYPE_OPTIONS.map((typeOption) => (
@@ -277,8 +275,8 @@ function UsersSection({ apiRequest, showNotice, isActive }) {
               </select>
             </div>
 
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-              <label htmlFor="usersPageSize" className="block text-xs font-medium text-slate-600 mb-2">حجم الصفحة</label>
+            <div className="flex flex-col gap-2">
+              <label htmlFor="usersPageSize" className="text-xs font-medium text-slate-600">حجم الصفحة</label>
               <select
                 id="usersPageSize"
                 value={pageSize}
@@ -286,7 +284,7 @@ function UsersSection({ apiRequest, showNotice, isActive }) {
                   setPageSize(Number(event.target.value))
                   setPageNumber(1)
                 }}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                className="w-full rounded-lg border-0 bg-slate-100 px-3 py-2 text-sm text-slate-900 outline-none transition focus:bg-slate-50"
               >
                 <option value={10}>10</option>
                 <option value={20}>20</option>
@@ -303,17 +301,6 @@ function UsersSection({ apiRequest, showNotice, isActive }) {
         ) : null}
 
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <div className="flex flex-col gap-4 border-b border-slate-200 bg-slate-50 px-4 py-4 sm:px-6 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-xs font-medium text-slate-600">إجمالي المستخدمين</p>
-              <p className="mt-1 text-2xl font-semibold text-slate-900">{totalCount}</p>
-            </div>
-            <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
-              <span className="rounded-md bg-slate-200 px-2.5 py-1 font-medium text-slate-700">صفحة {pageNumber} من {totalPages}</span>
-              <span className="rounded-md bg-slate-200 px-2.5 py-1 font-medium text-slate-700">{pageSize} لكل صفحة</span>
-            </div>
-          </div>
-
           {/* عرض الجدول على الأجهزة الكبيرة فقط */}
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-sm">
@@ -492,6 +479,33 @@ function UsersSection({ apiRequest, showNotice, isActive }) {
           </div>
         </div>
       </div>
+
+      <footer className="mt-4 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-2 text-sm text-slate-600 sm:flex-row sm:items-center sm:gap-4">
+          <p>إجمالي المستخدمين: <strong className="text-slate-900">{totalCount}</strong></p>
+          <span className="rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">{pageSize} لكل صفحة</span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={pageNumber <= 1 || isLoading}
+            onClick={() => setPageNumber((prev) => Math.max(prev - 1, 1))}
+          >
+            السابق
+          </button>
+          <span className="rounded-md bg-slate-100 px-2.5 py-1 text-sm font-medium text-slate-700">صفحة {pageNumber} من {totalPages}</span>
+          <button
+            type="button"
+            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={pageNumber >= totalPages || isLoading}
+            onClick={() => setPageNumber((prev) => Math.min(prev + 1, totalPages))}
+          >
+            التالي
+          </button>
+        </div>
+      </footer>
 
       <UserModal
         isOpen={isModalOpen}

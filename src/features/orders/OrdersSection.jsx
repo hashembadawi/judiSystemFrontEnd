@@ -542,9 +542,7 @@ function OrdersSection({ apiRequest, showNotice, isActive, currentUserName = '' 
         <header className={`${SECTION_STYLES.container} overflow-hidden rounded-2xl border border-slate-200 bg-white px-6 py-7 shadow-sm`}>
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">إدارة النظام</p>
               <h3 className="mt-2 text-2xl font-semibold text-slate-900">ادارة الطلبيات</h3>
-              <p className="mt-2 text-sm text-slate-600">إدارة طلبيات العملاء والبحث والتفاصيل</p>
             </div>
 
             <button
@@ -556,9 +554,9 @@ function OrdersSection({ apiRequest, showNotice, isActive, currentUserName = '' 
             </button>
           </div>
 
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-              <label htmlFor="ordersSearch" className="mb-2 block text-xs font-medium text-slate-600">البحث</label>
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="flex flex-col gap-2">
+              <label htmlFor="ordersSearch" className="text-xs font-medium text-slate-600">البحث</label>
               <input
                 id="ordersSearch"
                 type="text"
@@ -568,12 +566,12 @@ function OrdersSection({ apiRequest, showNotice, isActive, currentUserName = '' 
                   setPageNumber(1)
                 }}
                 placeholder="رقم الطلبية، اسم الزبون، أو أي نص"
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                className="w-full rounded-lg border-0 bg-slate-100 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:bg-slate-50"
               />
             </div>
 
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-              <label htmlFor="orderStatus" className="mb-2 block text-xs font-medium text-slate-600">حالة الطلبية</label>
+            <div className="flex flex-col gap-2">
+              <label htmlFor="orderStatus" className="text-xs font-medium text-slate-600">حالة الطلبية</label>
               <select
                 id="orderStatus"
                 value={orderStatus}
@@ -581,7 +579,7 @@ function OrdersSection({ apiRequest, showNotice, isActive, currentUserName = '' 
                   setOrderStatus(event.target.value)
                   setPageNumber(1)
                 }}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                className="w-full rounded-lg border-0 bg-slate-100 px-3 py-2 text-sm text-slate-900 outline-none transition focus:bg-slate-50"
               >
                 <option value="">الكل</option>
                 {ORDER_STATUS_OPTIONS.map((statusOption) => (
@@ -592,8 +590,8 @@ function OrdersSection({ apiRequest, showNotice, isActive, currentUserName = '' 
               </select>
             </div>
 
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-              <label htmlFor="ordersPageSize" className="mb-2 block text-xs font-medium text-slate-600">حجم الصفحة</label>
+            <div className="flex flex-col gap-2">
+              <label htmlFor="ordersPageSize" className="text-xs font-medium text-slate-600">حجم الصفحة</label>
               <select
                 id="ordersPageSize"
                 value={pageSize}
@@ -601,7 +599,7 @@ function OrdersSection({ apiRequest, showNotice, isActive, currentUserName = '' 
                   setPageSize(Number(event.target.value))
                   setPageNumber(1)
                 }}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                className="w-full rounded-lg border-0 bg-slate-100 px-3 py-2 text-sm text-slate-900 outline-none transition focus:bg-slate-50"
               >
                 <option value={10}>10</option>
                 <option value={20}>20</option>
