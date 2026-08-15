@@ -157,15 +157,15 @@ function DepoHamFabricSection({ apiRequest, showNotice, isActive }) {
         <div className="hidden overflow-x-auto md:block">
           <table className="w-full text-sm" style={{ direction: 'ltr' }}>
             <thead>
-              <tr className="border-b border-slate-200 bg-white">
-                <th className="px-6 py-3 text-left" style={{ textAlign: 'left' }}><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Kumaş Cinsiyeti</span></th>
-                <th className="px-6 py-3 text-left" style={{ textAlign: 'left' }}><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">GR</span></th>
-                <th className="px-6 py-3 text-left" style={{ textAlign: 'left' }}><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">LOT</span></th>
-                <th className="px-6 py-3 text-left" style={{ textAlign: 'left' }}><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Adet</span></th>
-                <th className="px-6 py-3 text-left" style={{ textAlign: 'left' }}><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Ağırlık</span></th>
-                <th className="px-6 py-3 text-left" style={{ textAlign: 'left' }}><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Fabrika</span></th>
-                <th className="px-6 py-3 text-left" style={{ textAlign: 'left' }}><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Sipariş No</span></th>
-                <th className="px-6 py-3 text-left" style={{ textAlign: 'left' }}><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Kumaş Türü</span></th>
+              <tr className="border-b border-slate-200 bg-slate-100">
+                <th className="px-6 py-3 text-left" style={{ textAlign: 'left' }}><span className="text-xs font-bold uppercase tracking-wider text-slate-700">Kumaş Cinsi</span></th>
+                <th className="px-6 py-3 text-left" style={{ textAlign: 'left' }}><span className="text-xs font-bold uppercase tracking-wider text-slate-700">GR</span></th>
+                <th className="px-6 py-3 text-left" style={{ textAlign: 'left' }}><span className="text-xs font-bold uppercase tracking-wider text-slate-700">LOT</span></th>
+                <th className="px-6 py-3 text-left" style={{ textAlign: 'left' }}><span className="text-xs font-bold uppercase tracking-wider text-slate-700">Adet</span></th>
+                <th className="px-6 py-3 text-left" style={{ textAlign: 'left' }}><span className="text-xs font-bold uppercase tracking-wider text-slate-700">Ağırlık</span></th>
+                <th className="px-6 py-3 text-left" style={{ textAlign: 'left' }}><span className="text-xs font-bold uppercase tracking-wider text-slate-700">Fabrika</span></th>
+                <th className="px-6 py-3 text-left" style={{ textAlign: 'left' }}><span className="text-xs font-bold uppercase tracking-wider text-slate-700">Sipariş No</span></th>
+                <th className="px-6 py-3 text-left" style={{ textAlign: 'left' }}><span className="text-xs font-bold uppercase tracking-wider text-slate-700">Kumaş Türü</span></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">

@@ -234,6 +234,7 @@ function BoyaliSiparisTakipModal({
                           <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">R.Kodu</th>
                           <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">Sip.MIKTAR</th>
                           <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">Parti No</th>
+                          <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">Top Sayı</th>
                           <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">K.Giriş(Kg)</th>
                           <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">Durum</th>
                           <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">Sevk Hazır</th>
@@ -274,6 +275,17 @@ function BoyaliSiparisTakipModal({
                                 type="text"
                                 value={detail.PartiNo ?? ''}
                                 onChange={(event) => onDetailFieldChange(index, 'PartiNo', event.target.value)}
+                                className={`${buildInputClasses(false)} h-7 w-full text-[11px]`}
+                                dir="ltr"
+                                style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '11px', padding: '2px 4px' }}
+                              />
+                            </td>
+                            <td className="px-1 py-1 w-full">
+                              <input
+                                type="number"
+                                step="1"
+                                value={detail.topSayi ?? detail.TopSayi ?? 0}
+                                onChange={(event) => onDetailFieldChange(index, 'topSayi', event.target.value === '' ? 0 : Number(event.target.value))}
                                 className={`${buildInputClasses(false)} h-7 w-full text-[11px]`}
                                 dir="ltr"
                                 style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '11px', padding: '2px 4px' }}

@@ -170,6 +170,7 @@ function BoyaliSiparisTakipSection({ apiRequest, showNotice, isActive }) {
               KazanGiris: detail.kazanGiris ?? detail.KazanGiris ?? 0,
               Status: detail.status ?? detail.Status ?? 1,
               SevkHazir: detail.sevkHazir ?? detail.SevkHazir ?? 0,
+              topSayi: detail.topSayi ?? detail.TopSayi ?? 0,
             }))
           : [],
       })
@@ -244,6 +245,7 @@ function BoyaliSiparisTakipSection({ apiRequest, showNotice, isActive }) {
           KazanGiris: '',
           Status: 1,
           SevkHazir: 0,
+          topSayi: 0,
         },
       ],
     }))
@@ -303,6 +305,7 @@ function BoyaliSiparisTakipSection({ apiRequest, showNotice, isActive }) {
           KazanGiris: Number(detail.KazanGiris ?? 0),
           Status: Number(detail.Status ?? 1),
           SevkHazir: Number(detail.SevkHazir ?? 0),
+          topSayi: Number(detail.topSayi ?? detail.TopSayi ?? 0),
         })),
       }
 
