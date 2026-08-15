@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import YarnWeavingTransactionsModal from './YarnWeavingTransactionsModal'
-import './YarnWeavingTransactions.css'
 
 const YARN_WEAVING_TRANSACTIONS_URL = '/api/yarn-weaving-transactions'
 const YARN_WEAVING_UPSERT_URL = '/api/yarn-weaving-transactions/upsert'
@@ -427,143 +426,206 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
   }, [currentUserName, showNotice, totalBrutKg, totalCount, totalNetKg, transactions])
 
   return (
-    <>
-      <header className="content-header">
-        <div>
-          <h3>ادارة حركات الحياكة</h3>
-          <p>عرض جميع حركات الحياكة مع البحث والتصفح.</p>
+    <div className="space-y-6" dir="rtl">
+      <header className="rounded-2xl border border-slate-200 bg-white px-6 py-7 shadow-sm">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h3 className="mt-2 text-2xl font-semibold text-slate-900">إدارة حركات الحياكة</h3>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleAddTransaction}
+            className="inline-flex items-center justify-center rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-slate-800"
+          >
+            + إضافة حركة جديدة
+          </button>
         </div>
-        <button type="button" className="add-button" onClick={handleAddTransaction}>
-          + اضافة حركة جديدة
-        </button>
+
+        <div className="mt-6 grid gap-4 md:grid-cols-2">
+          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+            <label htmlFor="weavingSearch" className="mb-2 block text-xs font-medium text-slate-600">بحث</label>
+            <input
+              id="weavingSearch"
+              type="text"
+              value={searchText}
+              onChange={(event) => {
+                setSearchText(event.target.value)
+                setPageNumber(1)
+              }}
+              placeholder="ابحث بالفاتورة أو اسم المعمل"
+              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+            />
+          </div>
+
+          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+            <label htmlFor="weavingPageSize" className="mb-2 block text-xs font-medium text-slate-600">حجم الصفحة</label>
+            <select
+              id="weavingPageSize"
+              value={pageSize}
+              onChange={(event) => {
+                setPageSize(Number(event.target.value))
+                setPageNumber(1)
+              }}
+              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+            >
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
+        </div>
       </header>
 
-      <section className="filters-panel weaving-filters" aria-label="بحث حركات الحياكة">
-        <div className="field-group">
-          <label htmlFor="weavingSearch">بحث</label>
-          <input
-            id="weavingSearch"
-            type="text"
-            value={searchText}
-            onChange={(event) => {
-              setSearchText(event.target.value)
-              setPageNumber(1)
-            }}
-            placeholder="ابحث بالفاتورة أو اسم المعمل"
-          />
+      {error ? (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">{error}</div>
+      ) : null}
+
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="flex flex-col gap-4 border-b border-slate-200 bg-slate-50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <div>
+            <p className="text-xs font-medium text-slate-600">إجمالي الحركات</p>
+            <p className="mt-1 text-2xl font-semibold text-slate-900">{totalCount}</p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+            <span className="rounded-md bg-slate-200 px-2.5 py-1 font-medium text-slate-700">الصفحة {pageNumber} من {Math.max(totalPages, 1)}</span>
+            <span className="rounded-md bg-slate-200 px-2.5 py-1 font-medium text-slate-700">{pageSize} لكل صفحة</span>
+          </div>
         </div>
 
-        <div className="field-group">
-          <label htmlFor="weavingPageSize">حجم الصفحة</label>
-          <select
-            id="weavingPageSize"
-            value={pageSize}
-            onChange={(event) => {
-              setPageSize(Number(event.target.value))
-              setPageNumber(1)
-            }}
-          >
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
-          </select>
-        </div>
-      </section>
-
-      {error ? <p className="error-box inline-error">{error}</p> : null}
-
-      <div className="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>رقم الفاتورة</th>
-              <th>المصنع</th>
-              <th>التاريخ</th>
-              <th>الكاتب</th>
-              <th>لوحة السيارة</th>
-              <th>صاحب السيارة</th>
-              <th>عدد التفاصيل</th>
-              <th>الصافي KG</th>
-              <th>القائم KG</th>
-              <th>الإجراءات</th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading ? (
-              <tr>
-                <td colSpan={10} className="table-state">
-                  جاري تحميل بيانات الحركات...
-                </td>
+        <div className="hidden overflow-x-auto md:block">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-slate-200 bg-slate-100">
+                <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-slate-700">رقم الفاتورة</th>
+                <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-slate-700">المصنع</th>
+                <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-slate-700">التاريخ</th>
+                <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-slate-700">الكاتب</th>
+                <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-slate-700">لوحة السيارة</th>
+                <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-slate-700">صاحب السيارة</th>
+                <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-slate-700">عدد التفاصيل</th>
+                <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-slate-700">الصافي KG</th>
+                <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-slate-700">القائم KG</th>
+                <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-slate-700">الإجراءات</th>
               </tr>
-            ) : transactions.length === 0 ? (
-              <tr>
-                <td colSpan={10} className="table-state">
-                  لا توجد بيانات مطابقة.
-                </td>
-              </tr>
-            ) : (
-              transactions.map((transaction, index) => (
-                <tr key={transaction.id ?? `${transaction.faturaNo ?? 'row'}-${index}`}>
-                  <td>{transaction.faturaNo ?? '-'}</td>
-                  <td>{transaction.factoryName ?? '-'}</td>
-                  <td>{transaction.date ?? '-'}</td>
-                  <td>{transaction.writer ?? '-'}</td>
-                  <td>{transaction.carBLK ?? '-'}</td>
-                  <td>{transaction.carOwner ?? '-'}</td>
-                  <td>{transaction.detailsCount ?? '-'}</td>
-                  <td>{transaction.totalNetKg ?? '-'}</td>
-                  <td>{transaction.totalBrutKg ?? '-'}</td>
-                  <td>
-                    <div className="row-actions">
-                      <button
-                        type="button"
-                        className="action-btn edit"
-                        onClick={() => handleEditTransaction(transaction.id)}
-                      >
-                        تعديل
-                      </button>
-                      <button
-                        type="button"
-                        className="action-btn delete"
-                        onClick={() => handleDeleteTransaction(transaction.id)}
-                      >
-                        حذف
-                      </button>
-                    </div>
-                  </td>
+            </thead>
+            <tbody className="divide-y divide-slate-200">
+              {isLoading ? (
+                <tr>
+                  <td colSpan={10} className="px-4 py-12 text-center text-slate-500">جاري تحميل بيانات الحركات...</td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : transactions.length === 0 ? (
+                <tr>
+                  <td colSpan={10} className="px-4 py-12 text-center text-slate-500">لا توجد بيانات مطابقة.</td>
+                </tr>
+              ) : (
+                transactions.map((transaction, index) => (
+                  <tr key={transaction.id ?? `${transaction.faturaNo ?? 'row'}-${index}`} className="transition hover:bg-slate-50">
+                    <td className="px-4 py-4 text-right text-slate-900">{transaction.faturaNo ?? '-'}</td>
+                    <td className="px-4 py-4 text-right text-slate-700">{transaction.factoryName ?? '-'}</td>
+                    <td className="px-4 py-4 text-right text-slate-700">{transaction.date ?? '-'}</td>
+                    <td className="px-4 py-4 text-right text-slate-700">{transaction.writer ?? '-'}</td>
+                    <td className="px-4 py-4 text-right text-slate-700">{transaction.carBLK ?? '-'}</td>
+                    <td className="px-4 py-4 text-right text-slate-700">{transaction.carOwner ?? '-'}</td>
+                    <td className="px-4 py-4 text-right text-slate-700">{transaction.detailsCount ?? '-'}</td>
+                    <td className="px-4 py-4 text-right text-slate-700">{transaction.totalNetKg ?? '-'}</td>
+                    <td className="px-4 py-4 text-right text-slate-700">{transaction.totalBrutKg ?? '-'}</td>
+                    <td className="px-4 py-4 text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleEditTransaction(transaction.id)}
+                          className="inline-flex h-9 items-center justify-center rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-600 transition hover:bg-slate-100"
+                        >
+                          تعديل
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteTransaction(transaction.id)}
+                          className="inline-flex h-9 items-center justify-center rounded-lg border border-red-300 bg-red-50 px-3 text-sm font-medium text-red-600 transition hover:bg-red-100"
+                        >
+                          حذف
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="md:hidden">
+          {isLoading ? (
+            <div className="px-4 py-12 text-center text-slate-500">جاري تحميل بيانات الحركات...</div>
+          ) : transactions.length === 0 ? (
+            <div className="px-4 py-12 text-center text-slate-500">لا توجد بيانات مطابقة.</div>
+          ) : (
+            <div className="divide-y divide-slate-200">
+              {transactions.map((transaction, index) => (
+                <div key={transaction.id ?? `${transaction.faturaNo ?? 'row'}-${index}`} className="p-4">
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">{transaction.faturaNo ?? '-'}</span>
+                    <span className="text-sm font-semibold text-slate-900">{transaction.factoryName ?? '-'}</span>
+                  </div>
+
+                  <div className="space-y-2 text-xs text-slate-700">
+                    <div className="flex items-center justify-between gap-3"><span>التاريخ:</span><span className="font-medium text-slate-900">{transaction.date ?? '-'}</span></div>
+                    <div className="flex items-center justify-between gap-3"><span>الكاتب:</span><span className="font-medium text-slate-900">{transaction.writer ?? '-'}</span></div>
+                    <div className="flex items-center justify-between gap-3"><span>لوحة السيارة:</span><span className="font-medium text-slate-900">{transaction.carBLK ?? '-'}</span></div>
+                    <div className="flex items-center justify-between gap-3"><span>صاحب السيارة:</span><span className="font-medium text-slate-900">{transaction.carOwner ?? '-'}</span></div>
+                    <div className="flex items-center justify-between gap-3"><span>عدد التفاصيل:</span><span className="font-medium text-slate-900">{transaction.detailsCount ?? '-'}</span></div>
+                    <div className="flex items-center justify-between gap-3"><span>الصافي KG:</span><span className="font-medium text-slate-900">{transaction.totalNetKg ?? '-'}</span></div>
+                    <div className="flex items-center justify-between gap-3"><span>القائم KG:</span><span className="font-medium text-slate-900">{transaction.totalBrutKg ?? '-'}</span></div>
+                  </div>
+
+                  <div className="mt-4 flex items-center justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleEditTransaction(transaction.id)}
+                      className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-600"
+                    >
+                      تعديل
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteTransaction(transaction.id)}
+                      className="rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-xs font-medium text-red-600"
+                    >
+                      حذف
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
-      <footer className="table-footer">
-        <div className="table-footer-summary">
-          <p style={{ fontSize: '0.84rem', lineHeight: 1.6 }}>
-            <span>عدد النتائج: <strong>{totalCount}</strong></span> ·
-            <span>صافي: <strong>{totalNetKg}</strong></span> ·
-            <span>قائم: <strong>{totalBrutKg}</strong></span>
-          </p>
-          <button type="button" className="print-btn" onClick={handlePrintTransactions}>
+      <footer className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-2 text-sm text-slate-600 sm:flex-row sm:items-center sm:gap-4">
+          <p>عدد النتائج: <strong className="text-slate-900">{totalCount}</strong></p>
+          <p>الصافي: <strong className="text-slate-900">{totalNetKg}</strong></p>
+          <p>القائم: <strong className="text-slate-900">{totalBrutKg}</strong></p>
+          <button type="button" className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50" onClick={handlePrintTransactions}>
             طباعة
           </button>
         </div>
-        <div className="pagination-controls">
+
+        <div className="flex items-center gap-2">
           <button
             type="button"
-            className="pager-btn"
+            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
             disabled={pageNumber <= 1 || isLoading}
             onClick={() => setPageNumber((prev) => Math.max(prev - 1, 1))}
           >
             السابق
           </button>
-          <span>
-            الصفحة {pageNumber} من {Math.max(totalPages, 1)}
-          </span>
+          <span className="rounded-md bg-slate-100 px-2.5 py-1 text-sm font-medium text-slate-700">الصفحة {pageNumber} من {Math.max(totalPages, 1)}</span>
           <button
             type="button"
-            className="pager-btn"
+            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
             disabled={pageNumber >= Math.max(totalPages, 1) || isLoading}
             onClick={() => setPageNumber((prev) => Math.min(prev + 1, Math.max(totalPages, 1)))}
           >
@@ -587,7 +649,7 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
         onClose={closeModal}
         onSave={saveTransaction}
       />
-    </>
+    </div>
   )
 }
 
