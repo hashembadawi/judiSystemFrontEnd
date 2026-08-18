@@ -4,6 +4,32 @@ import WeavingOrdersModal from './WeavingOrdersModal'
 const WEAVING_ORDERS_URL = '/api/WeavingOrder'
 const getTodayDate = () => new Date().toISOString().slice(0, 10)
 
+const createEmptyYarnDetail = () => ({
+  id: 0,
+  parentId: 0,
+  yarnId: 0,
+  yarnGender: '',
+  yarnLot: '',
+  percentage: '',
+  weight: '',
+})
+
+const createEmptyDetailRow = () => ({
+  id: 0,
+  fabricGender: '',
+  fabricGr: '',
+  fabricLot: '',
+  pus: '',
+  fain: '',
+  iplik_Uzunu: '',
+  denye: '',
+  weight: '',
+  price: '',
+  description: '',
+  factoryId: '',
+  yarnDetails: [createEmptyYarnDetail()],
+})
+
 const normalizeDateValue = (value) => {
   if (typeof value !== 'string') {
     return getTodayDate()
@@ -45,22 +71,14 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
   const [orderOptions, setOrderOptions] = useState([])
   const [fabricOptions, setFabricOptions] = useState([])
   const [factoryOptions, setFactoryOptions] = useState([])
+  const [yarnOptions, setYarnOptions] = useState([])
   const [selectedOrderDetails, setSelectedOrderDetails] = useState([])
   const [form, setForm] = useState({
-    Id: 0,
-    OrderId: '',
-    Name: '',
-    Date: getTodayDate(),
-    Details: [
-      {
-        FabricGender: '',
-        FabricGr: '',
-        FabricLot: '',
-        Weight: '',
-        Description: '',
-        FactoryId: '',
-      },
-    ],
+    id: 0,
+    orderId: '',
+    name: '',
+    date: getTodayDate(),
+    details: [createEmptyDetailRow()],
   })
 
   const totalPages = useMemo(() => {
@@ -126,24 +144,11 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
 
   const resetForm = useCallback(() => {
     setForm({
-      Id: 0,
-      OrderId: '',
-      Name: '',
-      Date: getTodayDate(),
-      Details: [
-        {
-          FabricGender: '',
-          FabricGr: '',
-          FabricLot: '',
-          pus: '',
-          fain: '',
-          iplik_Uzunu: '',
-          denye: '',
-          Weight: '',
-          Description: '',
-          FactoryId: '',
-        },
-      ],
+      id: 0,
+      orderId: '',
+      name: '',
+      date: getTodayDate(),
+      details: [createEmptyDetailRow()],
     })
   }, [])
 
@@ -158,26 +163,26 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
         Date: normalizeText(orderItem?.Date ?? orderItem?.date ?? getTodayDate()),
         Details: details.length
           ? details.map((detail) => ({
-              Id: Number(detail?.Id ?? detail?.id ?? 0) || 0,
-              FabricGender: normalizeText(detail?.FabricGender ?? detail?.fabricGender ?? ''),
-              FabricGr: Number(detail?.FabricGr ?? detail?.fabricGr ?? detail?.fabricWeight ?? 0) || '',
-              FabricLot: normalizeText(detail?.FabricLot ?? detail?.fabricLot ?? ''),
+              id: Number(detail?.id ?? detail?.Id ?? 0) || 0,
+              fabricGender: normalizeText(detail?.fabricGender ?? detail?.FabricGender ?? ''),
+              fabricGr: Number(detail?.fabricGr ?? detail?.FabricGr ?? detail?.fabricWeight ?? 0) || '',
+              fabricLot: normalizeText(detail?.fabricLot ?? detail?.FabricLot ?? ''),
               pus: detail?.pus ?? detail?.Pus ?? '',
               fain: detail?.fain ?? detail?.Fain ?? '',
               iplik_Uzunu: detail?.iplik_Uzunu ?? detail?.Iplik_Uzunu ?? detail?.IplikUzunu ?? '',
               denye: detail?.denye ?? detail?.Denye ?? '',
-              Weight: Number(detail?.Weight ?? detail?.weight ?? 0) || '',
-              Description: normalizeText(detail?.Description ?? detail?.description ?? ''),
-              FactoryId: Number(detail?.FactoryId ?? detail?.factoryId ?? 0) || '',
+              weight: Number(detail?.weight ?? detail?.Weight ?? 0) || '',
+              description: normalizeText(detail?.description ?? detail?.Description ?? ''),
+              factoryId: Number(detail?.factoryId ?? detail?.FactoryId ?? 0) || '',
             }))
           : [
               {
-                FabricGender: '',
-                FabricGr: '',
-                FabricLot: '',
-                Weight: '',
-                Description: '',
-                FactoryId: '',
+                fabricGender: '',
+                fabricGr: '',
+                fabricLot: '',
+                weight: '',
+                description: '',
+                factoryId: '',
               },
             ],
       }
@@ -203,6 +208,7 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
     setOrderOptions([])
     setFabricOptions([])
     setFactoryOptions([])
+    setYarnOptions([])
     resetForm()
 
     try {
@@ -211,6 +217,7 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
       setOrderOptions(Array.isArray(data.customerOrders) ? data.customerOrders : [])
       setFabricOptions([])
       setFactoryOptions(Array.isArray(data.fasonFactories) ? data.fasonFactories : [])
+      setYarnOptions(Array.isArray(data.yarns) ? data.yarns : [])
       setSelectedOrderDetails([])
     } catch (requestError) {
       const message = requestError.message || 'Seçenekler yüklenirken bir hata oluştu.'
@@ -243,44 +250,100 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
   const updateDetailField = useCallback((index, field, value) => {
     setForm((prev) => ({
       ...prev,
-      Details: prev.Details.map((detail, detailIndex) =>
+      details: prev.details.map((detail, detailIndex) =>
         detailIndex === index ? { ...detail, [field]: value } : detail,
       ),
     }))
   }, [])
 
+  const updateYarnDetailField = useCallback((detailIndex, yarnIndex, field, value) => {
+    setForm((prev) => ({
+      ...prev,
+      details: prev.details.map((detail, index) => {
+        if (index !== detailIndex) {
+          return detail
+        }
+
+        return {
+          ...detail,
+          yarnDetails: (detail.yarnDetails ?? [createEmptyYarnDetail()]).map((yarnDetail, yarnDetailIndex) => {
+            if (yarnDetailIndex !== yarnIndex) {
+              return yarnDetail
+            }
+
+            const updatedYarnDetail = { ...yarnDetail, [field]: value }
+
+            if (field === 'yarnId' && value) {
+              const selectedYarn = yarnOptions.find((yarn) => String(yarn.id ?? yarn.yarnId) === String(value))
+              if (selectedYarn) {
+                updatedYarnDetail.yarnGender = selectedYarn.yarnGender ?? selectedYarn.YarnGender ?? ''
+              }
+            }
+
+            if (field === 'percentage' && value) {
+              const percentage = parseFloat(value)
+              const fabricWeight = parseFloat(detail.weight) || 0
+
+              if (percentage >= 0 && fabricWeight > 0) {
+                const calculatedWeight = (fabricWeight * percentage) / 100
+                updatedYarnDetail.weight = calculatedWeight.toFixed(2)
+              }
+            }
+
+            return updatedYarnDetail
+          }),
+        }
+      }),
+    }))
+  }, [yarnOptions])
+
   const addDetailRow = useCallback(() => {
     setForm((prev) => ({
       ...prev,
-      Details: [
-        ...prev.Details,
-        {
-          FabricGender: '',
-          FabricGr: '',
-          FabricLot: '',
-          pus: '',
-          fain: '',
-          iplik_Uzunu: '',
-          denye: '',
-          Weight: '',
-          Description: '',
-          FactoryId: '',
-        },
-      ],
+      details: [...prev.details, createEmptyDetailRow()],
+    }))
+  }, [])
+
+  const addYarnDetailRow = useCallback((detailIndex) => {
+    setForm((prev) => ({
+      ...prev,
+      details: prev.details.map((detail, index) =>
+        index === detailIndex
+          ? { ...detail, yarnDetails: [...(detail.yarnDetails ?? []), createEmptyYarnDetail()] }
+          : detail,
+      ),
     }))
   }, [])
 
   const removeDetailRow = useCallback((index) => {
     setForm((prev) => ({
       ...prev,
-      Details: prev.Details.filter((_, detailIndex) => detailIndex !== index),
+      details: prev.details.filter((_, detailIndex) => detailIndex !== index),
+    }))
+  }, [])
+
+  const removeYarnDetailRow = useCallback((detailIndex, yarnIndex) => {
+    setForm((prev) => ({
+      ...prev,
+      details: prev.details.map((detail, index) => {
+        if (index !== detailIndex) {
+          return detail
+        }
+
+        const nextYarnDetails = (detail.yarnDetails ?? []).filter((_, itemIndex) => itemIndex !== yarnIndex)
+
+        return {
+          ...detail,
+          yarnDetails: nextYarnDetails.length ? nextYarnDetails : [createEmptyYarnDetail()],
+        }
+      }),
     }))
   }, [])
 
   const handleOrderSelection = useCallback(
     async (selectedOrderId) => {
       const normalizedId = String(selectedOrderId ?? '').trim()
-      updateFormField('OrderId', normalizedId)
+      updateFormField('orderId', normalizedId)
 
       if (!normalizedId) {
         setFabricOptions([])
@@ -331,6 +394,7 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
       setOrderOptions([])
       setFabricOptions([])
       setFactoryOptions([])
+      setYarnOptions([])
       resetForm()
 
       try {
@@ -348,37 +412,41 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
 
         setOrderOptions(Array.isArray(optionsData.customerOrders) ? optionsData.customerOrders : [])
         setFactoryOptions(Array.isArray(optionsData.fasonFactories) ? optionsData.fasonFactories : [])
+        setYarnOptions(Array.isArray(optionsData.yarns) ? optionsData.yarns : [])
         setFabricOptions(nextFabricOptions)
 
         setForm({
-          Id: orderData?.id ?? 0,
-          OrderId: orderData?.orderId ?? orderData?.OrderId ?? '',
-          Name: orderData?.name ?? orderData?.Name ?? '',
-          Date: normalizeDateValue(orderData?.date ?? orderData?.Date),
-          Details: details.length
+          id: orderData?.id ?? 0,
+          orderId: orderData?.orderId ?? orderData?.OrderId ?? '',
+          name: orderData?.name ?? orderData?.Name ?? '',
+          date: normalizeDateValue(orderData?.date ?? orderData?.Date),
+          details: details.length
             ? details.map((detail) => ({
-                Id: detail?.id ?? 0,
-                FabricGender: normalizeTextValue(detail?.fabricGender ?? detail?.FabricGender ?? ''),
-                FabricGr: detail?.fabricGr ?? detail?.FabricGr ?? '',
-                FabricLot: normalizeTextValue(detail?.fabricLot ?? detail?.FabricLot ?? ''),
+                id: detail?.id ?? 0,
+                fabricGender: normalizeTextValue(detail?.fabricGender ?? detail?.FabricGender ?? ''),
+                fabricGr: detail?.fabricGr ?? detail?.FabricGr ?? '',
+                fabricLot: normalizeTextValue(detail?.fabricLot ?? detail?.FabricLot ?? ''),
                 pus: detail?.pus ?? detail?.Pus ?? '',
                 fain: detail?.fain ?? detail?.Fain ?? '',
                 iplik_Uzunu: detail?.iplik_Uzunu ?? detail?.Iplik_Uzunu ?? detail?.IplikUzunu ?? '',
                 denye: detail?.denye ?? detail?.Denye ?? '',
-                Weight: detail?.weight ?? detail?.Weight ?? '',
-                Description: normalizeTextValue(detail?.description ?? detail?.Description ?? ''),
-                FactoryId: detail?.factoryId ?? detail?.FactoryId ?? '',
+                weight: detail?.weight ?? detail?.Weight ?? '',
+                price: detail?.price ?? detail?.Price ?? '',
+                description: normalizeTextValue(detail?.description ?? detail?.Description ?? ''),
+                factoryId: detail?.factoryId ?? detail?.FactoryId ?? '',
+                yarnDetails: Array.isArray(detail?.yarnDetails)
+                  ? detail.yarnDetails.map((yarn) => ({
+                      id: yarn?.id ?? 0,
+                      parentId: yarn?.parentId ?? 0,
+                      yarnId: yarn?.yarnId ?? 0,
+                      yarnGender: normalizeTextValue(yarn?.yarnGender ?? yarn?.YarnGender ?? ''),
+                      yarnLot: normalizeTextValue(yarn?.yarnLot ?? yarn?.YarnLot ?? ''),
+                      percentage: yarn?.percentage ?? yarn?.Percentage ?? '',
+                      weight: yarn?.weight ?? yarn?.Weight ?? '',
+                    }))
+                  : [createEmptyYarnDetail()],
               }))
-            : [
-                {
-                  FabricGender: '',
-                  FabricGr: '',
-                  FabricLot: '',
-                  Weight: '',
-                  Description: '',
-                  FactoryId: '',
-                },
-              ],
+            : [createEmptyDetailRow()],
         })
       } catch (requestError) {
         const message = requestError.message || 'Hareket verileri yüklenirken bir hata oluştu.'
@@ -398,22 +466,32 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
 
     try {
       const payload = {
-        Id: Number(form.Id) || 0,
-        OrderId: Number(form.OrderId) || 0,
-        Name: String(form.Name ?? '').trim(),
-        Date: String(form.Date ?? '').trim(),
-        Details: form.Details.map((detail) => ({
-          Id: Number(detail.Id) || 0,
-          FabricGender: String(detail.FabricGender ?? '').trim(),
-          FabricGr: Number(detail.FabricGr) || 0,
-          FabricLot: String(detail.FabricLot ?? '').trim(),
-          pus: Number(detail.pus ?? detail.Pus ?? 0) || 0,
-          fain: Number(detail.fain ?? detail.Fain ?? 0) || 0,
-          iplik_Uzunu: Number(detail.iplik_Uzunu ?? detail.Iplik_Uzunu ?? detail.IplikUzunu ?? 0) || 0,
-          denye: Number(detail.denye ?? detail.Denye ?? 0) || 0,
-          Weight: Number(detail.Weight) || 0,
-          Description: String(detail.Description ?? '').trim(),
-          FactoryId: Number(detail.FactoryId) || 0,
+        id: Number(form.id) || 0,
+        orderId: Number(form.orderId) || 0,
+        name: String(form.name ?? '').trim(),
+        date: String(form.date ?? '').trim(),
+        details: form.details.map((detail) => ({
+          id: Number(detail.id) || 0,
+          fabricGender: String(detail.fabricGender ?? '').trim(),
+          fabricGr: Number(detail.fabricGr) || 0,
+          fabricLot: String(detail.fabricLot ?? '').trim(),
+          pus: Number(detail.pus ?? 0) || 0,
+          fain: Number(detail.fain ?? 0) || 0,
+          iplik_Uzunu: Number(detail.iplik_Uzunu ?? 0) || 0,
+          denye: Number(detail.denye ?? 0) || 0,
+          weight: Number(detail.weight) || 0,
+          price: Number(detail.price ?? 0) || 0,
+          description: String(detail.description ?? '').trim(),
+          factoryId: Number(detail.factoryId) || 0,
+          yarnDetails: Array.isArray(detail.yarnDetails) ? detail.yarnDetails.map((yarn) => ({
+            id: Number(yarn.id ?? 0) || 0,
+            parentId: Number(detail.id) || 0,
+            yarnId: Number(yarn.yarnId ?? 0) || 0,
+            yarnGender: String(yarn.yarnGender ?? '').trim(),
+            yarnLot: String(yarn.yarnLot ?? '').trim(),
+            percentage: Number(yarn.percentage ?? 0) || 0,
+            weight: Number(yarn.weight ?? 0) || 0,
+          })) : [],
         })),
       }
 
@@ -542,7 +620,7 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
                 setPageSize(Number(event.target.value))
                 setPageNumber(1)
               }}
-              className="h-10 w-full rounded-lg border-0 bg-slate-100 px-3 text-center text-sm text-slate-900 outline-none transition focus:bg-slate-50"
+              className="h-11 w-full rounded-lg border-0 bg-slate-100 px-3 text-center text-sm text-slate-900 outline-none transition focus:bg-slate-50"
               style={{ direction: 'ltr', textAlign: 'center' }}
             >
               <option value={10}>10</option>
@@ -709,12 +787,16 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
         orderOptions={orderOptions}
         fabricOptions={fabricOptions}
         factoryOptions={factoryOptions}
+        yarnOptions={yarnOptions}
         selectedOrderDetails={selectedOrderDetails}
         isEditMode={isEditMode}
         onFieldChange={updateFormField}
         onDetailChange={updateDetailField}
+        onYarnDetailChange={updateYarnDetailField}
         onAddDetail={addDetailRow}
+        onAddYarnDetail={addYarnDetailRow}
         onRemoveDetail={removeDetailRow}
+        onRemoveYarnDetail={removeYarnDetailRow}
         onClose={closeModal}
         onSave={saveOrder}
         onOrderSelect={handleOrderSelection}
