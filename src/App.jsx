@@ -106,6 +106,7 @@ function App() {
         Count: '',
         Weight: '',
         OrderId: '',
+        weavingOrderId: '',
         FactoryId: '',
         FabricType: 1,
       },
@@ -131,6 +132,7 @@ function App() {
         Count: '',
         Weight: '',
         OrderId: '',
+        weavingOrderId: '',
         FactoryId: '',
         FabricType: 1,
       },
@@ -569,6 +571,7 @@ function App() {
       const fabricGSM = detail?.FabricGSM ?? ''
       const fabricLot = String(detail?.FabricLot ?? '').trim()
       const orderId = detail?.OrderId ?? ''
+      const weavingOrderId = detail?.weavingOrderId ?? detail?.WeavingOrderId ?? detail?.weavingOrderID ?? detail?.OrderId ?? ''
       const fabricType = Number(detail?.FabricType ?? 1) || 1
       const count = 1
       const weight = extractWeight(detail)
@@ -578,7 +581,7 @@ function App() {
         return
       }
 
-      const key = `${fabricGender}::${fabricGSM}::${fabricLot}::${orderId}::${fabricType}`
+      const key = `${fabricGender}::${fabricGSM}::${fabricLot}::${weavingOrderId || orderId}::${fabricType}`
       const existing = groupedDetails.get(key)
 
       if (!existing) {
@@ -589,6 +592,7 @@ function App() {
           Count: count,
           Weight: weight,
           OrderId: orderId ? Number(orderId) || 0 : 0,
+          weavingOrderId: weavingOrderId ? Number(weavingOrderId) || 0 : 0,
           FactoryId: factoryId ? Number(factoryId) || 0 : 0,
           FabricType: fabricType,
         })
@@ -601,9 +605,13 @@ function App() {
       if (!existing.FactoryId && factoryId) {
         existing.FactoryId = Number(factoryId) || 0
       }
+
+      if (!existing.weavingOrderId && weavingOrderId) {
+        existing.weavingOrderId = Number(weavingOrderId) || 0
+      }
     })
 
-    return Array.from(groupedDetails.values()).filter((detail) => detail.FabricGender || detail.FabricLot || detail.OrderId || detail.Count || detail.Weight)
+    return Array.from(groupedDetails.values()).filter((detail) => detail.FabricGender || detail.FabricLot || detail.OrderId || detail.weavingOrderId || detail.Count || detail.Weight)
   }, [])
 
   const saveAddFabricTransaction = useCallback(async () => {

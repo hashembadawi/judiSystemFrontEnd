@@ -67,8 +67,10 @@ function AddFabricTransactionModal({
 
   const handleRowWeavingOrderSelect = async (rowIndex, value) => {
     if (!apiRequest) return
-    // set order id on row
+
     onDetailFieldChange(rowIndex, 'OrderId', value)
+    onDetailFieldChange(rowIndex, 'weavingOrderId', value)
+    onDetailFieldChange(rowIndex, 'WeavingOrderId', value)
 
     if (!value) {
       setFabricsByRow((prev) => {
