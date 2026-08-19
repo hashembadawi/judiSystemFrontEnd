@@ -4,6 +4,19 @@ import YarnWeavingTransactionsModal from './YarnWeavingTransactionsModal'
 const YARN_WEAVING_TRANSACTIONS_URL = '/api/yarn-weaving-transactions'
 const YARN_WEAVING_UPSERT_URL = '/api/yarn-weaving-transactions/upsert'
 
+const escapeHtml = (value) => String(value ?? '-').replace(/[&<>'"]/g, (character) => ({
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  "'": '&#39;',
+  '"': '&quot;',
+}[character]))
+
+const formatReportDate = (value) => {
+  const dateParts = String(value ?? '').slice(0, 10).split('-')
+  return dateParts.length === 3 ? `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}` : value || '-'
+}
+
 function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, currentUserName = '' }) {
   const [searchText, setSearchText] = useState('')
   const [pageNumber, setPageNumber] = useState(1)
@@ -199,6 +212,101 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
     }))
   }, [])
 
+  const printSavedTransaction = useCallback((payload) => {
+    const factory = factoryOptions.find((item) => String(item.id) === String(payload.factoryId))
+    const selectedOrder = sendOrders.find((order) => (
+      String(order.weavingOrderId ?? order.WeavingOrderId ?? '') === String(payload.weavingOrderId)
+      && String(order.factoryId ?? '') === String(payload.factoryId)
+    ))
+    const factoryName = factory?.name ?? factory?.factoryName ?? selectedOrder?.factoryName ?? '-'
+    const yarnName = (yarnId) => {
+      const yarn = yarnOptions.find((item) => String(item.id ?? item.yarnId) === String(yarnId))
+      return yarn?.yarnGender ?? yarn?.YarnGender ?? yarn?.name ?? yarnId ?? '-'
+    }
+    const totalCount = payload.Details.reduce((sum, detail) => sum + Number(detail.Count || 0), 0)
+    const totalNetKg = payload.Details.reduce((sum, detail) => sum + Number(detail.NetKg || 0), 0)
+    const detailRows = payload.Details.map((detail, index) => `
+      <tr>
+        <td>${index + 1}</td>
+        <td>${escapeHtml(yarnName(detail.YarnId))}</td>
+        <td>${escapeHtml(detail.Lot)}</td>
+        <td>${escapeHtml(detail.YarnType)}</td>
+        <td>${escapeHtml(detail.Count)}</td>
+        <td>${escapeHtml(detail.NetKg)} KG</td>
+        <td>${escapeHtml(detail.BrutKg)} KG</td>
+      </tr>
+    `).join('')
+    const reportHtml = `<!DOCTYPE html>
+      <html lang="tr" dir="ltr">
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="robots" content="noindex,nofollow" />
+          <title>Judi Mensucat İplik Sevkiyat Hareketi Raporu</title>
+          <style>
+            @page { margin: 12mm; }
+            * { box-sizing: border-box; }
+            body { direction: ltr; text-align: left; font-family: Arial, sans-serif; color: #172033; margin: 0; padding: 18px; }
+            header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #1677a8; padding-bottom: 14px; margin-bottom: 18px; }
+            h1 { color: #125d83; font-size: 22px; margin: 0 0 6px; }
+            .subtitle { color: #64748b; font-size: 12px; }
+            .meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px 18px; margin-bottom: 20px; }
+            .meta-item { border-bottom: 1px solid #dbe4ec; padding: 7px 0; font-size: 13px; }
+            .label { color: #64748b; margin-right: 6px; }
+            table { width: 100%; border-collapse: collapse; font-size: 12px; direction: ltr; }
+            th, td { border: 1px solid #cbd5e1; padding: 8px 7px; text-align: left; }
+            th { background: #eaf5fb; color: #17445d; font-weight: 700; }
+            tbody tr:nth-child(even) { background: #f8fafc; }
+            .totals { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 16px; }
+            .total-item { border: 1px solid #9fc9dc; background: #eaf5fb; padding: 10px 12px; color: #17445d; font-size: 14px; font-weight: 700; }
+            footer { display: flex; justify-content: space-between; margin-top: 28px; padding-top: 12px; border-top: 1px solid #cbd5e1; color: #64748b; font-size: 11px; }
+            @media print { body { padding: 0; } }
+          </style>
+        </head>
+        <body>
+          <header>
+            <div>
+              <h1>Judi Mensucat İplik Sevkiyat Hareketi Raporu</h1>
+            </div>
+            <div class="subtitle">Yazdırma tarihi: ${escapeHtml(new Date().toLocaleDateString('tr-TR'))}</div>
+          </header>
+          <section class="meta">
+            <div class="meta-item"><span class="label">Fatura no:</span><strong>${escapeHtml(payload.faturaNo)}</strong></div>
+            <div class="meta-item"><span class="label">Fabrika:</span><strong>${escapeHtml(factoryName)}</strong></div>
+            <div class="meta-item"><span class="label">Gönderilen Firma:</span><strong>${escapeHtml(factoryName)}</strong></div>
+            <div class="meta-item"><span class="label">Tarih:</span><strong dir="ltr" style="direction: ltr; unicode-bidi: isolate;">${escapeHtml(formatReportDate(payload.date))}</strong></div>
+            <div class="meta-item"><span class="label">Yazıcı:</span><strong>${escapeHtml(payload.writer)}</strong></div>
+            <div class="meta-item"><span class="label">Araç plakası:</span><strong>${escapeHtml(payload.carBLK)}</strong></div>
+            <div class="meta-item"><span class="label">Araç sahibi:</span><strong>${escapeHtml(payload.carOwner)}</strong></div>
+          </section>
+          <table>
+            <thead>
+              <tr><th>#</th><th>İplik</th><th>LOT</th><th>İplik tipi</th><th>Adet</th><th>Net ağırlık</th><th>Brüt ağırlık</th></tr>
+            </thead>
+            <tbody>${detailRows}</tbody>
+          </table>
+          <section class="totals">
+            <div class="total-item">Toplam Adet: ${escapeHtml(totalCount)}</div>
+            <div class="total-item">Toplam KG: ${escapeHtml(totalNetKg)} KG</div>
+          </section>
+          <footer><span>Detay sayısı: ${payload.Details.length}</span><span>Raporu hazırlayan: ${escapeHtml(currentUserName || 'Kullanıcı')}</span></footer>
+        </body>
+      </html>`
+
+    const printWindow = window.open('', '_blank', 'width=1000,height=800')
+    if (!printWindow) {
+      showNotice('error', 'Yazdırma penceresi açılamadı. Lütfen açılır pencerelere izin verip tekrar deneyin.')
+      return
+    }
+
+    printWindow.document.write(reportHtml)
+    printWindow.document.close()
+    printWindow.focus()
+    setTimeout(() => {
+      printWindow.print()
+      printWindow.close()
+    }, 250)
+  }, [currentUserName, factoryOptions, sendOrders, showNotice, yarnOptions])
+
   const saveTransaction = useCallback(async () => {
     setModalError('')
     setIsModalSaving(true)
@@ -232,6 +340,7 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
         body: JSON.stringify(payload),
       })
 
+      printSavedTransaction(payload)
       setIsModalOpen(false)
       setIsModalSaving(false)
       loadTransactions()
@@ -242,7 +351,7 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
       showNotice('error', message)
       setIsModalSaving(false)
     }
-  }, [apiRequest, form, loadTransactions, showNotice])
+  }, [apiRequest, form, loadTransactions, printSavedTransaction, showNotice])
 
   const handleEditTransaction = useCallback(async (id) => {
     if (!id) {
@@ -565,16 +674,20 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
                         <button
                           type="button"
                           onClick={() => handleEditTransaction(transaction.id)}
-                          className="inline-flex h-9 items-center justify-center rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-600 transition hover:bg-slate-100"
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-300 bg-white text-lg text-slate-600 transition hover:bg-slate-100"
+                          title="تعديل الحركة"
+                          aria-label="تعديل الحركة"
                         >
-                          تعديل
+                          ✎
                         </button>
                         <button
                           type="button"
                           onClick={() => handleDeleteTransaction(transaction.id)}
-                          className="inline-flex h-9 items-center justify-center rounded-lg border border-red-300 bg-red-50 px-3 text-sm font-medium text-red-600 transition hover:bg-red-100"
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-red-300 bg-red-50 text-base text-red-600 transition hover:bg-red-100"
+                          title="حذف الحركة"
+                          aria-label="حذف الحركة"
                         >
-                          حذف
+                          🗑
                         </button>
                       </div>
                     </td>
@@ -613,16 +726,20 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
                     <button
                       type="button"
                       onClick={() => handleEditTransaction(transaction.id)}
-                      className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-600"
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-300 bg-white text-lg text-slate-600"
+                      title="تعديل الحركة"
+                      aria-label="تعديل الحركة"
                     >
-                      تعديل
+                      ✎
                     </button>
                     <button
                       type="button"
                       onClick={() => handleDeleteTransaction(transaction.id)}
-                      className="rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-xs font-medium text-red-600"
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-red-300 bg-red-50 text-base text-red-600"
+                      title="حذف الحركة"
+                      aria-label="حذف الحركة"
                     >
-                      حذف
+                      🗑
                     </button>
                   </div>
                 </div>
