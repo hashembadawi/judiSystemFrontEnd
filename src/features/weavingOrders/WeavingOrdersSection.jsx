@@ -622,7 +622,7 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
       <header className="rounded-2xl border border-sky-200 bg-gradient-to-r from-sky-100 via-sky-50 to-blue-50 px-4 py-6 shadow-sm sm:px-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="text-left">
-            <h3 className="text-2xl font-bold text-sky-900">Dokuma Siparişleri Yönetimi</h3>
+            <h3 className="text-2xl font-bold text-sky-900">ÖRGÜ SİPARİŞLERİ YÖNETİMİ</h3>
           </div>
 
           <button

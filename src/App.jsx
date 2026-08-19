@@ -616,6 +616,46 @@ function App() {
 
   const saveAddFabricTransaction = useCallback(async () => {
     setAddFabricModalError('')
+
+    const isEmpty = (value) => value === null || value === undefined || String(value).trim() === ''
+    const showValidationWarning = (message) => {
+      setAddFabricModalError(message)
+      showNotice('warning', message)
+    }
+
+    if (isEmpty(addFabricForm.Shift) || isEmpty(addFabricForm.Date) || isEmpty(addFabricForm.Personal)) {
+      showValidationWarning('Lütfen vardiya, tarih ve personel alanlarını doldurun.')
+      return
+    }
+
+    const requiredDetailFields = [
+      ['sipariş', 'OrderId'],
+      ['kumaş cinsi', 'FabricGender'],
+      ['GR', 'FabricGSM'],
+      ['LOT', 'FabricLot'],
+      ['makine', 'Makine'],
+      ['operatör', 'Operator'],
+      ['ağırlık', 'Weight'],
+      ['fabrika', 'FactoryId'],
+      ['tip', 'FabricType'],
+    ]
+
+    for (let detailIndex = 0; detailIndex < addFabricForm.Details.length; detailIndex += 1) {
+      const detail = addFabricForm.Details[detailIndex]
+      const missingField = requiredDetailFields.find(([, field]) => isEmpty(detail[field]))
+
+      if (missingField) {
+        showValidationWarning(`${detailIndex + 1}. satırda ${missingField[0]} alanını doldurun.`)
+        return
+      }
+
+      const savedRollId = Number(detail.DepoRollId ?? detail.Id ?? 0)
+      if (!Number.isFinite(savedRollId) || savedRollId <= 0) {
+        showValidationWarning(`${detailIndex + 1}. satır için rulo giriş kaydını önce tamamlayın.`)
+        return
+      }
+    }
+
     setIsAddFabricModalSaving(true)
 
     try {
@@ -943,7 +983,7 @@ function App() {
                     className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'weavingOrders' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
                     onClick={() => setActiveOperation('weavingOrders')}
                   >
-                    Dokuma Siparişleri Yönetimi
+                    ÖRGÜ SİPARİŞLERİ YÖNETİMİ
                   </button>
                 </>
               )}

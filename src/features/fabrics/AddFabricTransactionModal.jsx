@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { Fragment, useCallback, useEffect, useState } from 'react'
 import JsBarcode from 'jsbarcode'
 import { buildButtonClasses, buildInputClasses } from '../../styles/designSystem'
 
@@ -27,10 +27,23 @@ function AddFabricTransactionModal({
   const [selectedWeavingOrderId, setSelectedWeavingOrderId] = useState('')
   const [fabricsByRow, setFabricsByRow] = useState({})
   const [savingRows, setSavingRows] = useState({})
+  const [rowValidationErrors, setRowValidationErrors] = useState({})
+
+  const handleCloseRequest = useCallback(() => {
+    if (isSaving || isLoading) {
+      return
+    }
+
+    const shouldClose = window.confirm('Kaydetmeden önce pencereyi kapatmak istediğinize emin misiniz?')
+    if (shouldClose) {
+      onClose()
+    }
+  }, [isLoading, isSaving, onClose])
+
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === 'Escape' && isOpen && !isSaving) {
-        onClose()
+        handleCloseRequest()
       }
     }
 
@@ -41,7 +54,7 @@ function AddFabricTransactionModal({
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
     }
-  }, [isOpen, isSaving, onClose])
+  }, [handleCloseRequest, isOpen, isSaving])
 
   useEffect(() => {
     if (!isOpen || !apiRequest) return
@@ -164,6 +177,42 @@ function AddFabricTransactionModal({
     const detail = form.Details[index]
     if (!detail) return
 
+    setRowValidationErrors((prev) => {
+      const next = { ...prev }
+      delete next[index]
+      return next
+    })
+
+    const isEmpty = (value) => value === null || value === undefined || String(value).trim() === ''
+    const requiredFields = [
+      ['sipariş', detail.OrderId],
+      ['kumaş cinsi', detail.FabricGender],
+      ['GR', detail.FabricGSM],
+      ['LOT', detail.FabricLot],
+      ['makine', detail.Makine],
+      ['operatör', detail.Operator],
+      ['ağırlık', detail.Weight],
+      ['fabrika', detail.FactoryId],
+      ['tip', detail.FabricType],
+    ]
+    const missingField = requiredFields.find(([, value]) => isEmpty(value))
+
+    if (missingField) {
+      setRowValidationErrors((prev) => ({
+        ...prev,
+        [index]: `${index + 1}. satırda ${missingField[0]} alanını doldurun.`,
+      }))
+      return
+    }
+
+    if (!/^\S+ \S+$/.test(String(detail.Operator).trim())) {
+      setRowValidationErrors((prev) => ({
+        ...prev,
+        [index]: `${index + 1}. satırdaki operatör adı ve soyadı arasında tek bir boşluk olmalıdır.`,
+      }))
+      return
+    }
+
     // build payload expected by API
     const payload = {
       Id: detail.DepoRollId || detail.Id || 0,
@@ -190,18 +239,12 @@ function AddFabricTransactionModal({
       const returnedData = res?.data ?? res?.data?.data ?? res
       const savedId = returnedData?.id ?? returnedData?.Id ?? returnedData
       const savedOrderNo = returnedData?.orderNo ?? returnedData?.OrderNo ?? detail.orderNo ?? detail.OrderNo
-      const savedOrderIdValue = returnedData?.orderId ?? returnedData?.OrderId ?? detail.OrderId ?? detail.orderId
-      const normalizedOrderId = savedOrderIdValue === undefined || savedOrderIdValue === null || savedOrderIdValue === ''
-        ? (detail.OrderId ?? '')
-        : Number(savedOrderIdValue) || 0
       // store returned id and orderNo on the detail and lock the row
       onDetailFieldChange(index, 'DepoRollId', savedId)
       onDetailFieldChange(index, 'Id', savedId)
       onDetailFieldChange(index, 'id', savedId)
       onDetailFieldChange(index, 'OrderNo', savedOrderNo)
       onDetailFieldChange(index, 'orderNo', savedOrderNo)
-      onDetailFieldChange(index, 'OrderId', normalizedOrderId)
-      onDetailFieldChange(index, 'orderId', normalizedOrderId)
       onDetailFieldChange(index, 'Locked', true)
       handlePrintLabel(detail, savedId, savedOrderNo)
     } catch (e) {
@@ -216,7 +259,7 @@ function AddFabricTransactionModal({
   }
 
   const handleDeleteRow = async (index) => {
-    if (!window.confirm('هل أنت متأكد من حذف هذا السطر؟')) {
+    if (!window.confirm('Bu satırı silmek istediğinizden emin misiniz?')) {
       return
     }
 
@@ -287,7 +330,7 @@ function AddFabricTransactionModal({
 
   return (
     <div className="fixed inset-0 z-50" role="dialog" aria-modal="true">
-      <div className="absolute inset-0 bg-slate-900/50" onClick={onClose} />
+      <div className="absolute inset-0 bg-slate-900/50" onClick={handleCloseRequest} />
 
       <div className="relative flex min-h-full items-start justify-center p-0 pt-4 sm:p-4 sm:pt-8">
         <section className="w-full max-h-[88vh] overflow-y-auto rounded-2xl bg-white shadow-[0_30px_60px_rgba(15,23,42,0.22)] ring-1 ring-slate-200 sm:max-w-full" style={{ maxWidth: '95vw' }} dir="ltr">
@@ -298,7 +341,7 @@ function AddFabricTransactionModal({
             <button
               type="button"
               className="text-2xl leading-none text-slate-400 transition hover:text-slate-600"
-              onClick={onClose}
+              onClick={handleCloseRequest}
               aria-label="Kapat"
             >
               ×
@@ -389,7 +432,8 @@ function AddFabricTransactionModal({
                       </thead>
                       <tbody className="divide-y divide-slate-200">
                         {form.Details.map((detail, index) => (
-                          <tr key={index} className="hover:bg-slate-50">
+                          <Fragment key={index}>
+                            <tr className="hover:bg-slate-50">
                             <td className="px-4 py-3" style={{ minWidth: '100px' }}>
                               <select
                                 value={detail.OrderId ?? ''}
@@ -548,7 +592,15 @@ function AddFabricTransactionModal({
                                 </button>
                               </div>
                             </td>
-                          </tr>
+                            </tr>
+                            {rowValidationErrors[index] ? (
+                              <tr>
+                              <td colSpan={10} className="bg-red-50 px-4 py-2 text-left text-xs text-red-700">
+                                {rowValidationErrors[index]}
+                              </td>
+                              </tr>
+                            ) : null}
+                          </Fragment>
                         ))}
                       </tbody>
                     </table>
@@ -563,7 +615,7 @@ function AddFabricTransactionModal({
           </div>
 
           <div className="sticky bottom-0 flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-4 py-4 sm:flex-row sm:justify-end sm:px-6">
-            <button type="button" className={buildButtonClasses('secondary')} onClick={onClose} disabled={isSaving || isLoading}>
+            <button type="button" className={buildButtonClasses('secondary')} onClick={handleCloseRequest} disabled={isSaving || isLoading}>
               İptal
             </button>
             <button type="button" disabled={isSaving || isLoading} className={buildButtonClasses('primary')} onClick={onSave}>
