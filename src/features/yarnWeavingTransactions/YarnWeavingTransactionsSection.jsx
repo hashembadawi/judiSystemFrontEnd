@@ -19,10 +19,13 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
   const [modalError, setModalError] = useState('')
   const [yarnOptions, setYarnOptions] = useState([])
   const [factoryOptions, setFactoryOptions] = useState([])
+  const [sendOrders, setSendOrders] = useState([])
+  const [selectedSendOrderId, setSelectedSendOrderId] = useState('')
   const [form, setForm] = useState({
     id: 0,
     faturaNo: '',
     factoryId: '',
+    weavingOrderId: '',
     date: '',
     writer: '',
     carBLK: '',
@@ -84,6 +87,7 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
       id: 0,
       faturaNo: '',
       factoryId: '',
+      weavingOrderId: '',
       date: new Date().toISOString().slice(0, 10),
       writer: '',
       carBLK: '',
@@ -107,15 +111,28 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
     setIsModalLoading(true)
     setYarnOptions([])
     setFactoryOptions([])
+    setSendOrders([])
+    setSelectedSendOrderId('')
     resetForm()
 
     try {
-      const response = await apiRequest('/api/fill-options?requestedValues=1')
-      const data = response.data || {}
-      const nextYarns = Array.isArray(data.yarns) ? data.yarns : []
-      const nextFactories = Array.isArray(data.fasonFactories) ? data.fasonFactories : []
+      const [optionsResponse, sendOrdersResponse] = await Promise.all([
+        apiRequest('/api/fill-options?requestedValues=1'),
+        apiRequest('/api/yarn-weaving-transactions/GetAllSendOrders'),
+      ])
+
+      const optionsData = optionsResponse.data || {}
+      const rawSendOrders = Array.isArray(sendOrdersResponse?.data)
+        ? sendOrdersResponse.data
+        : Array.isArray(sendOrdersResponse?.data?.data)
+          ? sendOrdersResponse.data.data
+          : []
+
+      const nextYarns = Array.isArray(optionsData.yarns) ? optionsData.yarns : []
+      const nextFactories = Array.isArray(optionsData.fasonFactories) ? optionsData.fasonFactories : []
       setYarnOptions(nextYarns)
       setFactoryOptions(nextFactories)
+      setSendOrders(rawSendOrders)
     } catch (requestError) {
       const message = requestError.message || 'حدث خطأ عند جلب الخيارات.'
       setModalError(message)
@@ -138,6 +155,14 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
     setForm((prev) => ({
       ...prev,
       [field]: value,
+    }))
+  }, [])
+
+  const onSendOrderSelect = useCallback((order, isSelected) => {
+    setSelectedSendOrderId(isSelected ? order.id : '')
+    setForm((prev) => ({
+      ...prev,
+      weavingOrderId: isSelected ? order.weavingOrderId ?? order.WeavingOrderId ?? '' : '',
     }))
   }, [])
 
@@ -183,6 +208,7 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
         id: Number(form.id) || 0,
         faturaNo: form.faturaNo,
         factoryId: Number(form.factoryId) || 0,
+        weavingOrderId: Number(form.weavingOrderId) || 0,
         date: form.date || new Date().toISOString().slice(0, 10),
         writer: form.writer,
         carBLK: form.carBLK,
@@ -228,24 +254,39 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
     setIsModalLoading(true)
     setYarnOptions([])
     setFactoryOptions([])
+    setSendOrders([])
+    setSelectedSendOrderId('')
 
     try {
-      const [optionsResponse, transactionResponse] = await Promise.all([
+      const [optionsResponse, transactionResponse, sendOrdersResponse] = await Promise.all([
         apiRequest('/api/fill-options?requestedValues=1'),
         apiRequest(`${YARN_WEAVING_TRANSACTIONS_URL}/${id}`),
+        apiRequest('/api/yarn-weaving-transactions/GetAllSendOrders'),
       ])
 
       const optionsData = optionsResponse.data || {}
       const transactionData = transactionResponse.data || {}
+      const rawSendOrders = Array.isArray(sendOrdersResponse?.data)
+        ? sendOrdersResponse.data
+        : Array.isArray(sendOrdersResponse?.data?.data)
+          ? sendOrdersResponse.data.data
+          : []
       const nextYarns = Array.isArray(optionsData.yarns) ? optionsData.yarns : []
       const nextFactories = Array.isArray(optionsData.fasonFactories) ? optionsData.fasonFactories : []
 
       setYarnOptions(nextYarns)
       setFactoryOptions(nextFactories)
+      setSendOrders(rawSendOrders)
+      const selectedOrder = rawSendOrders.find((order) => (
+        String(order.weavingOrderId ?? order.WeavingOrderId ?? '') === String(transactionData.weavingOrderId ?? transactionData.WeavingOrderId ?? '')
+        && String(order.factoryId ?? '') === String(transactionData.factoryId ?? '')
+      ))
+      setSelectedSendOrderId(selectedOrder?.id ?? '')
       setForm({
         id: transactionData.id || 0,
         faturaNo: transactionData.faturaNo || '',
         factoryId: transactionData.factoryId ?? '',
+        weavingOrderId: transactionData.weavingOrderId ?? transactionData.WeavingOrderId ?? '',
         date: transactionData.date || new Date().toISOString().slice(0, 10),
         writer: transactionData.writer || '',
         carBLK: transactionData.carBLK || '',
@@ -630,7 +671,10 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
         form={form}
         yarnOptions={yarnOptions}
         factoryOptions={factoryOptions}
+        sendOrders={sendOrders}
+        selectedSendOrderId={selectedSendOrderId}
         onFieldChange={onFormFieldChange}
+        onSendOrderSelect={onSendOrderSelect}
         onDetailFieldChange={onDetailFieldChange}
         onAddDetailRow={onAddDetailRow}
         onRemoveDetailRow={onRemoveDetailRow}
