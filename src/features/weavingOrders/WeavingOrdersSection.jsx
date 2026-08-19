@@ -462,6 +462,60 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
 
   const saveOrder = useCallback(async () => {
     setModalError('')
+
+    const isEmpty = (value) => value === null || value === undefined || String(value).trim() === ''
+    const showValidationWarning = (message) => {
+      setModalError(message)
+      showNotice('warning', message)
+    }
+
+    if (isEmpty(form.orderId) || isEmpty(form.name) || isEmpty(form.date)) {
+      showValidationWarning('Lütfen kaydetmeden önce sipariş, isim ve tarih alanlarını doldurun.')
+      return
+    }
+
+    for (let detailIndex = 0; detailIndex < form.details.length; detailIndex += 1) {
+      const detail = form.details[detailIndex]
+      const detailFields = [
+        ['Kumaş cinsi', detail.fabricGender],
+        ['GR', detail.fabricGr],
+        ['Kumaş LOT', detail.fabricLot],
+        ['Pus', detail.pus],
+        ['Fain', detail.fain],
+        ['İplik uzunluğu', detail.iplik_Uzunu],
+        ['Denye', detail.denye],
+        ['Ağırlık', detail.weight],
+        ['Fiyat', detail.price],
+        ['Fabrika', detail.factoryId],
+      ]
+      const missingField = detailFields.find(([, value]) => isEmpty(value))
+
+      if (missingField) {
+        showValidationWarning(`${detailIndex + 1}. kumaş detayında ${missingField[0]} alanını doldurun.`)
+        return
+      }
+
+      const yarnDetails = Array.isArray(detail.yarnDetails) ? detail.yarnDetails : []
+      if (yarnDetails.length === 0) {
+        showValidationWarning(`${detailIndex + 1}. kumaş için iplik detayı ekleyin.`)
+        return
+      }
+
+      const missingYarnField = yarnDetails.some((yarn) => (
+        isEmpty(yarn.yarnId) || isEmpty(yarn.yarnLot) || isEmpty(yarn.percentage) || isEmpty(yarn.weight)
+      ))
+      if (missingYarnField) {
+        showValidationWarning(`${detailIndex + 1}. kumaşın iplik detaylarındaki tüm alanları doldurun.`)
+        return
+      }
+
+      const percentageTotal = yarnDetails.reduce((sum, yarn) => sum + Number(yarn.percentage), 0)
+      if (Math.abs(percentageTotal - 100) > 0.01) {
+        showValidationWarning(`${detailIndex + 1}. kumaşın iplik detaylarındaki yüzde toplamı %100 olmalıdır. Mevcut toplam: %${percentageTotal}.`)
+        return
+      }
+    }
+
     setIsModalSaving(true)
 
     try {
