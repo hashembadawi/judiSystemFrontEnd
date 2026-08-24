@@ -6,6 +6,7 @@ function WeavingOrdersModal({
   isSaving,
   error,
   form,
+  statusOptions = [],
   orderOptions,
   fabricOptions,
   factoryOptions,
@@ -67,7 +68,7 @@ function WeavingOrdersModal({
             <p className="py-8 text-center text-sm text-slate-500">Seçenekler yükleniyor...</p>
           ) : (
             <>
-              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                 <div className="space-y-1.5">
                   <label htmlFor="weavingOrderSelect" className="block text-left text-[11px] font-medium text-slate-600">Sipariş</label>
                   <select
@@ -114,6 +115,24 @@ function WeavingOrdersModal({
                     className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900 outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200"
                     style={{ direction: 'ltr', textAlign: 'left' }}
                   />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label htmlFor="weavingOrderStatus" className="block text-left text-[11px] font-medium text-slate-600">Durum</label>
+                  <select
+                    id="weavingOrderStatus"
+                    value={form.weavingOrderStatus ?? ''}
+                    onChange={(event) => onFieldChange('weavingOrderStatus', event.target.value)}
+                    className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900 outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200"
+                    style={{ direction: 'ltr', textAlign: 'left' }}
+                  >
+                    <option value="">Durum seçin</option>
+                    {statusOptions.map((status) => (
+                      <option key={status.id} value={status.id}>
+                        {status.text}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 

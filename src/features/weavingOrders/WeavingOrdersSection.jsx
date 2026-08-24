@@ -2,6 +2,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import WeavingOrdersModal from './WeavingOrdersModal'
 
 const WEAVING_ORDERS_URL = '/api/WeavingOrder'
+const WEAVING_ORDER_STATUS_OPTIONS = [
+  { id: 1, text: 'DEVAM' },
+  { id: 2, text: 'TAMAMLANDI' },
+  { id: 3, text: 'DURDURULDU' },
+  { id: 4, text: 'İPTAL EDİLDİ' },
+]
 const getTodayDate = () => new Date().toISOString().slice(0, 10)
 
 const createEmptyYarnDetail = () => ({
@@ -67,7 +73,6 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
   const [isModalSaving, setIsModalSaving] = useState(false)
   const [modalError, setModalError] = useState('')
   const [isEditMode, setIsEditMode] = useState(false)
-  const [editingOrderId, setEditingOrderId] = useState(null)
   const [orderOptions, setOrderOptions] = useState([])
   const [fabricOptions, setFabricOptions] = useState([])
   const [factoryOptions, setFactoryOptions] = useState([])
@@ -78,6 +83,7 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
     orderId: '',
     name: '',
     date: getTodayDate(),
+    weavingOrderStatus: 1,
     details: [createEmptyDetailRow()],
   })
 
@@ -87,8 +93,6 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
   }, [pageSize, totalCount])
 
   const getResponseData = useCallback((payload) => payload?.Data ?? payload?.data ?? payload ?? {}, [])
-
-  const normalizeText = useCallback((value) => String(value ?? '').replace(/\u0000/g, '').trim(), [])
 
   const fetchOrders = useCallback(
     async (requestedPage = pageNumber) => {
@@ -148,60 +152,13 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
       orderId: '',
       name: '',
       date: getTodayDate(),
+      weavingOrderStatus: 1,
       details: [createEmptyDetailRow()],
     })
   }, [])
 
-  const mapOrderToForm = useCallback(
-    (orderItem) => {
-      const details = Array.isArray(orderItem?.Details) ? orderItem.Details : []
-
-      return {
-        Id: Number(orderItem?.Id ?? orderItem?.id ?? 0) || 0,
-        OrderId: orderItem?.OrderId ?? orderItem?.orderId ?? '',
-        Name: normalizeText(orderItem?.Name ?? orderItem?.name ?? ''),
-        Date: normalizeText(orderItem?.Date ?? orderItem?.date ?? getTodayDate()),
-        Details: details.length
-          ? details.map((detail) => ({
-              id: Number(detail?.id ?? detail?.Id ?? 0) || 0,
-              fabricGender: normalizeText(detail?.fabricGender ?? detail?.FabricGender ?? ''),
-              fabricGr: Number(detail?.fabricGr ?? detail?.FabricGr ?? detail?.fabricWeight ?? 0) || '',
-              fabricLot: normalizeText(detail?.fabricLot ?? detail?.FabricLot ?? ''),
-              pus: detail?.pus ?? detail?.Pus ?? '',
-              fain: detail?.fain ?? detail?.Fain ?? '',
-              iplik_Uzunu: detail?.iplik_Uzunu ?? detail?.Iplik_Uzunu ?? detail?.IplikUzunu ?? '',
-              denye: detail?.denye ?? detail?.Denye ?? '',
-              weight: Number(detail?.weight ?? detail?.Weight ?? 0) || '',
-              description: normalizeText(detail?.description ?? detail?.Description ?? ''),
-              factoryId: Number(detail?.factoryId ?? detail?.FactoryId ?? 0) || '',
-            }))
-          : [
-              {
-                fabricGender: '',
-                fabricGr: '',
-                fabricLot: '',
-                weight: '',
-                description: '',
-                factoryId: '',
-              },
-            ],
-      }
-    },
-    [normalizeText],
-  )
-
-  const handleSearch = useCallback(
-    (event) => {
-      event?.preventDefault?.()
-      setPageNumber(1)
-      fetchOrders(1)
-    },
-    [fetchOrders],
-  )
-
   const openCreateModal = useCallback(async () => {
     setIsEditMode(false)
-    setEditingOrderId(null)
     setModalError('')
     setIsModalOpen(true)
     setIsModalLoading(true)
@@ -237,7 +194,6 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
     setIsModalOpen(false)
     setModalError('')
     setIsEditMode(false)
-    setEditingOrderId(null)
   }, [isModalSaving])
 
   const updateFormField = useCallback((field, value) => {
@@ -387,7 +343,6 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
       }
 
       setIsEditMode(true)
-      setEditingOrderId(orderId)
       setModalError('')
       setIsModalOpen(true)
       setIsModalLoading(true)
@@ -420,6 +375,9 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
           orderId: orderData?.orderId ?? orderData?.OrderId ?? '',
           name: orderData?.name ?? orderData?.Name ?? '',
           date: normalizeDateValue(orderData?.date ?? orderData?.Date),
+          weavingOrderStatus: Number(
+            orderData?.weavingOrderStatus ?? orderData?.wavingOrderStatus ?? orderData?.WeavingOrderStatus ?? 1,
+          ) || 1,
           details: details.length
             ? details.map((detail) => ({
                 id: detail?.id ?? 0,
@@ -524,6 +482,7 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
         orderId: Number(form.orderId) || 0,
         name: String(form.name ?? '').trim(),
         date: String(form.date ?? '').trim(),
+        weavingOrderStatus: Number(form.weavingOrderStatus) || 1,
         details: form.details.map((detail) => ({
           id: Number(detail.id) || 0,
           fabricGender: String(detail.fabricGender ?? '').trim(),
@@ -720,6 +679,7 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
                 <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">Sipariş No</th>
                 <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">İsim</th>
                 <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">Tarih</th>
+                <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">Durum</th>
                 <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">Detay Sayısı</th>
                 <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">Toplam Ağırlık</th>
                 <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-slate-700">İşlemler</th>
@@ -728,11 +688,11 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
             <tbody className="divide-y divide-slate-200">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-slate-500">Dokuma siparişleri yükleniyor...</td>
+                  <td colSpan={8} className="px-4 py-12 text-center text-slate-500">Dokuma siparişleri yükleniyor...</td>
                 </tr>
               ) : orders.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-slate-500">Eşleşen sipariş bulunamadı.</td>
+                  <td colSpan={8} className="px-4 py-12 text-center text-slate-500">Eşleşen sipariş bulunamadı.</td>
                 </tr>
               ) : (
                 orders.map((order, index) => (
@@ -741,6 +701,7 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
                     <td className="px-4 py-4 text-left text-slate-700">{order.orderNo || '-'}</td>
                     <td className="px-4 py-4 text-left text-slate-700">{order.name || '-'}</td>
                     <td className="px-4 py-4 text-left text-slate-700">{order.date || '-'}</td>
+                    <td className="px-4 py-4 text-left text-slate-700">{order.weavingOrderStatusName || order.wavingOrderStatusName || '-'}</td>
                     <td className="px-4 py-4 text-left text-slate-700">{order.detailsCount ?? '-'}</td>
                     <td className="px-4 py-4 text-left text-slate-700">{order.totalWeight ?? '-'}</td>
                     <td className="px-4 py-4 text-center">
@@ -788,6 +749,7 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
 
                   <div className="space-y-2 text-xs text-slate-700">
                     <div className="flex items-center justify-between gap-3"><span>Tarih:</span><span className="font-medium text-slate-900">{order.date || '-'}</span></div>
+                    <div className="flex items-center justify-between gap-3"><span>Durum:</span><span className="font-medium text-slate-900">{order.weavingOrderStatusName || order.wavingOrderStatusName || '-'}</span></div>
                     <div className="flex items-center justify-between gap-3"><span>Detay sayısı:</span><span className="font-medium text-slate-900">{order.detailsCount ?? '-'}</span></div>
                     <div className="flex items-center justify-between gap-3"><span>Toplam ağırlık:</span><span className="font-medium text-slate-900">{order.totalWeight ?? '-'}</span></div>
                   </div>
@@ -838,6 +800,7 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
         isSaving={isModalSaving}
         error={modalError}
         form={form}
+        statusOptions={WEAVING_ORDER_STATUS_OPTIONS}
         orderOptions={orderOptions}
         fabricOptions={fabricOptions}
         factoryOptions={factoryOptions}

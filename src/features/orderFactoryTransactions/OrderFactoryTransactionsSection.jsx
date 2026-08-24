@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
 import OrderFactoryTransactionsModal from './OrderFactoryTransactionsModal'
-import { buildButtonClasses, buildInputClasses } from '../../styles/designSystem'
 
 const ORDER_FACTORY_TRANSACTIONS_URL = '/api/order-factory-transactions'
 const getTodayDate = () => new Date().toISOString().slice(0, 10)

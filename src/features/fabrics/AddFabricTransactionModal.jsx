@@ -9,25 +9,19 @@ function AddFabricTransactionModal({
   error,
   form,
   shiftOptions,
-  fabricGenderOptions,
-  orderOptions,
-  factoryOptions,
   operatorOptions,
   fabricTypeOptions,
   apiRequest,
   onFieldChange,
   onDetailFieldChange,
   onAddDetailRow,
-  onCopyDetailRow,
   onRemoveDetailRow,
   onClose,
   onSave,
 }) {
   const [weavingOrders, setWeavingOrders] = useState([])
-  const [selectedWeavingOrderId, setSelectedWeavingOrderId] = useState('')
   const [fabricsByRow, setFabricsByRow] = useState({})
   const [savingRows, setSavingRows] = useState({})
-  const [rowValidationErrors, setRowValidationErrors] = useState({})
 
   const handleCloseRequest = useCallback(() => {
     if (isSaving || isLoading) {
@@ -66,7 +60,7 @@ function AddFabricTransactionModal({
         const res = await apiRequest('/api/DailyHamFabricsTransaction/GetAllWeavingOrder')
         if (!mounted) return
         setWeavingOrders(Array.isArray(res.data) ? res.data : [])
-      } catch (e) {
+      } catch {
         // ignore silently; parent handles global notices
       }
     }
@@ -128,7 +122,7 @@ function AddFabricTransactionModal({
         onDetailFieldChange(rowIndex, 'FabricGSM', item.fabricGr ?? item.FabricGr ?? '')
         onDetailFieldChange(rowIndex, 'FabricLot', item.fabricLot ?? item.FabricLot ?? '')
       }
-    } catch (e) {
+    } catch {
       // noop
     }
   }
@@ -177,42 +171,6 @@ function AddFabricTransactionModal({
     const detail = form.Details[index]
     if (!detail) return
 
-    setRowValidationErrors((prev) => {
-      const next = { ...prev }
-      delete next[index]
-      return next
-    })
-
-    const isEmpty = (value) => value === null || value === undefined || String(value).trim() === ''
-    const requiredFields = [
-      ['sipariş', detail.OrderId],
-      ['kumaş cinsi', detail.FabricGender],
-      ['GR', detail.FabricGSM],
-      ['LOT', detail.FabricLot],
-      ['makine', detail.Makine],
-      ['operatör', detail.Operator],
-      ['ağırlık', detail.Weight],
-      ['fabrika', detail.FactoryId],
-      ['tip', detail.FabricType],
-    ]
-    const missingField = requiredFields.find(([, value]) => isEmpty(value))
-
-    if (missingField) {
-      setRowValidationErrors((prev) => ({
-        ...prev,
-        [index]: `${index + 1}. satırda ${missingField[0]} alanını doldurun.`,
-      }))
-      return
-    }
-
-    if (!/^\S+ \S+$/.test(String(detail.Operator).trim())) {
-      setRowValidationErrors((prev) => ({
-        ...prev,
-        [index]: `${index + 1}. satırdaki operatör adı ve soyadı arasında tek bir boşluk olmalıdır.`,
-      }))
-      return
-    }
-
     // build payload expected by API
     const payload = {
       Id: detail.DepoRollId || detail.Id || 0,
@@ -226,6 +184,7 @@ function AddFabricTransactionModal({
       Weight: detail.Weight || 0,
       FabricType: detail.FabricType || 1,
       Shift: form.Shift || '',
+      factoryId: 1,
     }
 
     try {
@@ -247,7 +206,7 @@ function AddFabricTransactionModal({
       onDetailFieldChange(index, 'orderNo', savedOrderNo)
       onDetailFieldChange(index, 'Locked', true)
       handlePrintLabel(detail, savedId, savedOrderNo)
-    } catch (e) {
+    } catch {
       // parent will show global notices; keep silent here
     } finally {
       setSavingRows((s) => {
@@ -273,7 +232,7 @@ function AddFabricTransactionModal({
           method: 'DELETE',
         })
         onRemoveDetailRow(index)
-      } catch (e) {
+      } catch {
         // noop
       }
     } else {
@@ -530,7 +489,7 @@ function AddFabricTransactionModal({
                             </td>
                             <td className="px-3 py-3">
                               <select
-                                value={detail.FactoryId ?? ''}
+                                value={detail.FactoryId || 1}
                                 onChange={(event) => onDetailFieldChange(index, 'FactoryId', event.target.value)}
                                 disabled={detail.Locked}
                                 className={`${buildInputClasses(false)} w-full text-xs`}
@@ -538,11 +497,7 @@ function AddFabricTransactionModal({
                                 style={{ unicodeBidi: 'plaintext', textAlign: 'left' , fontSize: '10px' }}
                               >
                                 <option value="">Fabrika seçin</option>
-                                {factoryOptions.map((factory) => (
-                                  <option key={factory.id ?? factory.value ?? factory} value={factory.id ?? factory.value ?? factory}>
-                                    {factory.name ?? factory.factoryName ?? factory.valueName ?? getOptionDisplayText(factory)}
-                                  </option>
-                                ))}
+                                <option value="1">judi mensucat</option>
                               </select>
                             </td>
                             <td className="px-3 py-3">
@@ -593,13 +548,6 @@ function AddFabricTransactionModal({
                               </div>
                             </td>
                             </tr>
-                            {rowValidationErrors[index] ? (
-                              <tr>
-                              <td colSpan={10} className="bg-red-50 px-4 py-2 text-left text-xs text-red-700">
-                                {rowValidationErrors[index]}
-                              </td>
-                              </tr>
-                            ) : null}
                           </Fragment>
                         ))}
                       </tbody>
@@ -626,34 +574,6 @@ function AddFabricTransactionModal({
       </div>
     </div>
   )
-}
-
-const getOptionDisplayText = (item) => {
-  if (item == null) {
-    return ''
-  }
-
-  if (typeof item === 'string') {
-    return item
-  }
-
-  if (typeof item === 'object') {
-    return (
-      item.label ??
-      item.text ??
-      item.name ??
-      item.valueName ??
-      item.value ??
-      item.orderNo ??
-      item.OrderNo ??
-      item.orderNumber ??
-      item.factoryName ??
-      item.name ??
-      ''
-    )
-  }
-
-  return String(item)
 }
 
 export default AddFabricTransactionModal

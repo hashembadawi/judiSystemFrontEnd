@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { buildButtonClasses, buildInputClasses } from '../../styles/designSystem'
 import BoyaliSiparisTakipModal from './BoyaliSiparisTakipModal'
 
 const FILL_OPTIONS_URL = '/api/fill-options?requestedValues=1'
@@ -20,7 +19,6 @@ function BoyaliSiparisTakipSection({ apiRequest, showNotice, isActive }) {
   const [isSaving, setIsSaving] = useState(false)
   const [modalError, setModalError] = useState('')
   const [statusOptions, setStatusOptions] = useState([])
-  const [selectedOrder, setSelectedOrder] = useState(null)
   const [orderForm, setOrderForm] = useState({
     id: 0,
     orderNo: '',
@@ -191,7 +189,6 @@ function BoyaliSiparisTakipSection({ apiRequest, showNotice, isActive }) {
 
     setIsModalOpen(false)
     setModalError('')
-    setSelectedOrder(null)
     setOrderForm({
       id: 0,
       orderNo: '',

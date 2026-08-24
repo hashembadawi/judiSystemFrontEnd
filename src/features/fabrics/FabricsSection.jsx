@@ -2,7 +2,7 @@
 
 const DAILY_FABRICS_URL = '/api/DailyHamFabricsTransaction'
 
-function FabricsSection({ apiRequest, showNotice, isActive, currentUserName = '' }) {
+function FabricsSection({ apiRequest, showNotice, isActive }) {
   const [searchText, setSearchText] = useState('')
   const [pageNumber, setPageNumber] = useState(1)
   const [pageSize, setPageSize] = useState(50)
@@ -56,10 +56,6 @@ function FabricsSection({ apiRequest, showNotice, isActive, currentUserName = ''
     },
     [apiRequest, dateFrom, dateTo, optionDate, pageNumber, pageSize, searchText, showNotice],
   )
-
-  const handleFetchTransactions = () => {
-    loadTransactions({ page: 1, size: pageSize })
-  }
 
   const handleSearchChange = (value) => {
     setSearchText(value)

@@ -34,7 +34,6 @@ function FasonFabricTransactionModal({
   weavingOrdersByRow,
   fabricsByRow,
   fabricTypeOptions,
-  apiRequest,
   onFieldChange,
   onDetailFieldChange,
   onFactorySelect,

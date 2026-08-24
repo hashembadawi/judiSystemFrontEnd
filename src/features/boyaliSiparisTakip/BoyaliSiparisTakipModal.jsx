@@ -8,11 +8,9 @@ function BoyaliSiparisTakipModal({
   error,
   orderForm,
   statusOptions,
-  factoryNameLabel,
   onClose,
   onSave,
   onDetailFieldChange,
-  onAddDetailRow,
   onDeleteDetailRow,
   onCopyDetailRow,
   apiRequest,
@@ -146,43 +144,6 @@ function BoyaliSiparisTakipModal({
     },
     [onCopyDetailRow],
   )
-
-  const activeDetail = useMemo(() => {
-    if (activeKazanRowIndex === null) {
-      return null
-    }
-
-    return orderForm.details?.[activeKazanRowIndex] || null
-  }, [activeKazanRowIndex, orderForm.details])
-
-  const activeAllocatedItems = useMemo(() => {
-    if (!activeDetail || !activeFabricState) {
-      return []
-    }
-
-    const kazanGirisValue = Number(activeDetail.KazanGiris ?? 0)
-    const selectedItems = (activeFabricState.items || []).filter((item) =>
-      activeFabricState.selectedLotIds.includes(item.fabricLot),
-    )
-
-    if (selectedItems.length === 0) {
-      return []
-    }
-
-    const totalSelectedWeight = selectedItems.reduce(
-      (total, item) => total + Number(item.totalWeight || 0),
-      0,
-    )
-
-    if (totalSelectedWeight === 0) {
-      return selectedItems.map((item) => ({ ...item, allocatedWeight: 0 }))
-    }
-
-    return selectedItems.map((item) => ({
-      ...item,
-      allocatedWeight: kazanGirisValue * (Number(item.totalWeight || 0) / totalSelectedWeight),
-    }))
-  }, [activeDetail, activeFabricState])
 
   if (!isOpen) {
     return null

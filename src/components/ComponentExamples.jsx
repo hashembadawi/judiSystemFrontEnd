@@ -5,12 +5,11 @@
  * This file demonstrates real-world usage patterns for all UI components
  */
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import {
   // Buttons
   PrimaryButton,
   SecondaryButton,
-  DangerButton,
   IconButton,
   
   // Form inputs
@@ -19,7 +18,6 @@ import {
   DateInput,
   TextArea,
   FormGrid,
-  FormGroup,
   FormError,
   
   // Tables
@@ -61,7 +59,7 @@ import {
   LoadingOverlay,
 } from './UIComponents'
 
-import { RESPONSIVE, TABLE_STYLES, CARD_STYLES } from '../styles/designSystem'
+import { RESPONSIVE } from '../styles/designSystem'
 
 // ============================================
 // EXAMPLE 1: Management List with CRUD
@@ -78,7 +76,7 @@ import { RESPONSIVE, TABLE_STYLES, CARD_STYLES } from '../styles/designSystem'
 export function ManagementListExample() {
   const [searchText, setSearchText] = useState('')
   const [pageNumber, setPageNumber] = useState(1)
-  const [pageSize, setPageSize] = useState(10)
+  const [pageSize] = useState(10)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
@@ -106,7 +104,7 @@ export function ManagementListExample() {
     setIsModalOpen(true)
   }
 
-  const handleDelete = (id) => {
+  const handleDelete = () => {
     if (confirm('هل تريد حذف هذا السجل؟')) {
       // Delete logic here
     }
@@ -362,7 +360,7 @@ export function FormWithValidationExample() {
       await new Promise((resolve) => setTimeout(resolve, 1000))
       alert('تم الحفظ بنجاح!')
       setForm({ firstName: '', lastName: '', email: '', phone: '', type: '', date: '' })
-    } catch (err) {
+    } catch {
       setSubmitError('حدث خطأ أثناء الحفظ. حاول مرة أخرى.')
     } finally {
       setIsSubmitting(false)

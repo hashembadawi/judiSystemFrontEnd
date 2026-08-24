@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { buildButtonClasses, buildInputClasses, SECTION_STYLES } from '../../styles/designSystem'
+import { buildButtonClasses } from '../../styles/designSystem'
 import OrderModal from './OrderModal'
 
 const CUSTOMER_ORDERS_URL = '/api/customer-orders'

@@ -377,7 +377,7 @@ function App() {
       const orders = Array.isArray(res?.data) ? res.data : []
       setWeavingOrdersByRow((prev) => ({ ...prev, [rowIndex]: orders }))
       setFabricsByRow((prev) => ({ ...prev, [rowIndex]: [] }))
-    } catch (error) {
+    } catch {
       setWeavingOrdersByRow((prev) => ({ ...prev, [rowIndex]: [] }))
       setFabricsByRow((prev) => ({ ...prev, [rowIndex]: [] }))
     }
@@ -404,7 +404,7 @@ function App() {
       const res = await apiRequest(`/api/DailyHamFabricsTransaction/getFabricByFactoryByWeavingOrder?Id=${weavingOrderId}&FactoryId=${factoryId}`)
       const items = res?.data?.items ?? []
       setFabricsByRow((prev) => ({ ...prev, [rowIndex]: items }))
-    } catch (error) {
+    } catch {
       setFabricsByRow((prev) => ({ ...prev, [rowIndex]: [] }))
     }
   }, [apiRequest])
@@ -575,7 +575,7 @@ function App() {
       const fabricType = Number(detail?.FabricType ?? 1) || 1
       const count = 1
       const weight = extractWeight(detail)
-      const factoryId = detail?.FactoryId ?? ''
+      const factoryId = detail?.FactoryId || 1
 
       if (!fabricGender && !fabricLot && !orderId && !count && !weight) {
         return
@@ -617,55 +617,12 @@ function App() {
   const saveAddFabricTransaction = useCallback(async () => {
     setAddFabricModalError('')
 
-    const isEmpty = (value) => value === null || value === undefined || String(value).trim() === ''
-    const showValidationWarning = (message) => {
-      setAddFabricModalError(message)
-      showNotice('warning', message)
-    }
-
-    if (isEmpty(addFabricForm.Shift) || isEmpty(addFabricForm.Date) || isEmpty(addFabricForm.Personal)) {
-      showValidationWarning('Lütfen vardiya, tarih ve personel alanlarını doldurun.')
-      return
-    }
-
-    const requiredDetailFields = [
-      ['sipariş', 'OrderId'],
-      ['kumaş cinsi', 'FabricGender'],
-      ['GR', 'FabricGSM'],
-      ['LOT', 'FabricLot'],
-      ['makine', 'Makine'],
-      ['operatör', 'Operator'],
-      ['ağırlık', 'Weight'],
-      ['fabrika', 'FactoryId'],
-      ['tip', 'FabricType'],
-    ]
-
-    for (let detailIndex = 0; detailIndex < addFabricForm.Details.length; detailIndex += 1) {
-      const detail = addFabricForm.Details[detailIndex]
-      const missingField = requiredDetailFields.find(([, field]) => isEmpty(detail[field]))
-
-      if (missingField) {
-        showValidationWarning(`${detailIndex + 1}. satırda ${missingField[0]} alanını doldurun.`)
-        return
-      }
-
-      const savedRollId = Number(detail.DepoRollId ?? detail.Id ?? 0)
-      if (!Number.isFinite(savedRollId) || savedRollId <= 0) {
-        showValidationWarning(`${detailIndex + 1}. satır için rulo giriş kaydını önce tamamlayın.`)
-        return
-      }
-    }
-
     setIsAddFabricModalSaving(true)
 
     try {
       const payload = {
         ...addFabricForm,
         Details: aggregateFabricDetails(addFabricForm.Details),
-      }
-
-      if (!payload.Details.length) {
-        throw new Error('لا توجد تفاصيل صالحة للحفظ.')
       }
 
       await apiRequest(`${DAILY_FABRICS_URL}/upsert`, {
