@@ -197,11 +197,14 @@ function AddFabricTransactionModal({
 
       const returnedData = res?.data ?? res?.data?.data ?? res
       const savedId = returnedData?.id ?? returnedData?.Id ?? returnedData
+      const savedOrderId = returnedData?.orderId ?? returnedData?.OrderId ?? detail.orderId ?? detail.OrderId
       const savedOrderNo = returnedData?.orderNo ?? returnedData?.OrderNo ?? detail.orderNo ?? detail.OrderNo
       // store returned id and orderNo on the detail and lock the row
       onDetailFieldChange(index, 'DepoRollId', savedId)
       onDetailFieldChange(index, 'Id', savedId)
       onDetailFieldChange(index, 'id', savedId)
+      onDetailFieldChange(index, 'orderId', savedOrderId)
+      onDetailFieldChange(index, 'OrderId', savedOrderId)
       onDetailFieldChange(index, 'OrderNo', savedOrderNo)
       onDetailFieldChange(index, 'orderNo', savedOrderNo)
       onDetailFieldChange(index, 'Locked', true)

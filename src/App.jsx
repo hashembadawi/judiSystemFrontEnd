@@ -570,8 +570,8 @@ function App() {
       const fabricGender = String(detail?.FabricGender ?? '').trim()
       const fabricGSM = detail?.FabricGSM ?? ''
       const fabricLot = String(detail?.FabricLot ?? '').trim()
-      const orderId = detail?.OrderId ?? ''
-      const weavingOrderId = detail?.weavingOrderId ?? detail?.WeavingOrderId ?? detail?.weavingOrderID ?? detail?.OrderId ?? ''
+      const orderId = detail?.orderId ?? detail?.OrderId ?? ''
+      const weavingOrderId = detail?.weavingOrderId ?? detail?.WeavingOrderId ?? detail?.weavingOrderID ?? orderId
       const fabricType = Number(detail?.FabricType ?? 1) || 1
       const count = 1
       const weight = extractWeight(detail)
@@ -591,6 +591,7 @@ function App() {
           FabricLot: fabricLot,
           Count: count,
           Weight: weight,
+          orderId: orderId ? Number(orderId) || 0 : 0,
           OrderId: orderId ? Number(orderId) || 0 : 0,
           weavingOrderId: weavingOrderId ? Number(weavingOrderId) || 0 : 0,
           FactoryId: factoryId ? Number(factoryId) || 0 : 0,
