@@ -203,7 +203,6 @@ function AddFabricTransactionModal({
       onDetailFieldChange(index, 'DepoRollId', savedId)
       onDetailFieldChange(index, 'Id', savedId)
       onDetailFieldChange(index, 'id', savedId)
-      onDetailFieldChange(index, 'orderId', savedOrderId)
       onDetailFieldChange(index, 'OrderId', savedOrderId)
       onDetailFieldChange(index, 'OrderNo', savedOrderNo)
       onDetailFieldChange(index, 'orderNo', savedOrderNo)

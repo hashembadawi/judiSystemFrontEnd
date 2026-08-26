@@ -591,7 +591,6 @@ function App() {
           FabricLot: fabricLot,
           Count: count,
           Weight: weight,
-          orderId: orderId ? Number(orderId) || 0 : 0,
           OrderId: orderId ? Number(orderId) || 0 : 0,
           weavingOrderId: weavingOrderId ? Number(weavingOrderId) || 0 : 0,
           FactoryId: factoryId ? Number(factoryId) || 0 : 0,
