@@ -4,7 +4,6 @@ import OrdersSection from './features/orders/OrdersSection'
 import UsersSection from './features/users/UsersSection'
 import FabricsSection from './features/fabrics/FabricsSection'
 import AddFabricTransactionModal from './features/fabrics/AddFabricTransactionModal'
-import FasonFabricTransactionModal from './features/fasonFabricTransactions/FasonFabricTransactionModal'
 import HamBoyaTransactionsSection from './features/hamBoyaTransactions/HamBoyaTransactionsSection'
 import YarnsSection from './features/yarns/YarnsSection'
 import YarnWeavingTransactionsSection from './features/yarnWeavingTransactions/YarnWeavingTransactionsSection'
@@ -106,32 +105,6 @@ function App() {
   const [isAddFabricModalLoading, setIsAddFabricModalLoading] = useState(false)
   const [isAddFabricModalSaving, setIsAddFabricModalSaving] = useState(false)
   const [addFabricModalError, setAddFabricModalError] = useState('')
-  const [isFasonFabricModalOpen, setIsFasonFabricModalOpen] = useState(false)
-  const [isFasonFabricModalLoading, setIsFasonFabricModalLoading] = useState(false)
-  const [isFasonFabricModalSaving, setIsFasonFabricModalSaving] = useState(false)
-  const [fasonFabricModalError, setFasonFabricModalError] = useState('')
-  const [fasonFabricForm, setFasonFabricForm] = useState({
-    Id: 0,
-    Shift: 'A',
-    Date: getTodayDate(),
-    Personal: '',
-    Details: [
-      {
-        FabricGender: '',
-        FabricGSM: '',
-        FabricLot: '',
-        Count: '',
-        Weight: '',
-        OrderId: '',
-        weavingOrderId: '',
-        FactoryId: '',
-        FabricType: 1,
-      },
-    ],
-  })
-  const [fasonFactoryOptions, setFasonFactoryOptions] = useState([])
-  const [weavingOrdersByRow, setWeavingOrdersByRow] = useState({})
-  const [fabricsByRow, setFabricsByRow] = useState({})
   const [isFasonHamEntryModalOpen, setIsFasonHamEntryModalOpen] = useState(false)
   const [isFasonHamEntryModalLoading, setIsFasonHamEntryModalLoading] = useState(false)
   const [isFasonHamEntryModalSaving, setIsFasonHamEntryModalSaving] = useState(false)
@@ -320,53 +293,6 @@ function App() {
     setIsAddFabricModalOpen(false)
     setAddFabricModalError('')
   }, [isAddFabricModalSaving])
-
-  const openFasonFabricModal = useCallback(async () => {
-    setFasonFabricModalError('')
-    setIsFasonFabricModalOpen(true)
-    setIsFasonFabricModalLoading(true)
-    setFasonFabricForm({
-      Id: 0,
-      Shift: 'A',
-      Date: getTodayDate(),
-      Personal: authData?.user?.userName || authData?.user?.name || userName || '',
-      Details: [
-        {
-          FabricGender: '',
-          FabricGSM: '',
-          FabricLot: '',
-          Count: '',
-          Weight: '',
-          OrderId: '',
-          FactoryId: '',
-          FabricType: 1,
-        },
-      ],
-    })
-    setFasonFactoryOptions([])
-    setWeavingOrdersByRow({})
-    setFabricsByRow({})
-
-    try {
-      const response = await apiRequest('/api/fill-options?requestedValues=1')
-      const data = response.data || {}
-      setFasonFactoryOptions(Array.isArray(data.fasonFactories) ? data.fasonFactories : [])
-    } catch (requestError) {
-      const message = requestError.message || 'Seçenekler alınırken bir hata oluştu.'
-      setFasonFabricModalError(message)
-      showNotice('error', message)
-    } finally {
-      setIsFasonFabricModalLoading(false)
-    }
-  }, [apiRequest, authData, userName, showNotice])
-
-  const closeFasonFabricModal = useCallback(() => {
-    if (isFasonFabricModalSaving) {
-      return
-    }
-    setIsFasonFabricModalOpen(false)
-    setFasonFabricModalError('')
-  }, [isFasonFabricModalSaving])
 
   const openFasonHamEntryModal = useCallback(async (transactionId = null) => {
     setFasonHamEntryModalError('')
@@ -594,162 +520,6 @@ function App() {
       showNotice('error', message)
     }
   }, [apiRequest, showNotice])
-
-  const updateFasonFabricField = useCallback((field, value) => {
-    setFasonFabricForm((prev) => ({
-      ...prev,
-      [field]: value,
-    }))
-  }, [])
-
-  const updateFasonFabricDetailField = useCallback((index, field, value) => {
-    setFasonFabricForm((prev) => ({
-      ...prev,
-      Details: prev.Details.map((detail, detailIndex) =>
-        detailIndex === index ? { ...detail, [field]: value } : detail,
-      ),
-    }))
-  }, [])
-
-  const addFasonFabricDetailRow = useCallback(() => {
-    setFasonFabricForm((prev) => ({
-      ...prev,
-      Details: [
-        ...prev.Details,
-        {
-          FabricGender: '',
-          FabricGSM: '',
-          FabricLot: '',
-          Count: '',
-          Weight: '',
-          OrderId: '',
-          FactoryId: '',
-          FabricType: 1,
-        },
-      ],
-    }))
-  }, [])
-
-  const removeFasonFabricDetailRow = useCallback((index) => {
-    setFasonFabricForm((prev) => ({
-      ...prev,
-      Details: prev.Details.filter((_, detailIndex) => detailIndex !== index),
-    }))
-  }, [])
-
-  const loadWeavingOrdersForFactory = useCallback(async (factoryId, rowIndex) => {
-    if (!factoryId) {
-      setWeavingOrdersByRow((prev) => ({ ...prev, [rowIndex]: [] }))
-      setFabricsByRow((prev) => ({ ...prev, [rowIndex]: [] }))
-      return
-    }
-
-    try {
-      const res = await apiRequest(`/api/DailyHamFabricsTransaction/GetAllWeavingOrderByFactory?factoryId=${factoryId}`)
-      const orders = Array.isArray(res?.data) ? res.data : []
-      setWeavingOrdersByRow((prev) => ({ ...prev, [rowIndex]: orders }))
-      setFabricsByRow((prev) => ({ ...prev, [rowIndex]: [] }))
-    } catch {
-      setWeavingOrdersByRow((prev) => ({ ...prev, [rowIndex]: [] }))
-      setFabricsByRow((prev) => ({ ...prev, [rowIndex]: [] }))
-    }
-  }, [apiRequest])
-
-  const handleFasonFactorySelect = useCallback((index, factoryId) => {
-    updateFasonFabricDetailField(index, 'FactoryId', factoryId)
-    updateFasonFabricDetailField(index, 'OrderId', '')
-    updateFasonFabricDetailField(index, 'FabricGender', '')
-    updateFasonFabricDetailField(index, 'FabricGSM', '')
-    updateFasonFabricDetailField(index, 'FabricLot', '')
-    updateFasonFabricDetailField(index, 'Count', '')
-    updateFasonFabricDetailField(index, 'Weight', '')
-    loadWeavingOrdersForFactory(factoryId, index)
-  }, [loadWeavingOrdersForFactory, updateFasonFabricDetailField])
-
-  const loadFabricsForWeavingOrder = useCallback(async (factoryId, weavingOrderId, rowIndex) => {
-    if (!factoryId || !weavingOrderId) {
-      setFabricsByRow((prev) => ({ ...prev, [rowIndex]: [] }))
-      return
-    }
-
-    try {
-      const res = await apiRequest(`/api/DailyHamFabricsTransaction/getFabricByFactoryByWeavingOrder?Id=${weavingOrderId}&FactoryId=${factoryId}`)
-      const items = res?.data?.items ?? []
-      setFabricsByRow((prev) => ({ ...prev, [rowIndex]: items }))
-    } catch {
-      setFabricsByRow((prev) => ({ ...prev, [rowIndex]: [] }))
-    }
-  }, [apiRequest])
-
-  const handleFasonWeavingOrderSelect = useCallback((index, value) => {
-    updateFasonFabricDetailField(index, 'OrderId', value)
-    updateFasonFabricDetailField(index, 'FabricGender', '')
-    updateFasonFabricDetailField(index, 'FabricGSM', '')
-    updateFasonFabricDetailField(index, 'FabricLot', '')
-    updateFasonFabricDetailField(index, 'Count', '')
-    updateFasonFabricDetailField(index, 'Weight', '')
-    const factoryId = fasonFabricForm.Details[index]?.FactoryId ?? ''
-    loadFabricsForWeavingOrder(factoryId, value, index)
-  }, [fasonFabricForm.Details, loadFabricsForWeavingOrder, updateFasonFabricDetailField])
-
-  const handleFasonFabricSelect = useCallback((index, value) => {
-    updateFasonFabricDetailField(index, 'FabricGender', value)
-
-    const rowItems = fabricsByRow[index] ?? []
-    const selectedItem = rowItems.find((item) => {
-      const fabricGender = item?.fabricGender ?? item?.FabricGender ?? ''
-      return String(fabricGender).trim() === String(value).trim()
-    })
-
-    if (selectedItem) {
-      updateFasonFabricDetailField(index, 'FabricGSM', selectedItem.fabricGr ?? selectedItem.FabricGr ?? '')
-      updateFasonFabricDetailField(index, 'FabricLot', selectedItem.fabricLot ?? selectedItem.FabricLot ?? '')
-      updateFasonFabricDetailField(index, 'Weight', selectedItem.weight ?? selectedItem.Weight ?? '')
-    }
-  }, [fabricsByRow, updateFasonFabricDetailField])
-
-  const saveFasonFabricTransaction = useCallback(async () => {
-    setFasonFabricModalError('')
-    setIsFasonFabricModalSaving(true)
-
-    try {
-      const payload = {
-        ...fasonFabricForm,
-        Details: (fasonFabricForm.Details ?? []).map((detail) => ({
-          FabricGender: detail.FabricGender ?? '',
-          FabricGSM: detail.FabricGSM ?? '',
-          FabricLot: detail.FabricLot ?? '',
-          Count: Number(detail.Count) || 1,
-          Weight: Number(detail.Weight) || 0,
-          OrderId: detail.OrderId ? Number(detail.OrderId) : 0,
-          FactoryId: detail.FactoryId ? Number(detail.FactoryId) : 0,
-          FabricType: Number(detail.FabricType ?? 1) || 1,
-        })).filter((detail) => detail.FabricGender || detail.FabricLot || detail.OrderId || detail.Count || detail.Weight),
-      }
-
-      if (!payload.Details.length) {
-        throw new Error('لا توجد تفاصيل صالحة للحفظ.')
-      }
-
-      await apiRequest(`${DAILY_FABRICS_URL}/upsert`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify(payload),
-      })
-
-      showNotice('success', 'Fason kumaş hareketi başarıyla kaydedildi.')
-      setIsFasonFabricModalOpen(false)
-    } catch (requestError) {
-      const message = requestError.message || 'Fason kumaş hareketi kaydedilirken bir hata oluştu.'
-      setFasonFabricModalError(message)
-      showNotice('error', message)
-    } finally {
-      setIsFasonFabricModalSaving(false)
-    }
-  }, [apiRequest, fasonFabricForm, showNotice])
 
   const updateAddFabricField = useCallback((field, value) => {
     setAddFabricForm((prev) => ({
@@ -1195,13 +965,6 @@ function App() {
                   </button>
                   <button
                     type="button"
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-right text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-100"
-                    onClick={openFasonFabricModal}
-                  >
-                    FASON KUMAŞ HAREKETİ EKLE
-                  </button>
-                  <button
-                    type="button"
                     className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'hamBoya' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
                     onClick={() => setActiveOperation('hamBoya')}
                   >
@@ -1341,27 +1104,6 @@ function App() {
         onSave={saveAddFabricTransaction}
       />
 
-      <FasonFabricTransactionModal
-        isOpen={isFasonFabricModalOpen}
-        isLoading={isFasonFabricModalLoading}
-        isSaving={isFasonFabricModalSaving}
-        error={fasonFabricModalError}
-        form={fasonFabricForm}
-        factoryOptions={fasonFactoryOptions}
-        weavingOrdersByRow={weavingOrdersByRow}
-        fabricsByRow={fabricsByRow}
-        fabricTypeOptions={FABRIC_TYPE_OPTIONS}
-        apiRequest={apiRequest}
-        onFieldChange={updateFasonFabricField}
-        onDetailFieldChange={updateFasonFabricDetailField}
-        onFactorySelect={handleFasonFactorySelect}
-        onWeavingOrderSelect={handleFasonWeavingOrderSelect}
-        onFabricSelect={handleFasonFabricSelect}
-        onAddDetailRow={addFasonFabricDetailRow}
-        onRemoveDetailRow={removeFasonFabricDetailRow}
-        onClose={closeFasonFabricModal}
-        onSave={saveFasonFabricTransaction}
-      />
 
       <FasonHamEntryModal
         isOpen={isFasonHamEntryModalOpen}
