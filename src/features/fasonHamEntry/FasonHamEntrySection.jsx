@@ -112,7 +112,7 @@ function FasonHamEntrySection({ apiRequest, showNotice, isActive, onNewTransacti
       <header className="rounded-2xl border border-sky-200 bg-gradient-to-r from-sky-100 via-sky-50 to-blue-50 px-4 py-6 shadow-sm sm:px-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h3 className="text-2xl font-bold text-sky-900">FASON GİRİŞ KUMAŞ HAREKETLERİ</h3>
-          <button type="button" onClick={onNewTransaction} className="rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
+          <button type="button" onClick={() => onNewTransaction()} className="rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
             + Yeni Hareket
           </button>
         </div>
@@ -204,8 +204,8 @@ function FasonHamEntrySection({ apiRequest, showNotice, isActive, onNewTransacti
                   <td className="px-6 py-4 text-left text-slate-700">{item.totalRollCount ?? '-'}</td>
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-center gap-2">
-                      <button type="button" onClick={() => onEditTransaction(item.id)} disabled={isLoading} className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-sky-200 bg-sky-50 text-base text-sky-700 transition hover:bg-sky-100 disabled:cursor-not-allowed disabled:opacity-50" title="Düzenle" aria-label="Düzenle">✎</button>
-                      <button type="button" onClick={() => onDeleteTransaction(item.id)} disabled={isLoading} className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-red-200 bg-red-50 text-base text-red-600 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50" title="Sil" aria-label="Sil">🗑</button>
+                      <button type="button" title="تعديل الحركة" aria-label="تعديل الحركة" disabled={!item.id || isLoading} onClick={() => onEditTransaction(item.id)} className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-600 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50">✏️</button>
+                      <button type="button" title="حذف الحركة" aria-label="حذف الحركة" disabled={!item.id || isLoading} onClick={() => onDeleteTransaction(item.id)} className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-red-300 bg-red-50 text-red-600 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50">🗑️</button>
                     </div>
                   </td>
                 </tr>

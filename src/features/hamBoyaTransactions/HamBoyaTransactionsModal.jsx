@@ -62,8 +62,7 @@ function HamBoyaTransactionsModal({
             ) : (
               <>
                 <section className="mb-6 space-y-3" dir="rtl">
-                  <h5 className="text-lg font-semibold text-slate-900 text-right pb-2 border-b border-slate-100">بيانات الحركة</h5>
-                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" dir="rtl">
+                  <div className="grid grid-cols-1 gap-4 lg:grid-cols-6" dir="rtl">
                     <div className="space-y-2" dir="rtl">
                       <label htmlFor="FaturaNo" className="block text-sm font-medium text-slate-700 text-right">رقم الفاتورة</label>
                       <input
