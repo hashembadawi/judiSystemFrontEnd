@@ -6,6 +6,22 @@ const HAM_BOYA_TRANSACTIONS_URL = '/api/ham-boya-transactions'
 
 const getTodayDate = () => new Date().toISOString().slice(0, 10)
 
+const escapeHtml = (value) => String(value ?? '-').replace(/[&<>'"]/g, (character) => ({
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  "'": '&#39;',
+  '"': '&quot;',
+}[character]))
+
+const formatReportNumber = (value) => Number(value || 0).toLocaleString('en-US', {
+  maximumFractionDigits: 2,
+})
+
+const formatReportDate = (value) => new Date(value).toLocaleDateString('tr-TR-u-nu-latn')
+
+const formatReportValue = (value) => String(value ?? '-').replace(/[٠-٩]/g, (digit) => String('٠١٢٣٤٥٦٧٨٩'.indexOf(digit)))
+
 const getOptionDisplayText = (item) => {
   if (item == null) {
     return ''
@@ -289,6 +305,97 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
     }))
   }, [])
 
+  const printSavedTransaction = useCallback((transaction) => {
+    const factory = boyaFactoriesOptions.find((option) => String(option.id) === String(transaction.FactoryId))
+    const factoryName = factory?.name ?? factory?.label ?? transaction.FactoryId
+    const totalWeight = transaction.Details.reduce((sum, detail) => sum + Number(detail.FabricWeight || 0), 0)
+    const totalTopCount = transaction.Details.reduce((sum, detail) => sum + Number(detail.FabricTopCount || 0), 0)
+    const detailRows = transaction.Details.map((detail, index) => `
+      <tr>
+        <td>${index + 1}</td>
+        <td>${escapeHtml(detail.FabricGender)}</td>
+        <td>${escapeHtml(detail.FabricLot)}</td>
+        <td>${escapeHtml(detail.FabricGr)}</td>
+        <td>${formatReportNumber(detail.FabricWeight)}</td>
+        <td>${formatReportNumber(detail.FabricTopCount)}</td>
+        <td>${escapeHtml(detail.OrderNo)}</td>
+      </tr>
+    `).join('')
+
+    const reportHtml = `<!DOCTYPE html>
+      <html lang="tr" dir="ltr">
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="robots" content="noindex,nofollow" />
+          <title>Boyahane Ham Kumaş Sevkiyat Raporu</title>
+          <style>
+            @page { size: A4; margin: 12mm; }
+            * { box-sizing: border-box; }
+            body { margin: 0; color: #17212b; font-family: Arial, Tahoma, sans-serif; font-size: 13px; direction: ltr; }
+            .report { max-width: 900px; margin: 0 auto; }
+            .top-line { height: 5px; background: #0f766e; margin-bottom: 22px; }
+            header { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; border-bottom: 1px solid #cbd5e1; padding-bottom: 16px; }
+            .brand { color: #0f766e; font-size: 14px; font-weight: 700; }
+            h1 { margin: 7px 0 0; color: #0f172a; font-size: 24px; }
+            .meta { color: #475569; line-height: 1.8; text-align: right; white-space: nowrap; }
+            .meta strong { color: #0f172a; }
+            .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
+            .info-item { border: 1px solid #dbe4ea; background: #f8fafc; padding: 10px 12px; }
+            .label { display: block; color: #64748b; font-size: 11px; margin-bottom: 4px; }
+            .value { color: #0f172a; font-weight: 700; }
+            table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+            th, td { border: 1px solid #cbd5e1; padding: 9px 8px; text-align: right; }
+            th { background: #e6fffb; color: #115e59; font-weight: 700; }
+            tbody tr:nth-child(even) { background: #f8fafc; }
+            .section-title { color: #0f172a; font-size: 15px; font-weight: 700; margin-top: 22px; }
+            footer { display: flex; justify-content: flex-start; gap: 12px; margin-top: 24px; }
+            .stat { min-width: 180px; border: 1px solid #99f6e4; background: #f0fdfa; padding: 12px 16px; }
+            .stat strong { display: block; color: #0f766e; font-size: 19px; margin-top: 4px; }
+            @media print { .report { max-width: none; } }
+          </style>
+        </head>
+        <body>
+          <main class="report">
+            <div class="top-line"></div>
+            <header>
+              <div><div class="brand">judi mensucat</div><h1>Boyahane Ham Kumaş Sevkiyat Raporu</h1></div>
+              <div class="meta"><div><strong>Yazdırma Tarihi:</strong> ${escapeHtml(formatReportDate(new Date()))}</div><div><strong>Hazırlayan:</strong> ${escapeHtml(transaction.Writer)}</div></div>
+            </header>
+            <div class="info-grid">
+              <div class="info-item"><span class="label">Fatura No</span><span class="value">${escapeHtml(transaction.FaturaNo)}</span></div>
+              <div class="info-item"><span class="label">Atanan Boyahane</span><span class="value">${escapeHtml(factoryName)}</span></div>
+              <div class="info-item"><span class="label">İşlem Tarihi</span><span class="value">${escapeHtml(transaction.Date)}</span></div>
+              <div class="info-item"><span class="label">Araç Plakası</span><span class="value">${escapeHtml(transaction.CarBLK)}</span></div>
+              <div class="info-item"><span class="label">Araç Sahibi</span><span class="value">${escapeHtml(transaction.CarOwner)}</span></div>
+            </div>
+            <div class="section-title">Gönderilen Kumaş Detayları</div>
+            <table>
+              <thead><tr><th>#</th><th>Kumaş Cinsi</th><th>Kumaş Lotu</th><th>GR</th><th>Ağırlık</th><th>Top Sayısı</th><th>Sipariş No</th></tr></thead>
+              <tbody>${detailRows}</tbody>
+            </table>
+            <footer>
+              <div class="stat"><span class="label">Toplam Top Sayısı</span><strong>${formatReportNumber(totalTopCount)}</strong></div>
+              <div class="stat"><span class="label">Toplam Ağırlık</span><strong>${formatReportNumber(totalWeight)}</strong></div>
+            </footer>
+          </main>
+        </body>
+      </html>`
+
+    const printWindow = window.open('', '_blank', 'width=1000,height=800')
+    if (!printWindow) {
+      showNotice('error', 'تعذر فتح نافذة الطباعة.')
+      return
+    }
+
+    printWindow.document.write(reportHtml)
+    printWindow.document.close()
+    printWindow.focus()
+    setTimeout(() => {
+      printWindow.print()
+      printWindow.close()
+    }, 250)
+  }, [boyaFactoriesOptions, showNotice])
+
   const saveTransaction = useCallback(async () => {
     setModalError('')
     setIsModalSaving(true)
@@ -325,6 +432,7 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
       setIsModalSaving(false)
       setIsModalOpen(false)
       loadTransactions()
+      printSavedTransaction(payload)
       const message = transactionForm.Id ? 'تم تحديث الحركة بنجاح.' : 'تم حفظ الحركة الجديدة بنجاح.'
       showNotice('success', message)
     } catch (requestError) {
@@ -333,7 +441,7 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
       showNotice('error', message)
       setIsModalSaving(false)
     }
-  }, [apiRequest, loadTransactions, showNotice, transactionForm])
+  }, [apiRequest, loadTransactions, printSavedTransaction, showNotice, transactionForm])
 
   useEffect(() => {
     if (!isActive) {
@@ -354,8 +462,8 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
         const carBLK = transaction.carBLK ?? transaction.CarBLK ?? '-'
         const carOwner = transaction.carOwner ?? '-'
         const detailsCount = transaction.detailsCount ?? '-'
-        const totalWeight = transaction.totalWeight ?? '-'
-        const totalTopCount = transaction.totalTopCount ?? '-'
+        const totalWeight = formatReportValue(transaction.totalWeight)
+        const totalTopCount = formatReportValue(transaction.totalTopCount)
 
         return `
           <tr>
@@ -375,15 +483,16 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
       .join('')
 
     const reportHtml = `<!DOCTYPE html>
-      <html lang="ar" dir="rtl">
+      <html lang="tr" dir="ltr">
         <head>
           <meta charset="UTF-8" />
           <meta name="robots" content="noindex,nofollow" />
-          <title>تقرير حركات خام المرسل للمصابغ</title>
+          <title>Boyahanelere Gönderilen Ham Kumaş İşlemleri Raporu</title>
           <style>
             @page { margin: 8mm; }
             body {
-              font-family: Arial, sans-serif;
+              font-family: Arial, Tahoma, sans-serif;
+              direction: ltr;
               color: #1f2d3d;
               margin: 0;
               padding: 18px;
@@ -391,7 +500,7 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
             .report-header {
               display: flex;
               flex-direction: column;
-              align-items: flex-end;
+              align-items: flex-start;
               gap: 4px;
               margin-bottom: 18px;
               font-weight: 700;
@@ -402,31 +511,31 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
             .report-title { font-size: 1.05rem; color: #1f5f81; }
             .summary { font-size: 13px; color: #2e5166; margin-bottom: 10px; }
             table { width: 100%; border-collapse: collapse; font-size: 12px; }
-            th, td { border: 1px solid #d3e4ed; padding: 8px; text-align: right; }
+            th, td { border: 1px solid #d3e4ed; padding: 8px; text-align: left; }
             th { background: #edf6fb; }
             @media print { body { padding: 0; } }
           </style>
         </head>
         <body>
           <div class="report-header">
-            <div class="report-date">${new Date().toISOString().split('T')[0]}</div>
-            <div class="report-user">${currentUserName || 'المستخدم'}</div>
-            <div class="report-title">تقرير حركات خام المرسل للمصابغ</div>
+            <div class="report-date">${formatReportDate(new Date())}</div>
+            <div class="report-user">${currentUserName || 'Kullanıcı'}</div>
+            <div class="report-title">Boyahanelere Gönderilen Ham Kumaş İşlemleri Raporu</div>
           </div>
-          <div class="summary">عدد النتائج: ${totalCount} | الوزن الكلي: ${totalWeight}</div>
+          <div class="summary">Sonuç Sayısı: ${formatReportValue(totalCount)} | Toplam Ağırlık: ${formatReportValue(totalWeight)}</div>
           <table>
             <thead>
               <tr>
                 <th>#</th>
-                <th>رقم الفاتورة</th>
-                <th>المصنع</th>
-                <th>التاريخ</th>
-                <th>الكاتب</th>
-                <th>لوحة السيارة</th>
-                <th>صاحب السيارة</th>
-                <th>عدد التفاصيل</th>
-                <th>الوزن الكلي</th>
-                <th>عدد الأثواب</th>
+                <th>Fatura No</th>
+                <th>Boyahane</th>
+                <th>Tarih</th>
+                <th>Hazırlayan</th>
+                <th>Araç Plakası</th>
+                <th>Araç Sahibi</th>
+                <th>Detay Sayısı</th>
+                <th>Toplam Ağırlık</th>
+                <th>Top Sayısı</th>
               </tr>
             </thead>
             <tbody>${rows}</tbody>
