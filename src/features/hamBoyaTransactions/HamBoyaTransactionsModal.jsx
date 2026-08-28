@@ -62,27 +62,27 @@ function HamBoyaTransactionsModal({
             ) : (
               <>
                 <section className="mb-6 space-y-3" dir="rtl">
-                  <div className="grid grid-cols-1 gap-4 lg:grid-cols-6" dir="rtl">
-                    <div className="space-y-2" dir="rtl">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6" dir="rtl">
+                    <div className="min-w-0 space-y-2" dir="rtl">
                       <label htmlFor="FaturaNo" className="block text-sm font-medium text-slate-700 text-right">رقم الفاتورة</label>
                       <input
                         id="FaturaNo"
                         type="text"
                         value={form.FaturaNo}
                         onChange={(event) => onFieldChange('FaturaNo', event.target.value)}
-                        className={buildInputClasses(false)}
+                        className={`${buildInputClasses(false)} w-full min-w-0`}
                         dir="ltr"
                         style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
                       />
                     </div>
 
-                    <div className="space-y-2" dir="rtl">
+                    <div className="min-w-0 space-y-2" dir="rtl">
                       <label htmlFor="FactoryId" className="block text-sm font-medium text-slate-700 text-right">المصبغة</label>
                       <select
                         id="FactoryId"
                         value={form.FactoryId}
                         onChange={(event) => onFieldChange('FactoryId', event.target.value)}
-                        className={buildInputClasses(false)}
+                        className={`${buildInputClasses(false)} w-full min-w-0`}
                       >
                         <option value="">اختر المصبغة</option>
                         {boyaFactoriesOptions.map((factory) => (
@@ -93,51 +93,51 @@ function HamBoyaTransactionsModal({
                       </select>
                     </div>
 
-                    <div className="space-y-2" dir="rtl">
+                    <div className="min-w-0 space-y-2" dir="rtl">
                       <label htmlFor="Date" className="block text-sm font-medium text-slate-700 text-right">التاريخ</label>
                       <input
                         id="Date"
                         type="date"
                         value={form.Date}
                         onChange={(event) => onFieldChange('Date', event.target.value)}
-                        className={buildInputClasses(false)}
+                        className={`${buildInputClasses(false)} w-full min-w-0`}
                         dir="ltr"
                         style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
                       />
                     </div>
 
-                    <div className="space-y-2" dir="rtl">
+                    <div className="min-w-0 space-y-2" dir="rtl">
                       <label htmlFor="Writer" className="block text-sm font-medium text-slate-700 text-right">الكاتب</label>
                       <input
                         id="Writer"
                         type="text"
                         value={form.Writer}
                         onChange={(event) => onFieldChange('Writer', event.target.value)}
-                        className={buildInputClasses(false)}
+                        className={`${buildInputClasses(false)} w-full min-w-0`}
                       />
                     </div>
 
-                    <div className="space-y-2" dir="rtl">
+                    <div className="min-w-0 space-y-2" dir="rtl">
                       <label htmlFor="CarBLK" className="block text-sm font-medium text-slate-700 text-right">لوحة السيارة</label>
                       <input
                         id="CarBLK"
                         type="text"
                         value={form.CarBLK ?? ''}
                         onChange={(event) => onFieldChange('CarBLK', event.target.value)}
-                        className={buildInputClasses(false)}
+                        className={`${buildInputClasses(false)} w-full min-w-0`}
                         dir="ltr"
                         style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
                       />
                     </div>
 
-                    <div className="space-y-2" dir="rtl">
+                    <div className="min-w-0 space-y-2" dir="rtl">
                       <label htmlFor="CarOwner" className="block text-sm font-medium text-slate-700 text-right">صاحب السيارة</label>
                       <input
                         id="CarOwner"
                         type="text"
                         value={form.CarOwner}
                         onChange={(event) => onFieldChange('CarOwner', event.target.value)}
-                        className={buildInputClasses(false)}
+                        className={`${buildInputClasses(false)} w-full min-w-0`}
                       />
                     </div>
                   </div>
