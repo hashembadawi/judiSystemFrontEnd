@@ -313,12 +313,11 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
     const detailRows = transaction.Details.map((detail, index) => `
       <tr>
         <td>${index + 1}</td>
+        <td>${escapeHtml(detail.OrderNo)}</td>
         <td>${escapeHtml(detail.FabricGender)}</td>
         <td>${escapeHtml(detail.FabricLot)}</td>
-        <td>${escapeHtml(detail.FabricGr)}</td>
-        <td>${formatReportNumber(detail.FabricWeight)}</td>
         <td>${formatReportNumber(detail.FabricTopCount)}</td>
-        <td>${escapeHtml(detail.OrderNo)}</td>
+        <td>${formatReportNumber(detail.FabricWeight)}</td>
       </tr>
     `).join('')
 
@@ -348,7 +347,8 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
             th { background: #e6fffb; color: #115e59; font-weight: 700; }
             tbody tr:nth-child(even) { background: #f8fafc; }
             .section-title { color: #0f172a; font-size: 15px; font-weight: 700; margin-top: 22px; }
-            footer { display: flex; justify-content: flex-start; gap: 12px; margin-top: 24px; }
+            .driver-info { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 22px; }
+            footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
             .stat { min-width: 180px; border: 1px solid #99f6e4; background: #f0fdfa; padding: 12px 16px; }
             .stat strong { display: block; color: #0f766e; font-size: 19px; margin-top: 4px; }
             @media print { .report { max-width: none; } }
@@ -365,18 +365,20 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
               <div class="info-item"><span class="label">Fatura No</span><span class="value">${escapeHtml(transaction.FaturaNo)}</span></div>
               <div class="info-item"><span class="label">Atanan Boyahane</span><span class="value">${escapeHtml(factoryName)}</span></div>
               <div class="info-item"><span class="label">İşlem Tarihi</span><span class="value">${escapeHtml(transaction.Date)}</span></div>
-              <div class="info-item"><span class="label">Araç Plakası</span><span class="value">${escapeHtml(transaction.CarBLK)}</span></div>
-              <div class="info-item"><span class="label">Araç Sahibi</span><span class="value">${escapeHtml(transaction.CarOwner)}</span></div>
             </div>
             <div class="section-title">Gönderilen Kumaş Detayları</div>
             <table>
-              <thead><tr><th>#</th><th>Kumaş Cinsi</th><th>Kumaş Lotu</th><th>GR</th><th>Ağırlık</th><th>Top Sayısı</th><th>Sipariş No</th></tr></thead>
+              <thead><tr><th>#</th><th>Sipariş No</th><th>Kumaş Cinsi</th><th>Lot</th><th>Top Sayısı</th><th>Ağırlık</th></tr></thead>
               <tbody>${detailRows}</tbody>
             </table>
             <footer>
               <div class="stat"><span class="label">Toplam Top Sayısı</span><strong>${formatReportNumber(totalTopCount)}</strong></div>
               <div class="stat"><span class="label">Toplam Ağırlık</span><strong>${formatReportNumber(totalWeight)}</strong></div>
             </footer>
+            <div class="driver-info">
+              <div class="info-item"><span class="label">Şoför</span><span class="value">${escapeHtml(transaction.CarOwner)}</span></div>
+              <div class="info-item"><span class="label">Araç Plakası</span><span class="value">${escapeHtml(transaction.CarBLK)}</span></div>
+            </div>
           </main>
         </body>
       </html>`
