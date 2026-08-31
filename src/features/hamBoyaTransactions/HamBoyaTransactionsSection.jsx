@@ -359,11 +359,10 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
             <div class="top-line"></div>
             <header>
               <div><div class="brand">judi mensucat</div><h1>Boyahane Ham Kumaş Sevkiyat Raporu</h1></div>
-              <div class="meta"><div><strong>Yazdırma Tarihi:</strong> ${escapeHtml(formatReportDate(new Date()))}</div><div><strong>Hazırlayan:</strong> ${escapeHtml(transaction.Writer)}</div></div>
             </header>
             <div class="info-grid">
               <div class="info-item"><span class="label">Fatura No</span><span class="value">${escapeHtml(transaction.FaturaNo)}</span></div>
-              <div class="info-item"><span class="label">Atanan Boyahane</span><span class="value">${escapeHtml(factoryName)}</span></div>
+              <div class="info-item"><span class="label">Sevk Boyahane</span><span class="value">${escapeHtml(factoryName)}</span></div>
               <div class="info-item"><span class="label">İşlem Tarihi</span><span class="value">${escapeHtml(transaction.Date)}</span></div>
             </div>
             <div class="section-title">Gönderilen Kumaş Detayları</div>

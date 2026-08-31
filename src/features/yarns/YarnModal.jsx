@@ -148,6 +148,20 @@ function YarnModal({
               </div>
 
               <div className="space-y-2 text-right">
+                <label htmlFor="ne" className="block text-sm font-medium text-slate-700">NE</label>
+                <input
+                  id="ne"
+                  type="number"
+                  step="0.01"
+                  value={form.ne}
+                  onChange={(event) => onFieldChange('ne', event.target.value)}
+                  className={`${buildInputClasses(false)} w-full`}
+                  dir="ltr"
+                  style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
+                />
+              </div>
+
+              <div className="space-y-2 text-right">
                 <label htmlFor="company" className="block text-sm font-medium text-slate-700">الشركة</label>
                 <input
                   id="company"
