@@ -16,6 +16,7 @@ const createEmptyYarnDetail = () => ({
   yarnId: 0,
   yarnGender: '',
   yarnLot: '',
+  iplikUzun: '',
   percentage: '',
   weight: '',
 })
@@ -27,8 +28,6 @@ const createEmptyDetailRow = () => ({
   fabricLot: '',
   pus: '',
   fain: '',
-  iplik_Uzunu: '',
-  denye: '',
   weight: '',
   price: '',
   description: '',
@@ -296,6 +295,78 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
     }))
   }, [])
 
+  const calculateYarnPercentages = useCallback(async (detailIndex) => {
+    const detail = form.details[detailIndex]
+    if (!detail) {
+      return
+    }
+
+    const yarnDetails = Array.isArray(detail.yarnDetails) ? detail.yarnDetails : []
+    const selectedYarns = yarnDetails.filter((yarn) => Number(yarn.yarnId) > 0)
+
+    if (selectedYarns.length === 0) {
+      const message = 'Lütfen önce en az bir iplik seçin.'
+      setModalError(message)
+      showNotice('warning', message)
+      return
+    }
+
+    const payload = {
+      yarnDetails: selectedYarns.map((yarn) => ({
+        YarnId: Number(yarn.yarnId) || 0,
+        YarnLength: Number(yarn.iplikUzun ?? yarn.yarnLength ?? yarn.YarnLength ?? 0) || 0,
+      })),
+    }
+
+    try {
+      const response = await apiRequest(`${WEAVING_ORDERS_URL}/calculateYarnPercentage`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
+
+      const calculatedItems = Array.isArray(response?.data?.yarnDetails) ? response.data.yarnDetails : []
+      const resultMap = new Map(calculatedItems.map((item) => [String(item.yarnId ?? item.YarnId ?? ''), item]))
+
+      setForm((prev) => ({
+        ...prev,
+        details: prev.details.map((detailItem, index) => {
+          if (index !== detailIndex) {
+            return detailItem
+          }
+
+          return {
+            ...detailItem,
+            yarnDetails: (detailItem.yarnDetails ?? []).map((yarnDetail) => {
+              const matchedItem = resultMap.get(String(yarnDetail.yarnId ?? ''))
+              if (!matchedItem) {
+                return yarnDetail
+              }
+
+              return {
+                ...yarnDetail,
+                yarnGender: yarnDetail.yarnGender || matchedItem.yarnGender || matchedItem.YarnGender || '',
+                iplikUzun: matchedItem.yarnLength ?? matchedItem.YarnLength ?? yarnDetail.iplikUzun ?? '',
+                percentage: matchedItem.percentage ?? matchedItem.Percentage ?? yarnDetail.percentage ?? '',
+                weight: yarnDetail.weight || '',
+              }
+            }),
+          }
+        }),
+      }))
+
+      showNotice('success', 'İplik oranları başarıyla hesaplandı.')
+      setModalError('')
+    } catch (requestError) {
+      const message = requestError.message || 'İplik oranları hesaplanamadı.'
+      setModalError(message)
+      showNotice('error', message)
+    }
+  }, [apiRequest, form.details, showNotice])
+
   const handleOrderSelection = useCallback(
     async (selectedOrderId) => {
       const normalizedId = String(selectedOrderId ?? '').trim()
@@ -386,8 +457,6 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
                 fabricLot: normalizeTextValue(detail?.fabricLot ?? detail?.FabricLot ?? ''),
                 pus: detail?.pus ?? detail?.Pus ?? '',
                 fain: detail?.fain ?? detail?.Fain ?? '',
-                iplik_Uzunu: detail?.iplik_Uzunu ?? detail?.Iplik_Uzunu ?? detail?.IplikUzunu ?? '',
-                denye: detail?.denye ?? detail?.Denye ?? '',
                 weight: detail?.weight ?? detail?.Weight ?? '',
                 price: detail?.price ?? detail?.Price ?? '',
                 description: normalizeTextValue(detail?.description ?? detail?.Description ?? ''),
@@ -399,6 +468,7 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
                       yarnId: yarn?.yarnId ?? 0,
                       yarnGender: normalizeTextValue(yarn?.yarnGender ?? yarn?.YarnGender ?? ''),
                       yarnLot: normalizeTextValue(yarn?.yarnLot ?? yarn?.YarnLot ?? ''),
+                      iplikUzun: yarn?.iplikUzun ?? yarn?.IplikUzun ?? yarn?.yarnLength ?? yarn?.YarnLength ?? '',
                       percentage: yarn?.percentage ?? yarn?.Percentage ?? '',
                       weight: yarn?.weight ?? yarn?.Weight ?? '',
                     }))
@@ -440,8 +510,6 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
         ['Kumaş LOT', detail.fabricLot],
         ['Pus', detail.pus],
         ['Fain', detail.fain],
-        ['İplik uzunluğu', detail.iplik_Uzunu],
-        ['Denye', detail.denye],
         ['Ağırlık', detail.weight],
         ['Fiyat', detail.price],
         ['Fabrika', detail.factoryId],
@@ -460,7 +528,7 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
       }
 
       const missingYarnField = yarnDetails.some((yarn) => (
-        isEmpty(yarn.yarnId) || isEmpty(yarn.yarnLot) || isEmpty(yarn.percentage) || isEmpty(yarn.weight)
+        isEmpty(yarn.yarnId) || isEmpty(yarn.yarnLot) || isEmpty(yarn.iplikUzun) || isEmpty(yarn.percentage) || isEmpty(yarn.weight)
       ))
       if (missingYarnField) {
         showValidationWarning(`${detailIndex + 1}. kumaşın iplik detaylarındaki tüm alanları doldurun.`)
@@ -490,8 +558,6 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
           fabricLot: String(detail.fabricLot ?? '').trim(),
           pus: Number(detail.pus ?? 0) || 0,
           fain: Number(detail.fain ?? 0) || 0,
-          iplik_Uzunu: Number(detail.iplik_Uzunu ?? 0) || 0,
-          denye: Number(detail.denye ?? 0) || 0,
           weight: Number(detail.weight) || 0,
           price: Number(detail.price ?? 0) || 0,
           description: String(detail.description ?? '').trim(),
@@ -502,6 +568,7 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
             yarnId: Number(yarn.yarnId ?? 0) || 0,
             yarnGender: String(yarn.yarnGender ?? '').trim(),
             yarnLot: String(yarn.yarnLot ?? '').trim(),
+            iplikUzun: Number(yarn.iplikUzun ?? yarn.yarnLength ?? 0) || 0,
             percentage: Number(yarn.percentage ?? 0) || 0,
             weight: Number(yarn.weight ?? 0) || 0,
           })) : [],
@@ -812,6 +879,7 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
         onYarnDetailChange={updateYarnDetailField}
         onAddDetail={addDetailRow}
         onAddYarnDetail={addYarnDetailRow}
+        onCalculateYarnPercentages={calculateYarnPercentages}
         onRemoveDetail={removeDetailRow}
         onRemoveYarnDetail={removeYarnDetailRow}
         onClose={closeModal}

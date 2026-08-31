@@ -18,6 +18,7 @@ function WeavingOrdersModal({
   onYarnDetailChange,
   onAddDetail,
   onAddYarnDetail,
+  onCalculateYarnPercentages,
   onRemoveDetail,
   onRemoveYarnDetail,
   onClose,
@@ -276,31 +277,7 @@ function WeavingOrdersModal({
                       </div>
                     </div>
 
-                    <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-[1.1fr_1.1fr_1fr_1fr_1fr]">
-                      <div className="space-y-0.5">
-                        <label htmlFor={`iplikUzunu-${detailIndex}`} className="block text-left text-[9px] font-medium text-slate-600">İplik Uzunu</label>
-                        <input
-                          id={`iplikUzunu-${detailIndex}`}
-                          type="number"
-                          value={detail.iplik_Uzunu ?? ''}
-                          onChange={(event) => onDetailChange(detailIndex, 'iplik_Uzunu', event.target.value)}
-                          className="w-full rounded-md border border-slate-300 bg-white px-1.5 py-1 text-[10px] text-slate-900 outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200"
-                          style={{ direction: 'ltr', textAlign: 'left' }}
-                        />
-                      </div>
-
-                      <div className="space-y-0.5">
-                        <label htmlFor={`denye-${detailIndex}`} className="block text-left text-[9px] font-medium text-slate-600">Denye</label>
-                        <input
-                          id={`denye-${detailIndex}`}
-                          type="number"
-                          value={detail.denye ?? ''}
-                          onChange={(event) => onDetailChange(detailIndex, 'denye', event.target.value)}
-                          className="w-full rounded-md border border-slate-300 bg-white px-1.5 py-1 text-[10px] text-slate-900 outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200"
-                          style={{ direction: 'ltr', textAlign: 'left' }}
-                        />
-                      </div>
-
+                    <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-[1.5fr_1.5fr_1fr_1fr]">
                       <div className="space-y-0.5">
                         <label htmlFor={`weight-${detailIndex}`} className="block text-left text-[9px] font-medium text-slate-600">Ağırlık</label>
                         <input
@@ -352,9 +329,9 @@ function WeavingOrdersModal({
                       </div>
 
                       <div className="space-y-2">
-                        {(detail.yarnDetails ?? [{ id: 0, parentId: 0, yarnId: 0, yarnGender: '', yarnLot: '', percentage: '', weight: '' }]).map((yarnDetail, yarnIndex) => (
+                        {(detail.yarnDetails ?? [{ id: 0, parentId: 0, yarnId: 0, yarnGender: '', yarnLot: '', iplikUzun: '', percentage: '', weight: '' }]).map((yarnDetail, yarnIndex) => (
                           <div key={`${detailIndex}-yarn-${yarnIndex}`} className={`rounded-lg border p-2 ${yarnIndex % 2 === 0 ? 'border-purple-200 bg-purple-50' : 'border-pink-200 bg-pink-50'}`}>
-                            <div className="grid gap-1.5 sm:grid-cols-2 xl:grid-cols-[1.6fr_1.2fr_0.7fr_0.9fr_0.8fr]">
+                            <div className="grid gap-1.5 sm:grid-cols-2 xl:grid-cols-[1.5fr_1fr_1fr_1fr_0.8fr]">
                               <div className="space-y-0.5">
                                 <label className="block text-left text-[9px] font-medium text-slate-600">Yarn Cinsi</label>
                                 <select
@@ -388,24 +365,24 @@ function WeavingOrdersModal({
                               </div>
 
                               <div className="space-y-0.5">
-                                <label className="block text-left text-[9px] font-medium text-slate-600">%</label>
+                                <label className="block text-left text-[9px] font-medium text-slate-600">İplik Uzunu</label>
                                 <input
                                   type="number"
-                                  value={yarnDetail.percentage ?? ''}
-                                  onChange={(event) => onYarnDetailChange(detailIndex, yarnIndex, 'percentage', event.target.value)}
+                                  value={yarnDetail.iplikUzun ?? ''}
+                                  onChange={(event) => onYarnDetailChange(detailIndex, yarnIndex, 'iplikUzun', event.target.value)}
                                   className="w-full rounded-md border border-slate-300 bg-white px-1.5 py-1 text-[10px] text-slate-900 outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200"
                                   style={{ direction: 'ltr', textAlign: 'left' }}
                                 />
                               </div>
 
                               <div className="space-y-0.5">
-                                <label className="block text-left text-[9px] font-medium text-slate-600">Ağırlık</label>
+                                <label className="block text-left text-[9px] font-medium text-slate-600">%</label>
                                 <input
                                   type="number"
-                                  step="0.01"
-                                  value={yarnDetail.weight ?? ''}
-                                  onChange={(event) => onYarnDetailChange(detailIndex, yarnIndex, 'weight', event.target.value)}
-                                  className="w-full rounded-md border border-slate-300 bg-white px-1.5 py-1 text-[10px] text-slate-900 outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200"
+                                  value={yarnDetail.percentage ?? ''}
+                                  readOnly={yarnDetail.percentage !== '' && yarnDetail.percentage !== null && yarnDetail.percentage !== undefined}
+                                  onChange={(event) => onYarnDetailChange(detailIndex, yarnIndex, 'percentage', event.target.value)}
+                                  className="w-full rounded-md border border-slate-300 bg-white px-1.5 py-1 text-[10px] text-slate-900 outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200 disabled:bg-slate-100 disabled:text-slate-500"
                                   style={{ direction: 'ltr', textAlign: 'left' }}
                                 />
                               </div>
@@ -423,6 +400,16 @@ function WeavingOrdersModal({
                             </div>
                           </div>
                         ))}
+                      </div>
+
+                      <div className="mt-3">
+                        <button
+                          type="button"
+                          className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-[10px] font-medium text-emerald-700 transition hover:bg-emerald-100"
+                          onClick={() => onCalculateYarnPercentages(detailIndex)}
+                        >
+                        oranlarını doldur
+                        </button>
                       </div>
                     </div>
 
