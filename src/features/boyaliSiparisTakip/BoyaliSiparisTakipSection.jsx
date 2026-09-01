@@ -124,7 +124,6 @@ function BoyaliSiparisTakipSection({ apiRequest, showNotice, isActive }) {
     setModalError('')
     setIsModalOpen(true)
     setIsModalLoading(true)
-    setSelectedOrder(order)
     setOrderForm({
       id: order.id,
       orderNo: order.orderNo ?? '',
