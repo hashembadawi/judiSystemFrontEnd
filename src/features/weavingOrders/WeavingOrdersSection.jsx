@@ -528,7 +528,7 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
       }
 
       const missingYarnField = yarnDetails.some((yarn) => (
-        isEmpty(yarn.yarnId) || isEmpty(yarn.yarnLot) || isEmpty(yarn.iplikUzun) || isEmpty(yarn.percentage) || isEmpty(yarn.weight)
+        isEmpty(yarn.yarnId) || isEmpty(yarn.yarnLot) || isEmpty(yarn.iplikUzun) || isEmpty(yarn.percentage)
       ))
       if (missingYarnField) {
         showValidationWarning(`${detailIndex + 1}. kumaşın iplik detaylarındaki tüm alanları doldurun.`)
