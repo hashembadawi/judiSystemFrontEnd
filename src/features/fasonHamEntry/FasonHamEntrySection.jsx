@@ -17,7 +17,6 @@ function FasonHamEntrySection({ apiRequest, showNotice, isActive, onNewTransacti
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const factoryOptionsLoadRef = useRef(false)
-  const itemsLoadRef = useRef(null)
 
   const loadFactoryOptions = useCallback(async () => {
     try {
@@ -82,15 +81,8 @@ function FasonHamEntrySection({ apiRequest, showNotice, isActive, onNewTransacti
 
   useEffect(() => {
     if (!isActive) {
-      itemsLoadRef.current = null
       return
     }
-
-    if (itemsLoadRef.current === loadItems) {
-      return
-    }
-
-    itemsLoadRef.current = loadItems
 
     const loadPage = async () => {
       await loadItems()
