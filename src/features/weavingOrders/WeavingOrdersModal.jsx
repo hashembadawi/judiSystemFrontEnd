@@ -343,7 +343,9 @@ function WeavingOrdersModal({
                                   <option value="">Seçin</option>
                                   {yarnOptions.map((yarn) => {
                                     const yarnId = yarn.id ?? yarn.yarnId ?? ''
-                                    const yarnLabel = yarn.yarnGender ?? yarn.YarnGender ?? String(yarnId)
+                                    const yarnGender = yarn.yarnGender ?? yarn.YarnGender ?? ''
+                                    const yarnLot = yarn.yarnLot ?? yarn.YarnLot ?? ''
+                                    const yarnLabel = [yarnGender, yarnLot ? `Lot: ${yarnLot}` : ''].filter(Boolean).join(' - ') || String(yarnId)
                                     return (
                                       <option key={yarnId} value={yarnId}>
                                         {yarnLabel}
