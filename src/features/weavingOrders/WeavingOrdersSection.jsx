@@ -15,20 +15,21 @@ const createEmptyYarnDetail = () => ({
   parentId: 0,
   yarnId: 0,
   yarnGender: '',
-  yarnLot: '',
   iplikUzun: '',
   percentage: '',
-  weight: '',
 })
 
 const createEmptyDetailRow = () => ({
   id: 0,
   fabricGender: '',
   fabricGr: '',
-  fabricLot: '',
   pus: '',
   fain: '',
   weight: '',
+  producedWeight: '',
+  remainingWeight: '',
+  progressPercent: '',
+  isPlanned: 0,
   price: '',
   description: '',
   factoryId: '',
@@ -52,7 +53,7 @@ const normalizeDateValue = (value) => {
   return trimmedValue.slice(0, 10)
 }
 
-const normalizeTextValue = (value) => String(value ?? '').replace(/\u0000/g, '').trim()
+const normalizeTextValue = (value) => String(value ?? '').split(String.fromCharCode(0)).join('').trim()
 
 function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
   const today = new Date().toISOString().slice(0, 10)
@@ -235,16 +236,6 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
               }
             }
 
-            if (field === 'percentage' && value) {
-              const percentage = parseFloat(value)
-              const fabricWeight = parseFloat(detail.weight) || 0
-
-              if (percentage >= 0 && fabricWeight > 0) {
-                const calculatedWeight = (fabricWeight * percentage) / 100
-                updatedYarnDetail.weight = calculatedWeight.toFixed(2)
-              }
-            }
-
             return updatedYarnDetail
           }),
         }
@@ -351,7 +342,6 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
                 yarnGender: yarnDetail.yarnGender || matchedItem.yarnGender || matchedItem.YarnGender || '',
                 iplikUzun: matchedItem.yarnLength ?? matchedItem.YarnLength ?? yarnDetail.iplikUzun ?? '',
                 percentage: matchedItem.percentage ?? matchedItem.Percentage ?? yarnDetail.percentage ?? '',
-                weight: yarnDetail.weight || '',
               }
             }),
           }
@@ -454,10 +444,13 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
                 id: detail?.id ?? 0,
                 fabricGender: normalizeTextValue(detail?.fabricGender ?? detail?.FabricGender ?? ''),
                 fabricGr: detail?.fabricGr ?? detail?.FabricGr ?? '',
-                fabricLot: normalizeTextValue(detail?.fabricLot ?? detail?.FabricLot ?? ''),
                 pus: detail?.pus ?? detail?.Pus ?? '',
                 fain: detail?.fain ?? detail?.Fain ?? '',
-                weight: detail?.weight ?? detail?.Weight ?? '',
+                weight: detail?.requiredWeight ?? detail?.RequiredWeight ?? detail?.weight ?? detail?.Weight ?? '',
+                producedWeight: detail?.producedWeight ?? detail?.ProducedWeight ?? '',
+                remainingWeight: detail?.remainingWeight ?? detail?.RemainingWeight ?? '',
+                progressPercent: detail?.progressPercent ?? detail?.ProgressPercent ?? '',
+                isPlanned: detail?.isPlanned ?? detail?.IsPlanned ?? 0,
                 price: detail?.price ?? detail?.Price ?? '',
                 description: normalizeTextValue(detail?.description ?? detail?.Description ?? ''),
                 factoryId: detail?.factoryId ?? detail?.FactoryId ?? '',
@@ -467,10 +460,8 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
                       parentId: yarn?.parentId ?? 0,
                       yarnId: yarn?.yarnId ?? 0,
                       yarnGender: normalizeTextValue(yarn?.yarnGender ?? yarn?.YarnGender ?? ''),
-                      yarnLot: normalizeTextValue(yarn?.yarnLot ?? yarn?.YarnLot ?? ''),
                       iplikUzun: yarn?.iplikUzun ?? yarn?.IplikUzun ?? yarn?.yarnLength ?? yarn?.YarnLength ?? '',
                       percentage: yarn?.percentage ?? yarn?.Percentage ?? '',
-                      weight: yarn?.weight ?? yarn?.Weight ?? '',
                     }))
                   : [createEmptyYarnDetail()],
               }))
@@ -507,7 +498,6 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
       const detailFields = [
         ['Kumaş cinsi', detail.fabricGender],
         ['GR', detail.fabricGr],
-        ['Kumaş LOT', detail.fabricLot],
         ['Pus', detail.pus],
         ['Fain', detail.fain],
         ['Ağırlık', detail.weight],
@@ -528,7 +518,7 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
       }
 
       const missingYarnField = yarnDetails.some((yarn) => (
-        isEmpty(yarn.yarnId) || isEmpty(yarn.yarnLot) || isEmpty(yarn.iplikUzun) || isEmpty(yarn.percentage)
+        isEmpty(yarn.yarnId) || isEmpty(yarn.iplikUzun) || isEmpty(yarn.percentage)
       ))
       if (missingYarnField) {
         showValidationWarning(`${detailIndex + 1}. kumaşın iplik detaylarındaki tüm alanları doldurun.`)
@@ -552,10 +542,8 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
         date: String(form.date ?? '').trim(),
         weavingOrderStatus: Number(form.weavingOrderStatus) || 1,
         details: form.details.map((detail) => ({
-          id: Number(detail.id) || 0,
           fabricGender: String(detail.fabricGender ?? '').trim(),
           fabricGr: Number(detail.fabricGr) || 0,
-          fabricLot: String(detail.fabricLot ?? '').trim(),
           pus: Number(detail.pus ?? 0) || 0,
           fain: Number(detail.fain ?? 0) || 0,
           weight: Number(detail.weight) || 0,
@@ -567,10 +555,8 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
             parentId: Number(detail.id) || 0,
             yarnId: Number(yarn.yarnId ?? 0) || 0,
             yarnGender: String(yarn.yarnGender ?? '').trim(),
-            yarnLot: String(yarn.yarnLot ?? '').trim(),
             iplikUzun: Number(yarn.iplikUzun ?? yarn.yarnLength ?? 0) || 0,
             percentage: Number(yarn.percentage ?? 0) || 0,
-            weight: Number(yarn.weight ?? 0) || 0,
           })) : [],
         })),
       }
@@ -748,18 +734,24 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
                 <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">Tarih</th>
                 <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">Durum</th>
                 <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">Detay Sayısı</th>
-                <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">Toplam Ağırlık</th>
+                <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">Gerekli Ağırlık</th>
+                <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">Üretilen Ağırlık</th>
+                <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">Kalan Ağırlık</th>
+                <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">İlerleme</th>
+                <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">Planlanan Kumaş</th>
+                <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">Makine</th>
+                <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">Planlama</th>
                 <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-slate-700">İşlemler</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
               {isLoading ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-12 text-center text-slate-500">Dokuma siparişleri yükleniyor...</td>
+                  <td colSpan={14} className="px-4 py-12 text-center text-slate-500">Dokuma siparişleri yükleniyor...</td>
                 </tr>
               ) : orders.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-12 text-center text-slate-500">Eşleşen sipariş bulunamadı.</td>
+                  <td colSpan={14} className="px-4 py-12 text-center text-slate-500">Eşleşen sipariş bulunamadı.</td>
                 </tr>
               ) : (
                 orders.map((order, index) => (
@@ -770,7 +762,13 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
                     <td className="px-4 py-4 text-left text-slate-700">{order.date || '-'}</td>
                     <td className="px-4 py-4 text-left text-slate-700">{order.weavingOrderStatusName || order.wavingOrderStatusName || '-'}</td>
                     <td className="px-4 py-4 text-left text-slate-700">{order.detailsCount ?? '-'}</td>
-                    <td className="px-4 py-4 text-left text-slate-700">{order.totalWeight ?? '-'}</td>
+                    <td className="px-4 py-4 text-left text-slate-700">{order.totalRequiredWeight ?? '-'}</td>
+                    <td className="px-4 py-4 text-left text-slate-700">{order.totalProducedWeight ?? '-'}</td>
+                    <td className="px-4 py-4 text-left text-slate-700">{order.totalRemainingWeight ?? '-'}</td>
+                    <td className="px-4 py-4 text-left text-slate-700">{order.progressPercent ?? 0}%</td>
+                    <td className="px-4 py-4 text-left text-slate-700">{order.plannedFabricsCount ?? 0}</td>
+                    <td className="px-4 py-4 text-left text-slate-700">{order.plannedMachinesCount ?? 0}</td>
+                    <td className="px-4 py-4 text-left text-slate-700">{Number(order.isPalnned ?? order.isPlanned) === 1 ? 'Planlandı' : 'Planlanmadı'}</td>
                     <td className="px-4 py-4 text-center">
                       <div className="flex items-center justify-center gap-2">
                         <button
@@ -818,7 +816,13 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
                     <div className="flex items-center justify-between gap-3"><span>Tarih:</span><span className="font-medium text-slate-900">{order.date || '-'}</span></div>
                     <div className="flex items-center justify-between gap-3"><span>Durum:</span><span className="font-medium text-slate-900">{order.weavingOrderStatusName || order.wavingOrderStatusName || '-'}</span></div>
                     <div className="flex items-center justify-between gap-3"><span>Detay sayısı:</span><span className="font-medium text-slate-900">{order.detailsCount ?? '-'}</span></div>
-                    <div className="flex items-center justify-between gap-3"><span>Toplam ağırlık:</span><span className="font-medium text-slate-900">{order.totalWeight ?? '-'}</span></div>
+                    <div className="flex items-center justify-between gap-3"><span>Gerekli ağırlık:</span><span className="font-medium text-slate-900">{order.totalRequiredWeight ?? '-'}</span></div>
+                    <div className="flex items-center justify-between gap-3"><span>Üretilen ağırlık:</span><span className="font-medium text-slate-900">{order.totalProducedWeight ?? '-'}</span></div>
+                    <div className="flex items-center justify-between gap-3"><span>Kalan ağırlık:</span><span className="font-medium text-slate-900">{order.totalRemainingWeight ?? '-'}</span></div>
+                    <div className="flex items-center justify-between gap-3"><span>İlerleme:</span><span className="font-medium text-slate-900">{order.progressPercent ?? 0}%</span></div>
+                    <div className="flex items-center justify-between gap-3"><span>Planlanan kumaş:</span><span className="font-medium text-slate-900">{order.plannedFabricsCount ?? 0}</span></div>
+                    <div className="flex items-center justify-between gap-3"><span>Planlanan makine:</span><span className="font-medium text-slate-900">{order.plannedMachinesCount ?? 0}</span></div>
+                    <div className="flex items-center justify-between gap-3"><span>Planlama:</span><span className="font-medium text-slate-900">{Number(order.isPalnned ?? order.isPlanned) === 1 ? 'Planlandı' : 'Planlanmadı'}</span></div>
                   </div>
 
                   <div className="mt-4 flex items-center justify-end gap-2">

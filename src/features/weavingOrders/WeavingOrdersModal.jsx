@@ -180,7 +180,7 @@ function WeavingOrdersModal({
               <div className="mt-2 space-y-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
                 {form.details.map((detail, detailIndex) => (
                   <div className={`rounded-xl border p-2.5 shadow-sm ${detailIndex % 2 === 0 ? 'border-blue-200 bg-blue-50' : 'border-green-200 bg-green-50'}`} key={`${detail.id ?? detailIndex}-detail`}>
-                    <div className="grid gap-1.5 sm:grid-cols-2 xl:grid-cols-[2.2fr_0.8fr_0.9fr_0.7fr_0.7fr_0.9fr]">
+                    <div className="grid gap-1.5 sm:grid-cols-2 xl:grid-cols-[2.2fr_0.9fr_0.9fr_0.7fr_0.9fr]">
                       <div className="space-y-0.5">
                         <label htmlFor={`fabricGender-${detailIndex}`} className="block text-left text-[9px] font-medium text-slate-600">Kumaş cinsi</label>
                         <select
@@ -206,18 +206,6 @@ function WeavingOrdersModal({
                           type="number"
                           value={detail.fabricGr ?? ''}
                           onChange={(event) => onDetailChange(detailIndex, 'fabricGr', event.target.value)}
-                          className="w-full rounded-md border border-slate-300 bg-white px-1.5 py-1 text-[10px] text-slate-900 outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200"
-                          style={{ direction: 'ltr', textAlign: 'left' }}
-                        />
-                      </div>
-
-                      <div className="space-y-0.5">
-                        <label htmlFor={`fabricLot-${detailIndex}`} className="block text-left text-[9px] font-medium text-slate-600">LOT</label>
-                        <input
-                          id={`fabricLot-${detailIndex}`}
-                          type="text"
-                          value={detail.fabricLot ?? ''}
-                          onChange={(event) => onDetailChange(detailIndex, 'fabricLot', event.target.value)}
                           className="w-full rounded-md border border-slate-300 bg-white px-1.5 py-1 text-[10px] text-slate-900 outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200"
                           style={{ direction: 'ltr', textAlign: 'left' }}
                         />
@@ -316,6 +304,25 @@ function WeavingOrdersModal({
                       </div>
                     </div>
 
+                    <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-4">
+                      <div className="rounded-md border border-slate-200 bg-white px-2 py-1.5 text-[10px]">
+                        <span className="block text-slate-500">Üretilen ağırlık</span>
+                        <span className="font-medium text-slate-900">{detail.producedWeight ?? '-'}</span>
+                      </div>
+                      <div className="rounded-md border border-slate-200 bg-white px-2 py-1.5 text-[10px]">
+                        <span className="block text-slate-500">Kalan ağırlık</span>
+                        <span className="font-medium text-slate-900">{detail.remainingWeight ?? '-'}</span>
+                      </div>
+                      <div className="rounded-md border border-slate-200 bg-white px-2 py-1.5 text-[10px]">
+                        <span className="block text-slate-500">İlerleme</span>
+                        <span className="font-medium text-slate-900">{detail.progressPercent === '' ? '-' : `%${detail.progressPercent}`}</span>
+                      </div>
+                      <div className="rounded-md border border-slate-200 bg-white px-2 py-1.5 text-[10px]">
+                        <span className="block text-slate-500">Plan durumu</span>
+                        <span className="font-medium text-slate-900">{Number(detail.isPlanned) === 1 ? 'Planlandı' : 'Planlanmadı'}</span>
+                      </div>
+                    </div>
+
                     <div className="mt-3 rounded-lg border border-sky-100 bg-sky-50 p-2">
                       <div className="mb-2 flex items-center justify-between gap-2">
                         <h6 className="text-[11px] font-semibold text-sky-800">İplik detayları</h6>
@@ -329,9 +336,9 @@ function WeavingOrdersModal({
                       </div>
 
                       <div className="space-y-2">
-                        {(detail.yarnDetails ?? [{ id: 0, parentId: 0, yarnId: 0, yarnGender: '', yarnLot: '', iplikUzun: '', percentage: '', weight: '' }]).map((yarnDetail, yarnIndex) => (
+                        {(detail.yarnDetails ?? [{ id: 0, parentId: 0, yarnId: 0, yarnGender: '', iplikUzun: '', percentage: '' }]).map((yarnDetail, yarnIndex) => (
                           <div key={`${detailIndex}-yarn-${yarnIndex}`} className={`rounded-lg border p-2 ${yarnIndex % 2 === 0 ? 'border-purple-200 bg-purple-50' : 'border-pink-200 bg-pink-50'}`}>
-                            <div className="grid gap-1.5 sm:grid-cols-2 xl:grid-cols-[1.5fr_1fr_1fr_1fr_0.8fr]">
+                            <div className="grid gap-1.5 sm:grid-cols-2 xl:grid-cols-[1.6fr_1fr_1fr_0.8fr]">
                               <div className="space-y-0.5">
                                 <label className="block text-left text-[9px] font-medium text-slate-600">Yarn Cinsi</label>
                                 <select
@@ -344,8 +351,7 @@ function WeavingOrdersModal({
                                   {yarnOptions.map((yarn) => {
                                     const yarnId = yarn.id ?? yarn.yarnId ?? ''
                                     const yarnGender = yarn.yarnGender ?? yarn.YarnGender ?? ''
-                                    const yarnLot = yarn.yarnLot ?? yarn.YarnLot ?? ''
-                                    const yarnLabel = [yarnGender, yarnLot ? `Lot: ${yarnLot}` : ''].filter(Boolean).join(' - ') || String(yarnId)
+                                    const yarnLabel = yarnGender || String(yarnId)
                                     return (
                                       <option key={yarnId} value={yarnId}>
                                         {yarnLabel}
@@ -353,17 +359,6 @@ function WeavingOrdersModal({
                                     )
                                   })}
                                 </select>
-                              </div>
-
-                              <div className="space-y-0.5">
-                                <label className="block text-left text-[9px] font-medium text-slate-600">Lot</label>
-                                <input
-                                  type="text"
-                                  value={yarnDetail.yarnLot ?? ''}
-                                  onChange={(event) => onYarnDetailChange(detailIndex, yarnIndex, 'yarnLot', event.target.value)}
-                                  className="w-full rounded-md border border-slate-300 bg-white px-1.5 py-1 text-[10px] text-slate-900 outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200"
-                                  style={{ direction: 'ltr', textAlign: 'left' }}
-                                />
                               </div>
 
                               <div className="space-y-0.5">
