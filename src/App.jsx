@@ -11,6 +11,7 @@ import OrderFactoryTransactionsSection from './features/orderFactoryTransactions
 import BoyaliSiparisTakipSection from './features/boyaliSiparisTakip/BoyaliSiparisTakipSection'
 import DepoHamFabricSection from './features/depoHamFabric/DepoHamFabricSection'
 import WeavingOrdersSection from './features/weavingOrders/WeavingOrdersSection'
+import WeavingOrderPlanningSection from './features/weavingOrderPlanning/WeavingOrderPlanningSection'
 import FasonHamEntrySection from './features/fasonHamEntry/FasonHamEntrySection'
 import FasonHamEntryModal from './features/fasonHamEntry/FasonHamEntryModal'
 import { loginRequest, requestApi } from './services/api'
@@ -180,7 +181,7 @@ function App() {
     }
 
     if (isProductionManagerUser) {
-      const allowedOperations = ['depoHamFabric', 'weavingOrders', 'fabrics', 'fasonHamEntry']
+      const allowedOperations = ['depoHamFabric', 'weavingOrders', 'weavingOrderPlanning', 'fabrics', 'fasonHamEntry']
       if (!allowedOperations.includes(activeOperation)) {
         setActiveOperation('depoHamFabric')
       }
@@ -875,6 +876,13 @@ function App() {
                   </button>
                   <button
                     type="button"
+                    className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'weavingOrderPlanning' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
+                    onClick={() => setActiveOperation('weavingOrderPlanning')}
+                  >
+                    DOKUMA SİPARİŞİ PLANLAMA
+                  </button>
+                  <button
+                    type="button"
                     className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'fabrics' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
                     onClick={() => setActiveOperation('fabrics')}
                   >
@@ -998,6 +1006,13 @@ function App() {
                   >
                     ÖRGÜ SİPARİŞLERİ YÖNETİMİ
                   </button>
+                  <button
+                    type="button"
+                    className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'weavingOrderPlanning' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
+                    onClick={() => setActiveOperation('weavingOrderPlanning')}
+                  >
+                    DOKUMA SİPARİŞİ PLANLAMA
+                  </button>
                 </>
               )}
               </div>
@@ -1012,6 +1027,8 @@ function App() {
                 <FasonHamEntrySection apiRequest={apiRequest} showNotice={showNotice} isActive refreshKey={fasonHamEntryRefreshKey} onNewTransaction={openFasonHamEntryModal} onEditTransaction={openFasonHamEntryModal} onDeleteTransaction={deleteFasonHamEntry} />
               ) : activeOperation === 'weavingOrders' ? (
                 <WeavingOrdersSection apiRequest={apiRequest} showNotice={showNotice} isActive />
+              ) : activeOperation === 'weavingOrderPlanning' ? (
+                <WeavingOrderPlanningSection apiRequest={apiRequest} showNotice={showNotice} isActive />
               ) : activeOperation === 'fabrics' ? (
                 <FabricsSection
                   apiRequest={apiRequest}
@@ -1068,6 +1085,8 @@ function App() {
               <DepoHamFabricSection apiRequest={apiRequest} showNotice={showNotice} isActive />
             ) : activeOperation === 'weavingOrders' ? (
               <WeavingOrdersSection apiRequest={apiRequest} showNotice={showNotice} isActive />
+            ) : activeOperation === 'weavingOrderPlanning' ? (
+              <WeavingOrderPlanningSection apiRequest={apiRequest} showNotice={showNotice} isActive />
             ) : activeOperation === 'fasonHamEntry' ? (
               <FasonHamEntrySection apiRequest={apiRequest} showNotice={showNotice} isActive refreshKey={fasonHamEntryRefreshKey} onNewTransaction={openFasonHamEntryModal} onEditTransaction={openFasonHamEntryModal} onDeleteTransaction={deleteFasonHamEntry} />
             ) : activeOperation === 'yarns' ? (
