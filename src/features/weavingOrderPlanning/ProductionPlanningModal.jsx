@@ -8,7 +8,7 @@ const formatNumber = (value) => {
   return Number(value).toLocaleString('tr-TR', { maximumFractionDigits: 2 })
 }
 
-function ProductionPlanningModal({ isOpen, isLoading, error, order, detail, onClose, onOpenMachineYarns, onToggleMachinePause, onRemoveMachine, machineActionLoadingId }) {
+function ProductionPlanningModal({ isOpen, isLoading, error, order, detail, onClose, onOpenMachineYarns, onToggleMachinePause, onRemoveMachine, machineActionLoadingId, onLoadReplacementYarns, onSelectReplacementYarn, onChangeMachineYarn, replacementYarns, replacementYarnLoadingId, replacementYarnChangingId, selectedReplacementYarnId, selectedReplacementYarnValue }) {
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === 'Escape' && !isLoading) {
@@ -66,7 +66,7 @@ function ProductionPlanningModal({ isOpen, isLoading, error, order, detail, onCl
                         type="button"
                         className={`inline-flex h-7 w-7 items-center justify-center rounded-md border text-sm transition disabled:cursor-not-allowed disabled:opacity-50 ${Number(machine.isPaused) === 1 ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100' : 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100'}`}
                         onClick={() => onToggleMachinePause(machine)}
-                        disabled={isLoading || !machine.machinePlanId || machineActionLoadingId === Number(machine.machinePlanId)}
+                        disabled={isLoading || Number(machine.isActive) !== 1 || !machine.machinePlanId || machineActionLoadingId === Number(machine.machinePlanId)}
                         aria-label={Number(machine.isPaused) === 1 ? 'Makineyi çalıştır' : 'Makineyi durdur'}
                         title={Number(machine.isPaused) === 1 ? 'Makineyi çalıştır' : 'Makineyi durdur'}
                       >
@@ -76,7 +76,7 @@ function ProductionPlanningModal({ isOpen, isLoading, error, order, detail, onCl
                         type="button"
                         className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-red-200 bg-red-50 text-sm text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
                         onClick={() => onRemoveMachine(machine)}
-                        disabled={isLoading || !machine.machinePlanId || machineActionLoadingId === Number(machine.machinePlanId)}
+                        disabled={isLoading || Number(machine.isActive) !== 1 || !machine.machinePlanId || machineActionLoadingId === Number(machine.machinePlanId)}
                         aria-label="Makineyi üretim planından kaldır"
                         title="Makineyi üretim planından kaldır"
                       >
@@ -93,7 +93,7 @@ function ProductionPlanningModal({ isOpen, isLoading, error, order, detail, onCl
 
                   <div className="mt-3 overflow-hidden rounded-md border border-slate-200 bg-white">
                     <table className="w-full table-fixed text-left text-[10px]" dir="ltr" style={{ direction: 'ltr', textAlign: 'left' }}>
-                      <thead className="bg-slate-100 text-slate-600"><tr><th className="px-2 py-1.5 text-left">Yarn Cinsi</th><th className="px-2 py-1.5 text-left">Lot</th><th className="px-2 py-1.5 text-left">Fiyat</th><th className="px-2 py-1.5 text-left">Net</th><th className="px-2 py-1.5 text-left">Durum</th></tr></thead>
+                      <thead className="bg-slate-100 text-slate-600"><tr><th className="px-2 py-1.5 text-left">Yarn Cinsi</th><th className="px-2 py-1.5 text-left">Lot</th><th className="px-2 py-1.5 text-left">Fiyat</th><th className="px-2 py-1.5 text-left">Net</th><th className="px-2 py-1.5 text-left">Durum</th><th className="px-2 py-1.5 text-left">İplik değiştir</th></tr></thead>
                       <tbody className="divide-y divide-slate-100">
                         {Array.isArray(machine.yarns) && machine.yarns.length ? machine.yarns.map((yarn, yarnIndex) => (
                           <tr key={yarn.machineYarnId ?? yarn.yarnId ?? yarnIndex}>
@@ -102,8 +102,25 @@ function ProductionPlanningModal({ isOpen, isLoading, error, order, detail, onCl
                             <td className="px-2 py-1.5">{formatNumber(yarn.yarnPrice)}</td>
                             <td className="px-2 py-1.5">{formatNumber(yarn.remainNetKg)}</td>
                             <td className="px-2 py-1.5">{Number(yarn.isActive) === 1 ? 'Aktif' : 'Pasif'}</td>
+                            <td className="px-2 py-1.5">
+                              {selectedReplacementYarnId === yarn.machineYarnId ? (
+                                <div className="flex min-w-[230px] gap-1">
+                                  <select className="min-w-0 flex-1 rounded border border-sky-300 bg-white px-1.5 py-1 text-[10px] text-slate-900" value={selectedReplacementYarnValue} onChange={(event) => onSelectReplacementYarn(event.target.value)} aria-label="Yeni iplik seçin" disabled={Number(machine.isActive) !== 1 || replacementYarnChangingId === yarn.machineYarnId}>
+                                    <option value="">Yeni iplik seçin</option>
+                                    {replacementYarns.map((replacementYarn) => <option key={replacementYarn.id} value={replacementYarn.id}>{replacementYarn.yarnGender || '-'} - Lot: {replacementYarn.lot || '-'} - Net: {replacementYarn.remainNetKg ?? 0} kg</option>)}
+                                  </select>
+                                  <button type="button" className="rounded border border-emerald-200 bg-emerald-50 px-2 py-1 text-[10px] font-medium text-emerald-700 hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50" onClick={() => onChangeMachineYarn(machine, yarn)} disabled={Number(machine.isActive) !== 1 || !selectedReplacementYarnValue || replacementYarnChangingId === yarn.machineYarnId} aria-label="Yeni ipliği uygula" title="Yeni ipliği uygula">
+                                    {replacementYarnChangingId === yarn.machineYarnId ? '...' : 'Uygula'}
+                                  </button>
+                                </div>
+                              ) : (
+                                <button type="button" className="rounded border border-sky-200 bg-sky-50 px-2 py-1 text-[10px] font-medium text-sky-700 hover:bg-sky-100 disabled:cursor-not-allowed disabled:opacity-50" onClick={() => onLoadReplacementYarns(yarn, machine)} disabled={Number(machine.isActive) !== 1 || replacementYarnLoadingId === yarn.machineYarnId || !yarn.yarnGender}>
+                                  {replacementYarnLoadingId === yarn.machineYarnId ? 'Yükleniyor...' : 'Değiştir'}
+                                </button>
+                              )}
+                            </td>
                           </tr>
-                        )) : <tr><td colSpan={5} className="px-2 py-2 text-center text-slate-500">Bu makineye bağlı iplik bulunamadı.</td></tr>}
+                        )) : <tr><td colSpan={6} className="px-2 py-2 text-center text-slate-500">Bu makineye bağlı iplik bulunamadı.</td></tr>}
                       </tbody>
                     </table>
                   </div>

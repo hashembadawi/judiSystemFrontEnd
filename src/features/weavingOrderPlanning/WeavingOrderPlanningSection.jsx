@@ -39,6 +39,11 @@ function WeavingOrderPlanningSection({ apiRequest, showNotice, isActive }) {
   const [machines, setMachines] = useState([])
   const [availableYarns, setAvailableYarns] = useState([])
   const [machineActionLoadingId, setMachineActionLoadingId] = useState(null)
+  const [replacementYarns, setReplacementYarns] = useState([])
+  const [replacementYarnLoadingId, setReplacementYarnLoadingId] = useState(null)
+  const [replacementYarnChangingId, setReplacementYarnChangingId] = useState(null)
+  const [selectedReplacementYarnId, setSelectedReplacementYarnId] = useState(null)
+  const [selectedReplacementYarnValue, setSelectedReplacementYarnValue] = useState('')
   const [machineYarnForm, setMachineYarnForm] = useState({ machinePlans: [{ key: 0, machineId: '', yarnPlans: [{ key: 1, yarnId: '' }] }] })
   const [isAddingMachinePlan, setIsAddingMachinePlan] = useState(false)
 
@@ -151,11 +156,95 @@ function WeavingOrderPlanningSection({ apiRequest, showNotice, isActive }) {
     setIsProductionPlanningOpen(false)
     setProductionPlanningError('')
     setSelectedFabric(null)
+    setReplacementYarns([])
+    setReplacementYarnLoadingId(null)
+    setReplacementYarnChangingId(null)
+    setSelectedReplacementYarnId(null)
+    setSelectedReplacementYarnValue('')
   }, [isProductionPlanningLoading])
+
+  const loadReplacementYarns = useCallback(async (yarn, machine) => {
+    const machineYarnId = yarn?.machineYarnId
+    const yarnGender = String(yarn?.yarnGender || '').trim()
+    if (Number(machine?.isActive) !== 1 || !machineYarnId || !yarnGender || replacementYarnLoadingId) {
+      return
+    }
+
+    setSelectedReplacementYarnId(machineYarnId)
+    setSelectedReplacementYarnValue('')
+    setReplacementYarnLoadingId(machineYarnId)
+    setReplacementYarns([])
+
+    try {
+      const response = await apiRequest(`${WEAVING_ORDERS_URL}/yarnsGetAvailable?YarnGender=${encodeURIComponent(yarnGender)}`)
+      setReplacementYarns(Array.isArray(response?.data) ? response.data : [])
+    } catch (requestError) {
+      setSelectedReplacementYarnId(null)
+      showNotice('error', requestError.message || 'Uygun iplikler yüklenemedi.')
+    } finally {
+      setReplacementYarnLoadingId(null)
+    }
+  }, [apiRequest, replacementYarnLoadingId, showNotice])
+
+  const selectReplacementYarn = useCallback((yarnId) => {
+    setSelectedReplacementYarnValue(yarnId)
+  }, [])
+
+  const changeMachineYarn = useCallback(async (machine, yarn) => {
+    const machineYarnId = Number(yarn?.machineYarnId)
+    const newYarnId = Number(selectedReplacementYarnValue)
+    if (Number(machine?.isActive) !== 1 || !machineYarnId || !newYarnId || replacementYarnChangingId) {
+      return
+    }
+
+    const replacementYarn = replacementYarns.find((item) => Number(item.id) === newYarnId)
+    if (!replacementYarn || !window.confirm('Bu makinedeki çalışan ipliği değiştirmek istediğinizden emin misiniz?')) {
+      return
+    }
+
+    setReplacementYarnChangingId(machineYarnId)
+
+    try {
+      await apiRequest(`${WEAVING_ORDERS_URL}/weavingOrderDetailMachineYarnChangeYarn`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          id: machineYarnId,
+          newYarnId,
+          reason: 'Kullanıcı tarafından iplik lotu değiştirildi.',
+        }),
+      })
+
+      setSelectedFabric((previous) => previous ? {
+        ...previous,
+        machines: Array.isArray(previous.machines)
+          ? previous.machines.map((item) => Number(item.machinePlanId) === Number(machine.machinePlanId) ? {
+            ...item,
+            yarns: Array.isArray(item.yarns) ? item.yarns.map((itemYarn) => Number(itemYarn.machineYarnId) === machineYarnId ? {
+              ...itemYarn,
+              yarnId: replacementYarn.id,
+              yarnGender: replacementYarn.yarnGender,
+              yarnLot: replacementYarn.lot,
+              yarnPrice: replacementYarn.yarnPrice ?? itemYarn.yarnPrice,
+              remainNetKg: replacementYarn.remainNetKg,
+            } : itemYarn) : item.yarns,
+          } : item)
+          : previous.machines,
+      } : previous)
+      setSelectedReplacementYarnId(null)
+      setSelectedReplacementYarnValue('')
+      setReplacementYarns([])
+      showNotice('success', 'Makinedeki iplik başarıyla değiştirildi.')
+    } catch (requestError) {
+      showNotice('error', requestError.message || 'Makinedeki iplik değiştirilemedi.')
+    } finally {
+      setReplacementYarnChangingId(null)
+    }
+  }, [apiRequest, replacementYarnChangingId, replacementYarns, selectedReplacementYarnValue, showNotice])
 
   const toggleMachinePause = useCallback(async (machine) => {
     const machinePlanId = Number(machine?.machinePlanId)
-    if (!machinePlanId || machineActionLoadingId) {
+    if (Number(machine?.isActive) !== 1 || !machinePlanId || machineActionLoadingId) {
       return
     }
 
@@ -200,7 +289,7 @@ function WeavingOrderPlanningSection({ apiRequest, showNotice, isActive }) {
 
   const removeMachine = useCallback(async (machine) => {
     const machinePlanId = Number(machine?.machinePlanId)
-    if (!machinePlanId || machineActionLoadingId) {
+    if (Number(machine?.isActive) !== 1 || !machinePlanId || machineActionLoadingId) {
       return
     }
 
@@ -595,6 +684,14 @@ function WeavingOrderPlanningSection({ apiRequest, showNotice, isActive }) {
         onToggleMachinePause={toggleMachinePause}
         onRemoveMachine={removeMachine}
         machineActionLoadingId={machineActionLoadingId}
+        onLoadReplacementYarns={loadReplacementYarns}
+        onSelectReplacementYarn={selectReplacementYarn}
+        onChangeMachineYarn={changeMachineYarn}
+        replacementYarns={replacementYarns}
+        replacementYarnLoadingId={replacementYarnLoadingId}
+        replacementYarnChangingId={replacementYarnChangingId}
+        selectedReplacementYarnId={selectedReplacementYarnId}
+        selectedReplacementYarnValue={selectedReplacementYarnValue}
       />
 
       <AddMachineYarnsModal
