@@ -31,13 +31,13 @@ function WeavingOrderPlanningModal({ order, isLoading, error, onClose, onOpenPro
       <section className="relative w-full max-w-6xl overflow-hidden rounded-2xl bg-white text-left shadow-[0_24px_50px_rgba(15,23,42,0.18)] ring-1 ring-slate-200" dir="ltr" style={{ direction: 'ltr', textAlign: 'left' }}>
         <div className="flex items-center justify-between border-b border-slate-200 bg-gradient-to-r from-emerald-100 via-emerald-50 to-sky-50 px-4 py-3 sm:px-5">
           <div>
-            <h4 className="text-sm font-semibold text-emerald-900">DOKUMA SİPARİŞİ PLANLAMA</h4>
+            <h4 className="text-sm font-semibold text-emerald-900">ÖRGÜ SİPARİŞİ PLANLAMA</h4>
           </div>
           <button type="button" className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-xl leading-none text-slate-500 transition hover:bg-slate-50 hover:text-slate-700" onClick={onClose} aria-label="Kapat">×</button>
         </div>
 
         <div className="max-h-[82vh] overflow-y-auto p-3 text-left sm:p-5" dir="ltr" style={{ direction: 'ltr', textAlign: 'left' }}>
-          {isLoading ? <p className="py-10 text-center text-sm text-slate-500">Dokuma siparişi yükleniyor...</p> : null}
+          {isLoading ? <p className="py-10 text-center text-sm text-slate-500">Örgü siparişi yükleniyor...</p> : null}
           {error ? <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">{error}</p> : null}
 
           {order ? (
@@ -97,6 +97,17 @@ function WeavingOrderPlanningModal({ order, isLoading, error, onClose, onOpenPro
                           </tbody>
                         </table>
                       </div>
+
+                      <div className="mt-2 flex justify-end">
+                        <button
+                          type="button"
+                          className="rounded-md bg-emerald-700 px-3 py-1.5 text-[10px] font-medium text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
+                          onClick={() => onOpenProductionPlanning(detail)}
+                          disabled={isLoading}
+                        >
+                          Üretim Planı
+                        </button>
+                      </div>
                     </div>
                   )
                 })}
@@ -105,16 +116,6 @@ function WeavingOrderPlanningModal({ order, isLoading, error, onClose, onOpenPro
           ) : null}
         </div>
 
-        <footer className="flex justify-end border-t border-slate-200 bg-slate-50 px-4 py-3 sm:px-5">
-          <button
-            type="button"
-            className="rounded-md bg-emerald-700 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
-            onClick={onOpenProductionPlanning}
-            disabled={isLoading || !order}
-          >
-            Üretim Planı Ekle
-          </button>
-        </footer>
       </section>
     </div>
   )

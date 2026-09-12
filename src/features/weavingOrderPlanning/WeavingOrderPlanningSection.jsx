@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import WeavingOrderPlanningModal from './WeavingOrderPlanningModal'
 import ProductionPlanningModal from './ProductionPlanningModal'
+import AddMachineYarnsModal from './AddMachineYarnsModal'
 
 const WEAVING_ORDERS_URL = '/api/WeavingOrder'
 const getTodayDate = () => new Date().toISOString().slice(0, 10)
@@ -31,8 +32,15 @@ function WeavingOrderPlanningSection({ apiRequest, showNotice, isActive }) {
   const [isProductionPlanningOpen, setIsProductionPlanningOpen] = useState(false)
   const [isProductionPlanningLoading, setIsProductionPlanningLoading] = useState(false)
   const [productionPlanningError, setProductionPlanningError] = useState('')
+  const [selectedFabric, setSelectedFabric] = useState(null)
+  const [isMachineYarnsOpen, setIsMachineYarnsOpen] = useState(false)
+  const [isMachineYarnsLoading, setIsMachineYarnsLoading] = useState(false)
+  const [machineYarnsError, setMachineYarnsError] = useState('')
   const [machines, setMachines] = useState([])
-  const [productionPlanningForm, setProductionPlanningForm] = useState({ machineId: '' })
+  const [availableYarns, setAvailableYarns] = useState([])
+  const [machineActionLoadingId, setMachineActionLoadingId] = useState(null)
+  const [machineYarnForm, setMachineYarnForm] = useState({ machinePlans: [{ key: 0, machineId: '', yarnPlans: [{ key: 1, yarnId: '' }] }] })
+  const [isAddingMachinePlan, setIsAddingMachinePlan] = useState(false)
 
   const loadOrders = useCallback(async () => {
     setIsLoading(true)
@@ -109,35 +117,31 @@ function WeavingOrderPlanningSection({ apiRequest, showNotice, isActive }) {
     setPlanningError('')
   }, [isPlanningLoading])
 
-  const openProductionPlanningModal = useCallback(async () => {
-    const factoryId = selectedOrder?.details?.find((detail) => detail?.factoryId ?? detail?.FactoryId)?.factoryId
-      ?? selectedOrder?.details?.find((detail) => detail?.factoryId ?? detail?.FactoryId)?.FactoryId
-      ?? selectedOrder?.factoryId
-      ?? selectedOrder?.FactoryId
+  const openProductionPlanningModal = useCallback(async (detail) => {
+    const detailId = detail?.id ?? detail?.Id
 
     setIsProductionPlanningOpen(true)
     setIsProductionPlanningLoading(true)
     setProductionPlanningError('')
-    setMachines([])
-    setProductionPlanningForm({ machineId: '' })
+    setSelectedFabric(detail || null)
 
-    if (!factoryId) {
-      setProductionPlanningError('Fabrika bilgisi bulunamadı.')
+    if (!detailId) {
+      setProductionPlanningError('Kumaş detay bilgisi bulunamadı.')
       setIsProductionPlanningLoading(false)
       return
     }
 
     try {
-      const response = await apiRequest(`${WEAVING_ORDERS_URL}/getAllMachines?FactoryId=${factoryId}&IsAvailable=true`)
-      setMachines(Array.isArray(response?.data) ? response.data : [])
+      const response = await apiRequest(`${WEAVING_ORDERS_URL}/weavingOrderDetailMachinesGetByDetail/${detailId}`)
+      setSelectedFabric(response?.data || {})
     } catch (requestError) {
-      const message = requestError.message || 'Makineler yüklenemedi.'
+      const message = requestError.message || 'Üretim planı detayları yüklenemedi.'
       setProductionPlanningError(message)
       showNotice('error', message)
     } finally {
       setIsProductionPlanningLoading(false)
     }
-  }, [apiRequest, selectedOrder, showNotice])
+  }, [apiRequest, showNotice])
 
   const closeProductionPlanningModal = useCallback(() => {
     if (isProductionPlanningLoading) {
@@ -146,11 +150,286 @@ function WeavingOrderPlanningSection({ apiRequest, showNotice, isActive }) {
 
     setIsProductionPlanningOpen(false)
     setProductionPlanningError('')
+    setSelectedFabric(null)
   }, [isProductionPlanningLoading])
 
-  const updateProductionPlanningField = useCallback((field, value) => {
-    setProductionPlanningForm((previous) => ({ ...previous, [field]: value }))
+  const toggleMachinePause = useCallback(async (machine) => {
+    const machinePlanId = Number(machine?.machinePlanId)
+    if (!machinePlanId || machineActionLoadingId) {
+      return
+    }
+
+    const isPaused = Number(machine.isPaused) === 1
+    const action = isPaused ? 'çalıştırma' : 'durdurma'
+    if (!window.confirm(`Bu makineyi ${action} işlemini onaylıyor musunuz?`)) {
+      return
+    }
+
+    setMachineActionLoadingId(machinePlanId)
+
+    try {
+      if (isPaused) {
+        await apiRequest(`${WEAVING_ORDERS_URL}/weavingOrderDetailMachineResume/${machinePlanId}`, {
+          method: 'POST',
+          headers: { Accept: 'application/json' },
+        })
+      } else {
+        await apiRequest(`${WEAVING_ORDERS_URL}/weavingOrderDetailMachinePause`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            id: machinePlanId,
+            pauseReason: 'Kullanıcı tarafından duraklatıldı.',
+          }),
+        })
+      }
+
+      setSelectedFabric((previous) => previous ? {
+        ...previous,
+        machines: Array.isArray(previous.machines)
+          ? previous.machines.map((item) => Number(item.machinePlanId) === machinePlanId ? { ...item, isPaused: isPaused ? 0 : 1 } : item)
+          : previous.machines,
+      } : previous)
+      showNotice('success', isPaused ? 'Makine çalıştırıldı.' : 'Makine duraklatıldı.')
+    } catch (requestError) {
+      showNotice('error', requestError.message || 'Makine durumu güncellenemedi.')
+    } finally {
+      setMachineActionLoadingId(null)
+    }
+  }, [apiRequest, machineActionLoadingId, showNotice])
+
+  const removeMachine = useCallback(async (machine) => {
+    const machinePlanId = Number(machine?.machinePlanId)
+    if (!machinePlanId || machineActionLoadingId) {
+      return
+    }
+
+    if (!window.confirm('Bu makineyi üretim planından kaldırmak istediğinizden emin misiniz?')) {
+      return
+    }
+
+    setMachineActionLoadingId(machinePlanId)
+
+    try {
+      await apiRequest(`${WEAVING_ORDERS_URL}/weavingOrderDetailMachineRemove`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          id: machinePlanId,
+          reason: 'Kullanıcı tarafından üretim planından kaldırıldı.',
+        }),
+      })
+
+      setSelectedFabric((previous) => previous ? {
+        ...previous,
+        machines: Array.isArray(previous.machines)
+          ? previous.machines.filter((item) => Number(item.machinePlanId) !== machinePlanId)
+          : previous.machines,
+      } : previous)
+      showNotice('success', 'Makine üretim planından kaldırıldı.')
+    } catch (requestError) {
+      showNotice('error', requestError.message || 'Makine üretim planından kaldırılamadı.')
+    } finally {
+      setMachineActionLoadingId(null)
+    }
+  }, [apiRequest, machineActionLoadingId, showNotice])
+
+  const openMachineYarnsModal = useCallback(async (detail) => {
+    const factoryId = detail?.factoryId ?? detail?.FactoryId
+
+    setIsMachineYarnsOpen(true)
+    setIsMachineYarnsLoading(true)
+    setMachineYarnsError('')
+    setMachines([])
+    setAvailableYarns([])
+    setMachineYarnForm({ machinePlans: [{ key: Date.now(), machineId: '', yarnPlans: [{ key: Date.now() + 1, yarnId: '' }] }] })
+
+    if (!factoryId) {
+      setMachineYarnsError('Fabrika bilgisi bulunamadı.')
+      setIsMachineYarnsLoading(false)
+      return
+    }
+
+    try {
+      const response = await apiRequest(`${WEAVING_ORDERS_URL}/getAllMachines?FactoryId=${factoryId}&IsAvailable=true`)
+      const data = response?.data || {}
+      setMachines(Array.isArray(data.machines) ? data.machines : [])
+      setAvailableYarns(Array.isArray(data.availableYarns) ? data.availableYarns : [])
+    } catch (requestError) {
+      const message = requestError.message || 'Makineler ve iplikler yüklenemedi.'
+      setMachineYarnsError(message)
+      showNotice('error', message)
+    } finally {
+      setIsMachineYarnsLoading(false)
+    }
+  }, [apiRequest, showNotice])
+
+  const closeMachineYarnsModal = useCallback(() => {
+    if (isMachineYarnsLoading) {
+      return
+    }
+
+    setIsMachineYarnsOpen(false)
+    setMachineYarnsError('')
+  }, [isMachineYarnsLoading])
+
+  const addMachinePlan = useCallback(async (detail) => {
+    const factoryId = detail?.factoryId ?? detail?.FactoryId
+    if (!factoryId || isAddingMachinePlan) {
+      return
+    }
+
+    setIsAddingMachinePlan(true)
+
+    try {
+      const response = await apiRequest(`${WEAVING_ORDERS_URL}/getAllMachines?FactoryId=${factoryId}&IsAvailable=true`)
+      const data = response?.data || {}
+      setMachines(Array.isArray(data.machines) ? data.machines : [])
+      setAvailableYarns(Array.isArray(data.availableYarns) ? data.availableYarns : availableYarns)
+      setMachineYarnForm((previous) => ({
+        ...previous,
+        machinePlans: [...previous.machinePlans, { key: Date.now(), machineId: '', yarnPlans: [{ key: Date.now() + 1, yarnId: '' }] }],
+      }))
+    } catch (requestError) {
+      const message = requestError.message || 'Makineler yüklenemedi.'
+      setMachineYarnsError(message)
+      showNotice('error', message)
+    } finally {
+      setIsAddingMachinePlan(false)
+    }
+  }, [apiRequest, availableYarns, isAddingMachinePlan, showNotice])
+
+  const removeMachinePlan = useCallback((index) => {
+    setMachineYarnForm((previous) => ({
+      ...previous,
+      machinePlans: previous.machinePlans.filter((_, planIndex) => planIndex !== index),
+    }))
   }, [])
+
+  const updateMachineYarnField = useCallback((index, field, value, yarnIndex = null) => {
+    setMachineYarnForm((previous) => ({
+      ...previous,
+      machinePlans: previous.machinePlans.map((plan, planIndex) => {
+        if (planIndex !== index) {
+          return plan
+        }
+
+        if (yarnIndex !== null) {
+          return {
+            ...plan,
+            yarnPlans: plan.yarnPlans.map((yarnPlan, itemIndex) => itemIndex === yarnIndex ? { ...yarnPlan, [field]: value } : yarnPlan),
+          }
+        }
+
+        return { ...plan, [field]: value }
+      }),
+    }))
+  }, [])
+
+  const linkMachine = useCallback(async (index) => {
+    const plan = machineYarnForm.machinePlans[index]
+    const detailId = selectedFabric?.weavingOrderDetailId ?? selectedFabric?.id
+
+    if (!plan?.machineId || !detailId) {
+      return
+    }
+
+    setMachineYarnForm((previous) => ({
+      ...previous,
+      machinePlans: previous.machinePlans.map((item, itemIndex) => itemIndex === index ? { ...item, machineLinkLoading: true, machineLinkError: '' } : item),
+    }))
+
+    try {
+      const response = await apiRequest(`${WEAVING_ORDERS_URL}/weavingOrderDetailMachineAdd`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          weavingOrderDetailId: Number(detailId) || 0,
+          machineId: Number(plan.machineId) || 0,
+          notes: 'plan test',
+        }),
+      })
+      const machineLinkId = response?.data?.id
+      setMachineYarnForm((previous) => ({
+        ...previous,
+        machinePlans: previous.machinePlans.map((item, itemIndex) => itemIndex === index ? { ...item, machineLinkId, machineLinkLoading: false } : item),
+      }))
+      showNotice('success', 'Makine kumaşa başarıyla bağlandı.')
+    } catch (requestError) {
+      const message = requestError.message || 'Makine kumaşa bağlanamadı.'
+      setMachineYarnForm((previous) => ({
+        ...previous,
+        machinePlans: previous.machinePlans.map((item, itemIndex) => itemIndex === index ? { ...item, machineLinkLoading: false, machineLinkError: message } : item),
+      }))
+      showNotice('error', message)
+    }
+  }, [apiRequest, machineYarnForm.machinePlans, selectedFabric, showNotice])
+
+  const addYarnPlan = useCallback((machineIndex) => {
+    setMachineYarnForm((previous) => ({
+      ...previous,
+      machinePlans: previous.machinePlans.map((plan, planIndex) => planIndex === machineIndex ? {
+        ...plan,
+        yarnPlans: [...(plan.yarnPlans ?? []), { key: Date.now(), yarnId: '' }],
+      } : plan),
+    }))
+  }, [])
+
+  const removeYarnPlan = useCallback((machineIndex, yarnIndex) => {
+    setMachineYarnForm((previous) => ({
+      ...previous,
+      machinePlans: previous.machinePlans.map((plan, planIndex) => planIndex === machineIndex ? {
+        ...plan,
+        yarnPlans: plan.yarnPlans.filter((_, itemIndex) => itemIndex !== yarnIndex),
+      } : plan),
+    }))
+  }, [])
+
+  const linkYarn = useCallback(async (machineIndex, yarnIndex) => {
+    const plan = machineYarnForm.machinePlans[machineIndex]
+    const yarnPlan = plan?.yarnPlans?.[yarnIndex]
+
+    if (!plan?.machineLinkId || !yarnPlan?.yarnId) {
+      return
+    }
+
+    setMachineYarnForm((previous) => ({
+      ...previous,
+      machinePlans: previous.machinePlans.map((item, itemIndex) => itemIndex === machineIndex ? {
+        ...item,
+        yarnPlans: item.yarnPlans.map((itemYarn, itemYarnIndex) => itemYarnIndex === yarnIndex ? { ...itemYarn, yarnLinkLoading: true, yarnLinkError: '' } : itemYarn),
+      } : item),
+    }))
+
+    try {
+      await apiRequest(`${WEAVING_ORDERS_URL}/weavingOrderDetailMachineYarnAdd`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          weavingOrderDetailMachineId: Number(plan.machineLinkId) || 0,
+          yarnId: Number(yarnPlan.yarnId) || 0,
+        }),
+      })
+      setMachineYarnForm((previous) => ({
+        ...previous,
+        machinePlans: previous.machinePlans.map((item, itemIndex) => itemIndex === machineIndex ? {
+          ...item,
+          yarnPlans: item.yarnPlans.map((itemYarn, itemYarnIndex) => itemYarnIndex === yarnIndex ? { ...itemYarn, yarnLinkId: yarnPlan.yarnId, yarnLinkLoading: false } : itemYarn),
+        } : item),
+      }))
+      showNotice('success', 'İplik makineye başarıyla bağlandı.')
+    } catch (requestError) {
+      const message = requestError.message || 'İplik makineye bağlanamadı.'
+      setMachineYarnForm((previous) => ({
+        ...previous,
+        machinePlans: previous.machinePlans.map((item, itemIndex) => itemIndex === machineIndex ? {
+          ...item,
+          yarnPlans: item.yarnPlans.map((itemYarn, itemYarnIndex) => itemYarnIndex === yarnIndex ? { ...itemYarn, yarnLinkLoading: false, yarnLinkError: message } : itemYarn),
+        } : item),
+      }))
+      showNotice('error', message)
+    }
+  }, [apiRequest, machineYarnForm.machinePlans, showNotice])
 
   return (
     <div className="space-y-4" dir="ltr">
@@ -309,11 +588,33 @@ function WeavingOrderPlanningSection({ apiRequest, showNotice, isActive }) {
         isOpen={isProductionPlanningOpen}
         isLoading={isProductionPlanningLoading}
         error={productionPlanningError}
-        machines={machines}
         order={selectedOrder}
-        form={productionPlanningForm}
-        onFieldChange={updateProductionPlanningField}
+        detail={selectedFabric}
         onClose={closeProductionPlanningModal}
+        onOpenMachineYarns={openMachineYarnsModal}
+        onToggleMachinePause={toggleMachinePause}
+        onRemoveMachine={removeMachine}
+        machineActionLoadingId={machineActionLoadingId}
+      />
+
+      <AddMachineYarnsModal
+        isOpen={isMachineYarnsOpen}
+        isLoading={isMachineYarnsLoading}
+        error={machineYarnsError}
+        order={selectedOrder}
+        detail={selectedFabric}
+        machines={machines}
+        availableYarns={availableYarns}
+        form={machineYarnForm}
+        isAddingMachinePlan={isAddingMachinePlan}
+        onFieldChange={updateMachineYarnField}
+        onAddMachinePlan={addMachinePlan}
+        onRemoveMachinePlan={removeMachinePlan}
+        onLinkMachine={linkMachine}
+        onAddYarnPlan={addYarnPlan}
+        onRemoveYarnPlan={removeYarnPlan}
+        onLinkYarn={linkYarn}
+        onClose={closeMachineYarnsModal}
       />
     </div>
   )
