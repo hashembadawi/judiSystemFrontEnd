@@ -90,33 +90,36 @@ function AddFabricTransactionModal({
                   </div>
                   {details.map((detail, index) => (
                     <div key={`fabric-detail-${index}`} className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-                      <div className="grid items-end gap-2 md:grid-cols-5">
+                      <div className="grid items-end gap-2 md:grid-cols-[minmax(2rem,auto)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto]">
+                        <div className="space-y-1 text-center">
+                          <span className="inline-flex h-7 min-w-7 items-center justify-center rounded bg-slate-200 px-1 text-xs font-semibold text-slate-600">{index + 1}</span>
+                        </div>
                         <div className="space-y-1">
                           <label htmlFor={`fabricMovementMachine-${index}`} className="block text-xs font-medium text-slate-700">Makine No</label>
-                          <select id={`fabricMovementMachine-${index}`} value={detail.Makine ?? ''} onChange={(event) => onDetailFieldChange(index, 'Makine', event.target.value)} className={`${buildInputClasses(false)} w-full py-1.5 text-xs`}>
+                          <select id={`fabricMovementMachine-${index}`} value={detail.Makine ?? ''} onChange={(event) => onDetailFieldChange(index, 'Makine', event.target.value)} disabled={detail.isSaved || savingDetailIndex !== null} className={`${buildInputClasses(false)} w-full py-1.5 text-xs`}>
                             <option value="">Makine seçin</option>
                             {machines.map((machine) => <option key={machine.machineId} value={machine.machineId}>{machine.makineNo} ({machine.machineId})</option>)}
                           </select>
                         </div>
                         <div className="space-y-1">
                           <label htmlFor={`fabricMovementOperator-${index}`} className="block text-xs font-medium text-slate-700">Makine Operatörü</label>
-                          <select id={`fabricMovementOperator-${index}`} value={detail.Operator ?? ''} onChange={(event) => onDetailFieldChange(index, 'Operator', event.target.value)} className={`${buildInputClasses(false)} w-full py-1.5 text-xs`}>
+                          <select id={`fabricMovementOperator-${index}`} value={detail.Operator ?? ''} onChange={(event) => onDetailFieldChange(index, 'Operator', event.target.value)} disabled={detail.isSaved || savingDetailIndex !== null} className={`${buildInputClasses(false)} w-full py-1.5 text-xs`}>
                             <option value="">Operatör seçin</option>
                             {operatorOptions.map((operator, operatorIndex) => <option key={`${operator}-${operatorIndex}`} value={operator}>{operator}</option>)}
                           </select>
                         </div>
                         <div className="space-y-1">
                           <label htmlFor={`fabricMovementWeight-${index}`} className="block text-xs font-medium text-slate-700">Ağırlık</label>
-                          <input id={`fabricMovementWeight-${index}`} type="number" min="0" step="0.01" value={detail.Weight ?? ''} onChange={(event) => onDetailFieldChange(index, 'Weight', event.target.value)} className={`${buildInputClasses(false)} w-full py-1.5 text-xs`} placeholder="Ağırlık girin" />
+                          <input id={`fabricMovementWeight-${index}`} type="number" min="0" step="0.01" value={detail.Weight ?? ''} onChange={(event) => onDetailFieldChange(index, 'Weight', event.target.value)} disabled={detail.isSaved || savingDetailIndex !== null} className={`${buildInputClasses(false)} w-full py-1.5 text-xs`} placeholder="Ağırlık girin" />
                         </div>
                         <div className="space-y-1">
                           <label htmlFor={`fabricMovementType-${index}`} className="block text-xs font-medium text-slate-700">Kumaş Türü</label>
-                          <select id={`fabricMovementType-${index}`} value={detail.fabricType ?? 1} onChange={(event) => onDetailFieldChange(index, 'fabricType', Number(event.target.value))} className={`${buildInputClasses(false)} w-full py-1.5 text-xs`}>
+                          <select id={`fabricMovementType-${index}`} value={detail.fabricType ?? 1} onChange={(event) => onDetailFieldChange(index, 'fabricType', Number(event.target.value))} disabled={detail.isSaved || savingDetailIndex !== null} className={`${buildInputClasses(false)} w-full py-1.5 text-xs`}>
                             <option value={1}>Sağlam</option>
                             <option value={2}>Hata</option>
                           </select>
                         </div>
-                        <button type="button" className="inline-flex h-7 min-w-10 w-auto items-center justify-center rounded border border-emerald-200 bg-emerald-50 px-2 text-sm leading-none text-emerald-700 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60" disabled={savingDetailIndex !== null} onClick={() => onSaveDetail(index)} title={savingDetailIndex === index ? 'Kaydediliyor...' : 'Kaydet'} aria-label={`Top ${index + 1} kaydet`}>{savingDetailIndex === index ? '…' : '💾'}</button>
+                        <button type="button" className="inline-flex h-7 min-w-10 w-auto items-center justify-center rounded border border-emerald-200 bg-emerald-50 px-2 text-sm leading-none text-emerald-700 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60" disabled={detail.isSaved || savingDetailIndex !== null} onClick={() => onSaveDetail(index)} title={detail.isSaved ? 'Kaydedildi' : savingDetailIndex === index ? 'Kaydediliyor...' : 'Kaydet'} aria-label={`Top ${index + 1} kaydet`}>{detail.isSaved ? '✓' : savingDetailIndex === index ? '…' : '💾'}</button>
                       </div>
                     </div>
                   ))}
@@ -127,7 +130,7 @@ function AddFabricTransactionModal({
           </div>
 
           <footer className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:flex-row sm:justify-end">
-            <button type="button" className={buildButtonClasses('secondary')} onClick={handleCloseRequest} disabled={isLoading || savingDetailIndex !== null}>İptal</button>
+            <button type="button" className={buildButtonClasses('secondary')} onClick={handleCloseRequest} disabled={isLoading || savingDetailIndex !== null}>KAPAT</button>
           </footer>
         </section>
       </div>

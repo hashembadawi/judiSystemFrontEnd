@@ -309,6 +309,7 @@ function App() {
           Makine: '',
           Operator: '',
           fabricType: 1,
+          isSaved: false,
         },
       ],
     })
@@ -518,7 +519,7 @@ function App() {
     setAddFabricForm((prev) => ({
       ...prev,
       Details: prev.Details.map((detail, detailIndex) =>
-        detailIndex === index ? { ...detail, [field]: value } : detail,
+        detailIndex === index && !detail.isSaved ? { ...detail, [field]: value } : detail,
       ),
     }))
   }, [])
@@ -537,7 +538,7 @@ function App() {
       setActiveMachinePlans(machines)
       setAddFabricForm((prev) => ({
         ...prev,
-        Details: [...prev.Details, { Weight: '', Makine: '', Operator: '', fabricType: 1 }],
+        Details: [...prev.Details, { Weight: '', Makine: '', Operator: '', fabricType: 1, isSaved: false }],
       }))
     } catch (requestError) {
       const message = requestError.message || 'Aktif makine planları alınamadı.'
@@ -551,7 +552,7 @@ function App() {
   const saveAddFabricDetail = useCallback(async (index) => {
     const detail = addFabricForm.Details?.[index]
 
-    if (!detail || savingAddFabricDetailIndex !== null) {
+    if (!detail || detail.isSaved || savingAddFabricDetailIndex !== null) {
       return
     }
 
@@ -579,6 +580,10 @@ function App() {
       })
 
       const savedRoll = response?.data ?? response
+      setAddFabricForm((prev) => ({
+        ...prev,
+        Details: prev.Details.map((item, detailIndex) => detailIndex === index ? { ...item, isSaved: true } : item),
+      }))
       const didOpenPrintWindow = printSavedFabricRoll(savedRoll)
       showNotice('success', 'Top başarıyla kaydedildi.')
       if (!didOpenPrintWindow) {
