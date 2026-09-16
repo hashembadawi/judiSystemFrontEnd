@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import JsBarcode from 'jsbarcode'
 import './App.css'
 import OrdersSection from './features/orders/OrdersSection'
 import UsersSection from './features/users/UsersSection'
@@ -24,6 +25,77 @@ const getCurrentDateTime = () => {
   const date = new Date()
   const offset = date.getTimezoneOffset() * 60000
   return new Date(date.getTime() - offset).toISOString().slice(0, 16)
+}
+const escapePrintHtml = (value) => String(value ?? '')
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#039;')
+
+const printSavedFabricRoll = (roll) => {
+  const weight = roll?.weight ?? roll?.Weight ?? ''
+  const barcodeElement = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+
+  JsBarcode(barcodeElement, String(weight), {
+    format: 'CODE128',
+    displayValue: true,
+    text: `${weight} kg`,
+    height: 54,
+    width: 2,
+    margin: 8,
+  })
+
+  const printWindow = window.open('', '_blank', 'width=520,height=700')
+  if (!printWindow) {
+    return false
+  }
+
+  const value = (key, fallbackKey) => roll?.[key] ?? roll?.[fallbackKey] ?? ''
+  const reportHtml = `<!doctype html>
+    <html lang="tr">
+      <head>
+        <meta charset="UTF-8" />
+        <title>Top Etiketi</title>
+        <style>
+          @page { size: 80mm 120mm; margin: 6mm; }
+          * { box-sizing: border-box; }
+          body { margin: 0; color: #111827; font-family: Arial, sans-serif; }
+          main { width: 100%; text-align: center; }
+          h1 { margin: 0 0 16px; font-size: 20px; }
+          .info { width: 100%; border-collapse: collapse; text-align: left; }
+          .info th, .info td { border: 1px solid #d1d5db; padding: 8px; vertical-align: top; }
+          .info th { width: 38%; background: #f3f4f6; color: #4b5563; font-size: 12px; font-weight: 400; }
+          .info td { font-size: 13px; font-weight: 700; overflow-wrap: anywhere; }
+          .barcode { margin-top: 22px; width: 100%; }
+        </style>
+      </head>
+      <body>
+        <main>
+          <h1>Top Bilgileri</h1>
+          <table class="info">
+            <tbody>
+              <tr><th>Kumaş Cinsi</th><td>${escapePrintHtml(value('fabricGender', 'FabricGender'))}</td></tr>
+              <tr><th>Lot</th><td>${escapePrintHtml(value('fabricLot', 'FabricLot'))}</td></tr>
+              <tr><th>Kumaş Gramajı</th><td>${escapePrintHtml(value('fabricGr', 'FabricGr'))}</td></tr>
+              <tr><th>Sipariş No</th><td>${escapePrintHtml(value('orderNo', 'OrderNo'))}</td></tr>
+              <tr><th>Makine Operatörü</th><td>${escapePrintHtml(value('operator', 'Operator'))}</td></tr>
+            </tbody>
+          </table>
+          <div class="barcode">${barcodeElement.outerHTML}</div>
+        </main>
+      </body>
+    </html>`
+
+  printWindow.document.write(reportHtml)
+  printWindow.document.close()
+  printWindow.focus()
+  setTimeout(() => {
+    printWindow.print()
+    printWindow.close()
+  }, 250)
+
+  return true
 }
 const toDateTimeLocal = (value) => {
   if (!value) {
@@ -104,7 +176,8 @@ function App() {
   const [pendingRequests, setPendingRequests] = useState(0)
   const [isAddFabricModalOpen, setIsAddFabricModalOpen] = useState(false)
   const [isAddFabricModalLoading, setIsAddFabricModalLoading] = useState(false)
-  const [isAddFabricModalSaving, setIsAddFabricModalSaving] = useState(false)
+  const [isAddFabricMachineLoading, setIsAddFabricMachineLoading] = useState(false)
+  const [savingAddFabricDetailIndex, setSavingAddFabricDetailIndex] = useState(null)
   const [addFabricModalError, setAddFabricModalError] = useState('')
   const [isFasonHamEntryModalOpen, setIsFasonHamEntryModalOpen] = useState(false)
   const [isFasonHamEntryModalLoading, setIsFasonHamEntryModalLoading] = useState(false)
@@ -134,10 +207,8 @@ function App() {
   const [fasonHamEntryWeavingOrders, setFasonHamEntryWeavingOrders] = useState([])
   const [fasonHamEntryFabrics, setFasonHamEntryFabrics] = useState([])
   const [fasonHamEntryRefreshKey, setFasonHamEntryRefreshKey] = useState(0)
-  const [fabricGenderOptions, setFabricGenderOptions] = useState([])
-  const [orderOptions, setOrderOptions] = useState([])
-  const [factoryOptions, setFactoryOptions] = useState([])
   const [operatorOptions, setOperatorOptions] = useState([])
+  const [activeMachinePlans, setActiveMachinePlans] = useState([])
   const [addFabricForm, setAddFabricForm] = useState({
     Id: 0,
     Shift: 'A',
@@ -145,15 +216,8 @@ function App() {
     Personal: '',
     Details: [
       {
-        FabricGender: '',
-        FabricGSM: '',
-        FabricLot: '',
-        Count: '',
         Weight: '',
-        OrderId: '',
-        weavingOrderId: '',
-        FactoryId: '',
-        FabricType: 1,
+        Makine: '',
       },
     ],
   })
@@ -239,9 +303,7 @@ function App() {
     setAddFabricModalError('')
     setIsAddFabricModalOpen(true)
     setIsAddFabricModalLoading(true)
-    setFabricGenderOptions([])
-    setOrderOptions([])
-    setFactoryOptions([])
+    setActiveMachinePlans([])
     setAddFabricForm({
       Id: 0,
       Shift: 'A',
@@ -249,35 +311,22 @@ function App() {
       Personal: authData?.user?.userName || authData?.user?.name || userName || '',
       Details: [
         {
-          FabricGender: '',
-          FabricGSM: '',
-          FabricLot: '',
-          Count: '',
           Weight: '',
           Makine: '',
           Operator: '',
-          OrderId: '',
-          FactoryId: '',
-          FabricType: 1,
+          fabricType: 1,
         },
       ],
     })
 
     try {
-      const response = await apiRequest('/api/fill-options?requestedValues=1')
-      const data = response.data || {}
-      setFabricGenderOptions(Array.isArray(data.items) ? data.items.map((item) => getOptionDisplayText(item)) : [])
-      setOrderOptions(Array.isArray(data.customerOrders) ? data.customerOrders : Array.isArray(data.orders) ? data.orders : [])
-      setFactoryOptions(
-        Array.isArray(data.fasonFactories)
-          ? data.fasonFactories
-          : Array.isArray(data.boyaFactories)
-          ? data.boyaFactories
-          : Array.isArray(data.factories)
-          ? data.factories
-          : [],
-      )
-      setOperatorOptions(Array.isArray(data.operatorsNames) ? data.operatorsNames.map((item) => item.operatorName) : [])
+      const [optionsResponse, machinesResponse] = await Promise.all([
+        apiRequest('/api/fill-options?requestedValues=1'),
+        apiRequest('/api/DailyHamFabricsTransaction/GetMachinesActivePlans?FactoryId=1'),
+      ])
+      const data = optionsResponse.data || {}
+      setOperatorOptions(Array.isArray(data.operatorsNames) ? data.operatorsNames.map((item) => item.operatorName ?? item.name ?? item) : [])
+      setActiveMachinePlans(Array.isArray(machinesResponse?.data) ? machinesResponse.data : [])
     } catch (requestError) {
       const message = requestError.message || 'Seçenekler alınırken bir hata oluştu.'
       setAddFabricModalError(message)
@@ -288,12 +337,9 @@ function App() {
   }, [apiRequest, authData, userName, showNotice])
 
   const closeAddFabricModal = useCallback(() => {
-    if (isAddFabricModalSaving) {
-      return
-    }
     setIsAddFabricModalOpen(false)
     setAddFabricModalError('')
-  }, [isAddFabricModalSaving])
+  }, [])
 
   const openFasonHamEntryModal = useCallback(async (transactionId = null) => {
     setFasonHamEntryModalError('')
@@ -538,155 +584,75 @@ function App() {
     }))
   }, [])
 
-  const addAddFabricDetailRow = useCallback(() => {
-    setAddFabricForm((prev) => ({
-      ...prev,
-      Details: [
-        ...prev.Details,
-        {
-          FabricGender: '',
-          FabricGSM: '',
-          FabricLot: '',
-          Count: '',
-          Weight: '',
-          Makine: '',
-          OrderId: '',
-          FactoryId: '',
-          FabricType: 1,
-        },
-      ],
-    }))
-  }, [])
-
-  const copyAddFabricDetailRow = useCallback(
-    (index) => {
-      setAddFabricForm((prev) => ({
-        ...prev,
-        Details: [
-          ...prev.Details.slice(0, index + 1),
-          { ...prev.Details[index], Id: 0 },
-          ...prev.Details.slice(index + 1),
-        ],
-      }))
-    },
-    [],
-  )
-
-  const removeAddFabricDetailRow = useCallback(
-    (index) => {
-      setAddFabricForm((prev) => ({
-        ...prev,
-        Details: prev.Details.filter((_, detailIndex) => detailIndex !== index),
-      }))
-    },
-    [],
-  )
-
-  const aggregateFabricDetails = useCallback((details = []) => {
-    const groupedDetails = new Map()
-
-    const normalizeNumericValue = (value) => {
-      if (value === null || value === undefined || value === '') {
-        return 0
-      }
-
-      if (typeof value === 'number') {
-        return Number.isFinite(value) ? value : 0
-      }
-
-      const numericValue = Number(String(value).replace(/,/g, '').trim())
-      return Number.isFinite(numericValue) ? numericValue : 0
+  const addAddFabricDetail = useCallback(async () => {
+    if (isAddFabricMachineLoading) {
+      return
     }
 
-    const extractWeight = (detail) => {
-      const candidates = [detail?.Weight, detail?.weight, detail?.TotalWeight, detail?.totalWeight, detail?.WeightKg, detail?.weightKg]
-      for (const candidate of candidates) {
-        const parsed = normalizeNumericValue(candidate)
-        if (parsed > 0) {
-          return parsed
-        }
-      }
-      return 0
+    setIsAddFabricMachineLoading(true)
+
+    try {
+      const machinesResponse = await apiRequest('/api/DailyHamFabricsTransaction/GetMachinesActivePlans?FactoryId=1')
+      const machines = Array.isArray(machinesResponse?.data) ? machinesResponse.data : []
+
+      setActiveMachinePlans(machines)
+      setAddFabricForm((prev) => ({
+        ...prev,
+        Details: [...prev.Details, { Weight: '', Makine: '', Operator: '', fabricType: 1 }],
+      }))
+    } catch (requestError) {
+      const message = requestError.message || 'Aktif makine planları alınamadı.'
+      setAddFabricModalError(message)
+      showNotice('error', message)
+    } finally {
+      setIsAddFabricMachineLoading(false)
+    }
+  }, [apiRequest, isAddFabricMachineLoading, showNotice])
+
+  const saveAddFabricDetail = useCallback(async (index) => {
+    const detail = addFabricForm.Details?.[index]
+
+    if (!detail || savingAddFabricDetailIndex !== null) {
+      return
     }
 
-    details.forEach((detail) => {
-      const fabricGender = String(detail?.FabricGender ?? '').trim()
-      const fabricGSM = detail?.FabricGSM ?? ''
-      const fabricLot = String(detail?.FabricLot ?? '').trim()
-      const orderId = detail?.orderId ?? detail?.OrderId ?? ''
-      const weavingOrderId = detail?.weavingOrderId ?? detail?.WeavingOrderId ?? detail?.weavingOrderID ?? orderId
-      const fabricType = Number(detail?.FabricType ?? 1) || 1
-      const count = 1
-      const weight = extractWeight(detail)
-      const factoryId = detail?.FactoryId || 1
-
-      if (!fabricGender && !fabricLot && !orderId && !count && !weight) {
-        return
-      }
-
-      const key = `${fabricGender}::${fabricGSM}::${fabricLot}::${weavingOrderId || orderId}::${fabricType}`
-      const existing = groupedDetails.get(key)
-
-      if (!existing) {
-        groupedDetails.set(key, {
-          FabricGender: fabricGender,
-          FabricGSM: normalizeNumericValue(fabricGSM),
-          FabricLot: fabricLot,
-          Count: count,
-          Weight: weight,
-          OrderId: orderId ? Number(orderId) || 0 : 0,
-          weavingOrderId: weavingOrderId ? Number(weavingOrderId) || 0 : 0,
-          FactoryId: factoryId ? Number(factoryId) || 0 : 0,
-          FabricType: fabricType,
-        })
-        return
-      }
-
-      existing.Count += count
-      existing.Weight += weight
-
-      if (!existing.FactoryId && factoryId) {
-        existing.FactoryId = Number(factoryId) || 0
-      }
-
-      if (!existing.weavingOrderId && weavingOrderId) {
-        existing.weavingOrderId = Number(weavingOrderId) || 0
-      }
-    })
-
-    return Array.from(groupedDetails.values()).filter((detail) => detail.FabricGender || detail.FabricLot || detail.OrderId || detail.weavingOrderId || detail.Count || detail.Weight)
-  }, [])
-
-  const saveAddFabricTransaction = useCallback(async () => {
     setAddFabricModalError('')
-
-    setIsAddFabricModalSaving(true)
+    setSavingAddFabricDetailIndex(index)
 
     try {
       const payload = {
-        ...addFabricForm,
-        Details: aggregateFabricDetails(addFabricForm.Details),
+        id: Number(detail.id ?? detail.Id) || 0,
+        machineId: Number(detail.Makine) || 0,
+        weight: Number(detail.Weight) || 0,
+        operator: detail.Operator || '',
+        date: addFabricForm.Date ? `${addFabricForm.Date}T00:00:00.000Z` : new Date().toISOString(),
+        shift: String(addFabricForm.Shift || '').toLowerCase(),
+        fabricType: Number(detail.fabricType) || 1,
       }
 
-      await apiRequest(`${DAILY_FABRICS_URL}/upsert`, {
+      const response = await apiRequest(`${DAILY_FABRICS_URL}/DepoFabricRollsUpsert`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Accept: 'application/json',
+          Accept: '*/*',
         },
         body: JSON.stringify(payload),
       })
 
-      showNotice('success', 'Kumaş hareketi başarıyla kaydedildi.')
-      setIsAddFabricModalOpen(false)
+      const savedRoll = response?.data ?? response
+      const didOpenPrintWindow = printSavedFabricRoll(savedRoll)
+      showNotice('success', 'Top başarıyla kaydedildi.')
+      if (!didOpenPrintWindow) {
+        showNotice('error', 'Top kaydedildi ancak yazdırma penceresi açılamadı.')
+      }
     } catch (requestError) {
-      const message = requestError.message || 'Kumaş hareketi kaydedilirken bir hata oluştu.'
+      const message = requestError.message || 'Top kaydedilirken bir hata oluştu.'
       setAddFabricModalError(message)
       showNotice('error', message)
     } finally {
-      setIsAddFabricModalSaving(false)
+      setSavingAddFabricDetailIndex(null)
     }
-  }, [aggregateFabricDetails, apiRequest, addFabricForm, showNotice])
+  }, [addFabricForm, apiRequest, savingAddFabricDetailIndex, showNotice])
 
   const onSubmitLogin = async (event) => {
     event.preventDefault()
@@ -886,7 +852,7 @@ function App() {
                     className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'fabrics' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
                     onClick={() => setActiveOperation('fabrics')}
                   >
-                    GÜNLÜK KUMAŞ HAREKETİ
+                    GÜNLÜK ÜRETİM TAKİBİ
                   </button>
                 </>
               ) : isDyeFollowUpUser ? (
@@ -962,7 +928,7 @@ function App() {
                     className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'fabrics' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
                     onClick={() => setActiveOperation('fabrics')}
                   >
-                    GÜNLÜK KUMAŞ HAREKETİ
+                    GÜNLÜK ÜRETİM TAKİBİ
                   </button>
                   <button
                     type="button"
@@ -1104,23 +1070,19 @@ function App() {
       <AddFabricTransactionModal
         isOpen={isAddFabricModalOpen}
         isLoading={isAddFabricModalLoading}
-        isSaving={isAddFabricModalSaving}
         error={addFabricModalError}
         form={addFabricForm}
         shiftOptions={SHIFT_OPTIONS}
-        fabricGenderOptions={fabricGenderOptions}
-        orderOptions={orderOptions}
-        factoryOptions={factoryOptions}
-        fabricTypeOptions={FABRIC_TYPE_OPTIONS}
         operatorOptions={operatorOptions}
-        apiRequest={apiRequest}
+        machines={activeMachinePlans}
+        currentUserName={authData?.user?.userName || authData?.user?.name || userName || ''}
+        isAddingDetail={isAddFabricMachineLoading}
+        savingDetailIndex={savingAddFabricDetailIndex}
         onFieldChange={updateAddFabricField}
         onDetailFieldChange={updateAddFabricDetailField}
-        onAddDetailRow={addAddFabricDetailRow}
-        onCopyDetailRow={copyAddFabricDetailRow}
-        onRemoveDetailRow={removeAddFabricDetailRow}
+        onAddDetail={addAddFabricDetail}
+        onSaveDetail={saveAddFabricDetail}
         onClose={closeAddFabricModal}
-        onSave={saveAddFabricTransaction}
       />
 
 
