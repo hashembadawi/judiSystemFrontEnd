@@ -1,21 +1,6 @@
 import { useEffect } from 'react'
 import { buildButtonClasses, buildInputClasses } from '../../styles/designSystem'
 
-const formatFabricGenderDisplay = (value) => {
-  if (value == null) {
-    return ''
-  }
-
-  const text = String(value).trim()
-  const ratioMatch = text.match(/^(.*?)(\d+\s*\/\s*\d+(?:\s*\/\s*\d+)?)\s*$/)
-
-  if (ratioMatch && ratioMatch[1].trim()) {
-    return `${ratioMatch[2].trim()} ${ratioMatch[1].trim()}`
-  }
-
-  return text
-}
-
 function FasonHamEntryModal({
   isOpen,
   isLoading,
@@ -23,14 +8,11 @@ function FasonHamEntryModal({
   error,
   form,
   factoryOptions,
-  weavingOrders,
-  fabrics,
+  availableMachines,
   fabricTypeOptions,
   onFieldChange,
   onDetailFieldChange,
   onFactorySelect,
-  onWeavingOrderSelect,
-  onFabricSelect,
   onAddDetailRow,
   onRemoveDetailRow,
   onClose,
@@ -80,17 +62,6 @@ function FasonHamEntryModal({
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <label htmlFor="fasonHamEntryModalOrder" className="block text-sm font-medium text-slate-700">Dokuma Sipariş</label>
-                    <select id="fasonHamEntryModalOrder" value={form.weavingOrderId ?? ''} onChange={(event) => onWeavingOrderSelect(event.target.value)} disabled={!form.factoryId} className={`${buildInputClasses(false)} w-full`}>
-                      <option value="">Sipariş seçin</option>
-                      {weavingOrders.map((order) => (
-                        <option key={order.id ?? order.value ?? order.name} value={order.id ?? order.value ?? order.name}>
-                          {order.name ?? order.label ?? String(order.id ?? order.value ?? order.name)}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="space-y-2">
                     <label htmlFor="fasonHamEntryModalDate" className="block text-sm font-medium text-slate-700">Tarih</label>
                     <input id="fasonHamEntryModalDate" type="datetime-local" value={form.entryDate ?? ''} onChange={(event) => onFieldChange('entryDate', event.target.value)} className={`${buildInputClasses(false)} w-full`} />
                   </div>
@@ -106,25 +77,23 @@ function FasonHamEntryModal({
                     <button type="button" className={buildButtonClasses('secondary')} onClick={onAddDetailRow}>+ Satır Ekle</button>
                   </div>
                   <div className="overflow-x-auto rounded-lg border border-slate-200">
-                    <table className="w-full text-sm" style={{ minWidth: '780px', direction: 'ltr', tableLayout: 'fixed' }}>
+                      <table className="w-full text-sm" style={{ minWidth: '680px', direction: 'ltr', tableLayout: 'fixed' }}>
                       <thead><tr className="border-b border-slate-200 bg-slate-50">
-                        <th className="w-[50%] px-3 py-3 text-left text-xs font-semibold text-slate-600">Kumaş Cinsi</th>
-                        <th className="w-[15%] px-2 py-3 text-left text-xs font-semibold text-slate-600">GR</th>
-                        <th className="w-[15%] px-2 py-3 text-left text-xs font-semibold text-slate-600">LOT</th>
-                        <th className="w-[15%] px-2 py-3 text-left text-xs font-semibold text-slate-600">Top Sayısı</th>
-                        <th className="w-[15%] px-2 py-3 text-left text-xs font-semibold text-slate-600">Ağırlık</th>
+                        <th className="w-[35%] px-3 py-3 text-left text-xs font-semibold text-slate-600">Makine</th>
+                        <th className="w-[20%] px-2 py-3 text-left text-xs font-semibold text-slate-600">Top Sayısı</th>
+                        <th className="w-[20%] px-2 py-3 text-left text-xs font-semibold text-slate-600">Ağırlık</th>
                         <th className="w-[15%] px-3 py-3 text-left text-xs font-semibold text-slate-600">Tip</th>
-                        <th className="w-[15%] px-3 py-3 text-center text-xs font-semibold text-slate-600">İşlemler</th>
+                        <th className="w-[10%] px-3 py-3 text-center text-xs font-semibold text-slate-600">İşlemler</th>
                       </tr></thead>
                       <tbody className="divide-y divide-slate-200">
                         {(form.details ?? []).map((detail, index) => (
                           <tr key={index} className="hover:bg-slate-50">
-                            <td className="px-3 py-3"><select value={detail.fabricGender ?? ''} onChange={(event) => onFabricSelect(index, event.target.value)} disabled={!form.weavingOrderId} className={`${buildInputClasses(false)} w-full text-xs`}>
-                              <option value="">Kumaş seçin</option>
-                              {fabrics.map((item, itemIndex) => { const value = item?.fabricGender ?? item?.FabricGender ?? ''; return <option key={`${value}-${itemIndex}`} value={value}>{formatFabricGenderDisplay(value)}</option> })}
+                            <td className="px-3 py-3"><select value={detail.machineId ?? ''} onChange={(event) => onDetailFieldChange(index, 'machineId', event.target.value)} disabled={!form.factoryId || !availableMachines.length} className={`${buildInputClasses(false)} w-full text-xs`}>
+                              <option value="">Makine seçin</option>
+                              {availableMachines.map((machine) => (
+                                <option key={machine.machineId} value={machine.machineId}>{machine.makineNo} ({machine.machineId})</option>
+                              ))}
                             </select></td>
-                            <td className="px-3 py-3"><input type="number" value={detail.fabricGr ?? ''} onChange={(event) => onDetailFieldChange(index, 'fabricGr', event.target.value)} className={`${buildInputClasses(false)} w-full text-xs`} /></td>
-                            <td className="px-3 py-3"><input type="text" value={detail.fabricLot ?? ''} onChange={(event) => onDetailFieldChange(index, 'fabricLot', event.target.value)} className={`${buildInputClasses(false)} w-full text-xs`} /></td>
                             <td className="px-3 py-3"><input type="number" value={detail.rollCount ?? ''} onChange={(event) => onDetailFieldChange(index, 'rollCount', event.target.value)} className={`${buildInputClasses(false)} w-full text-xs`} /></td>
                             <td className="px-3 py-3"><input type="number" step="0.01" value={detail.weight ?? ''} onChange={(event) => onDetailFieldChange(index, 'weight', event.target.value)} className={`${buildInputClasses(false)} w-full text-xs`} /></td>
                             <td className="px-3 py-3"><select value={detail.fabricType ?? 1} onChange={(event) => onDetailFieldChange(index, 'fabricType', Number(event.target.value))} className={`${buildInputClasses(false)} w-full text-xs`}>{(fabricTypeOptions ?? []).map((option) => <option key={option.id} value={option.id}>{option.text}</option>)}</select></td>

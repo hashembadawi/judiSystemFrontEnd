@@ -188,15 +188,10 @@ function App() {
     entryDate: getCurrentDateTime(),
     factoryId: '',
     personalName: '',
-    weavingOrderId: '',
     details: [
       {
         id: 0,
-        parentId: 0,
-        fabricGender: '',
-        fabricLot: '',
-        fabricGr: '',
-        weavingOrderId: '',
+          machineId: '',
         rollCount: '',
         weight: '',
         fabricType: 1,
@@ -204,8 +199,7 @@ function App() {
     ],
   })
   const [fasonHamEntryFactoryOptions, setFasonHamEntryFactoryOptions] = useState([])
-  const [fasonHamEntryWeavingOrders, setFasonHamEntryWeavingOrders] = useState([])
-  const [fasonHamEntryFabrics, setFasonHamEntryFabrics] = useState([])
+  const [fasonAvailableMachines, setFasonAvailableMachines] = useState([])
   const [fasonHamEntryRefreshKey, setFasonHamEntryRefreshKey] = useState(0)
   const [operatorOptions, setOperatorOptions] = useState([])
   const [activeMachinePlans, setActiveMachinePlans] = useState([])
@@ -346,22 +340,16 @@ function App() {
     setIsFasonHamEntryModalOpen(true)
     setIsFasonHamEntryModalLoading(true)
     setFasonHamEntryFactoryOptions([])
-    setFasonHamEntryWeavingOrders([])
-    setFasonHamEntryFabrics([])
+    setFasonAvailableMachines([])
     setFasonHamEntryForm({
       id: 0,
       entryDate: getCurrentDateTime(),
       factoryId: '',
       personalName: authData?.user?.userName || authData?.user?.name || userName || '',
-      weavingOrderId: '',
       details: [
         {
           id: 0,
-          parentId: 0,
-          fabricGender: '',
-          fabricLot: '',
-          fabricGr: '',
-          weavingOrderId: '',
+          machineId: '',
           rollCount: '',
           weight: '',
           fabricType: 1,
@@ -376,37 +364,28 @@ function App() {
 
       if (transactionId) {
         const transactionResponse = await apiRequest(`${FASON_HAM_ENTRY_URL}/${transactionId}`)
-        const transaction = transactionResponse.data || {}
-        const details = Array.isArray(transaction.details) ? transaction.details : []
+        const transaction = transactionResponse?.data ?? transactionResponse ?? {}
+        const sourceDetails = Array.isArray(transaction.details ?? transaction.Details) ? (transaction.details ?? transaction.Details) : []
+        const details = sourceDetails.length > 0 ? sourceDetails.map((detail) => ({
+          id: detail.id ?? detail.Id ?? 0,
+          machineId: detail.machineId ?? detail.MachineId ?? '',
+          rollCount: detail.rollCount ?? detail.RollCount ?? '',
+          weight: detail.weight ?? detail.Weight ?? '',
+          fabricType: detail.fabricType ?? detail.FabricType ?? 1,
+        })) : [{ id: 0, machineId: '', rollCount: '', weight: '', fabricType: 1 }]
 
         setFasonHamEntryForm({
           id: transaction.id ?? transaction.Id ?? transactionId,
           entryDate: toDateTimeLocal(transaction.entryDate ?? transaction.EntryDate),
           factoryId: transaction.factoryId ?? transaction.FactoryId ?? '',
           personalName: transaction.personalName ?? transaction.PersonalName ?? '',
-          weavingOrderId: details[0]?.weavingOrderId ?? details[0]?.WeavingOrderId ?? '',
-          details: details.map((detail) => ({
-            id: detail.id ?? detail.Id ?? 0,
-            parentId: detail.parentId ?? detail.ParentId ?? transaction.id ?? transactionId,
-            fabricGender: detail.fabricGender ?? detail.FabricGender ?? '',
-            fabricLot: detail.fabricLot ?? detail.FabricLot ?? '',
-            fabricGr: detail.fabricGr ?? detail.FabricGr ?? '',
-            weavingOrderId: detail.weavingOrderId ?? detail.WeavingOrderId ?? '',
-            rollCount: detail.rollCount ?? detail.RollCount ?? '',
-            weight: detail.weight ?? detail.Weight ?? '',
-            fabricType: detail.fabricType ?? detail.FabricType ?? 1,
-          })),
+          details,
         })
 
         const factoryId = transaction.factoryId ?? transaction.FactoryId
-        const weavingOrderId = details[0]?.weavingOrderId ?? details[0]?.WeavingOrderId
         if (factoryId) {
-          const ordersResponse = await apiRequest(`/api/DailyHamFabricsTransaction/GetAllWeavingOrderByFactory?factoryId=${factoryId}`)
-          setFasonHamEntryWeavingOrders(Array.isArray(ordersResponse?.data) ? ordersResponse.data : [])
-        }
-        if (factoryId && weavingOrderId) {
-          const fabricsResponse = await apiRequest(`/api/DailyHamFabricsTransaction/getFabricByFactoryByWeavingOrder?Id=${weavingOrderId}&FactoryId=${factoryId}`)
-          setFasonHamEntryFabrics(fabricsResponse?.data?.items ?? [])
+          const machinesResponse = await apiRequest(`${FASON_HAM_ENTRY_URL}/GetFasonAvailableMachines/${factoryId}`)
+          setFasonAvailableMachines(Array.isArray(machinesResponse?.data) ? machinesResponse.data : [])
         }
       }
     } catch (requestError) {
@@ -442,62 +421,27 @@ function App() {
     setFasonHamEntryForm((prev) => ({
       ...prev,
       factoryId,
-      weavingOrderId: '',
-      details: prev.details.map((detail) => ({ ...detail, fabricGender: '', fabricLot: '', fabricGr: '', weavingOrderId: '' })),
+      details: prev.details.map((detail) => ({ ...detail, machineId: '' })),
     }))
-    setFasonHamEntryWeavingOrders([])
-    setFasonHamEntryFabrics([])
+    setFasonAvailableMachines([])
 
     if (!factoryId) {
       return
     }
 
     try {
-      const response = await apiRequest(`/api/DailyHamFabricsTransaction/GetAllWeavingOrderByFactory?factoryId=${factoryId}`)
-      setFasonHamEntryWeavingOrders(Array.isArray(response?.data) ? response.data : [])
-    } catch {
-      setFasonHamEntryWeavingOrders([])
+      const response = await apiRequest(`${FASON_HAM_ENTRY_URL}/GetFasonAvailableMachines/${factoryId}`)
+      setFasonAvailableMachines(Array.isArray(response?.data) ? response.data : [])
+    } catch (requestError) {
+      setFasonAvailableMachines([])
+      showNotice('error', requestError.message || 'Uygun makineler alınamadı.')
     }
-  }, [apiRequest])
-
-  const handleFasonHamEntryWeavingOrderSelect = useCallback(async (weavingOrderId) => {
-    setFasonHamEntryForm((prev) => ({
-      ...prev,
-      weavingOrderId,
-      details: prev.details.map((detail) => ({ ...detail, fabricGender: '', fabricLot: '', fabricGr: '', weavingOrderId })),
-    }))
-    setFasonHamEntryFabrics([])
-
-    if (!weavingOrderId || !fasonHamEntryForm.factoryId) {
-      return
-    }
-
-    try {
-      const response = await apiRequest(`/api/DailyHamFabricsTransaction/getFabricByFactoryByWeavingOrder?Id=${weavingOrderId}&FactoryId=${fasonHamEntryForm.factoryId}`)
-      setFasonHamEntryFabrics(response?.data?.items ?? [])
-    } catch {
-      setFasonHamEntryFabrics([])
-    }
-  }, [apiRequest, fasonHamEntryForm.factoryId])
-
-  const handleFasonHamEntryFabricSelect = useCallback((index, fabricGender) => {
-    const selectedItem = fasonHamEntryFabrics.find((item) => String(item?.fabricGender ?? item?.FabricGender ?? '').trim() === String(fabricGender).trim())
-    setFasonHamEntryForm((prev) => ({
-      ...prev,
-      details: prev.details.map((detail, detailIndex) => detailIndex === index ? {
-        ...detail,
-        fabricGender,
-        fabricGr: selectedItem?.fabricGr ?? selectedItem?.FabricGr ?? selectedItem?.fabricGSM ?? selectedItem?.FabricGSM ?? '',
-        fabricLot: selectedItem?.fabricLot ?? selectedItem?.FabricLot ?? '',
-        weight: selectedItem?.weight ?? selectedItem?.Weight ?? '',
-      } : detail),
-    }))
-  }, [fasonHamEntryFabrics])
+  }, [apiRequest, showNotice])
 
   const addFasonHamEntryDetailRow = useCallback(() => {
     setFasonHamEntryForm((prev) => ({
       ...prev,
-      details: [...prev.details, { id: 0, parentId: 0, fabricGender: '', fabricLot: '', fabricGr: '', weavingOrderId: prev.weavingOrderId, rollCount: '', weight: '', fabricType: 1 }],
+      details: [...prev.details, { id: 0, machineId: '', rollCount: '', weight: '', fabricType: 1 }],
     }))
   }, [])
 
@@ -514,19 +458,14 @@ function App() {
 
     try {
       const details = (fasonHamEntryForm.details ?? []).map((detail) => ({
-        id: Number(detail.id) || 0,
-        parentId: Number(detail.parentId) || 0,
-        fabricGender: detail.fabricGender ?? '',
-        fabricLot: detail.fabricLot ?? '',
-        fabricGr: Number(detail.fabricGr) || 0,
-        weavingOrderId: Number(detail.weavingOrderId || fasonHamEntryForm.weavingOrderId) || 0,
+        machineId: Number(detail.machineId) || 0,
         rollCount: Number(detail.rollCount) || 0,
         weight: Number(detail.weight) || 0,
         fabricType: Number(detail.fabricType) || 1,
-      })).filter((detail) => detail.fabricGender || detail.fabricLot || detail.weavingOrderId)
+      })).filter((detail) => detail.machineId)
 
-      if (!fasonHamEntryForm.factoryId || !fasonHamEntryForm.weavingOrderId || !details.length) {
-        throw new Error('Lütfen fabrika, dokuma sipariş ve en az bir kumaş seçin.')
+      if (!fasonHamEntryForm.factoryId || !details.length) {
+        throw new Error('Lütfen fabrika ve en az bir makine seçin.')
       }
 
       await apiRequest('/api/FasonHamEntry/upsert', {
@@ -1093,14 +1032,11 @@ function App() {
         error={fasonHamEntryModalError}
         form={fasonHamEntryForm}
         factoryOptions={fasonHamEntryFactoryOptions}
-        weavingOrders={fasonHamEntryWeavingOrders}
-        fabrics={fasonHamEntryFabrics}
+        availableMachines={fasonAvailableMachines}
         fabricTypeOptions={FABRIC_TYPE_OPTIONS}
         onFieldChange={updateFasonHamEntryField}
         onDetailFieldChange={updateFasonHamEntryDetailField}
         onFactorySelect={handleFasonHamEntryFactorySelect}
-        onWeavingOrderSelect={handleFasonHamEntryWeavingOrderSelect}
-        onFabricSelect={handleFasonHamEntryFabricSelect}
         onAddDetailRow={addFasonHamEntryDetailRow}
         onRemoveDetailRow={removeFasonHamEntryDetailRow}
         onClose={closeFasonHamEntryModal}
