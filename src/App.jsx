@@ -613,12 +613,12 @@ function App() {
 
       localStorage.setItem(TOKEN_KEY, nextAuthData.token)
       setAuthData(nextAuthData)
-      showNotice('success', 'تم تسجيل الدخول بنجاح.')
+      showNotice('success', 'Giriş başarılı.')
     } catch (error) {
       if (error instanceof TypeError) {
-        setLoginError('تعذر الاتصال بالخادم. تأكد أن API متاحة على judimensucat.runasp.net وأن الخادم يسمح بطلبات CORS.')
+        setLoginError('Sunucuya bağlanılamadı. API adresini ve CORS ayarlarını kontrol edin.')
       } else {
-        setLoginError(error.message || 'حدث خطأ غير متوقع.')
+        setLoginError(error.message || 'Beklenmeyen bir hata oluştu.')
       }
     } finally {
       setIsLoginLoading(false)
@@ -652,36 +652,37 @@ function App() {
           </div>
         ) : null}
 
-        <section className="mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-5xl items-center justify-center" aria-label="نموذج تسجيل الدخول">
-          <div className="w-full max-w-md rounded-[28px] border border-slate-200/80 bg-white/80 p-8 shadow-[0_24px_48px_rgba(15,23,42,0.12)] backdrop-blur-sm">
-            <p className="inline-flex rounded-full bg-sky-100 px-3 py-1 text-[11px] font-bold tracking-[0.2em] text-sky-700">JUDI SYSTEM</p>
-            <h1 className="mt-5 text-3xl font-bold text-slate-900">تسجيل الدخول</h1>
-            <p className="mt-2 text-sm text-slate-600">أدخل بيانات الحساب للمتابعة إلى النظام.</p>
+        <section className="mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-5xl items-center justify-center" aria-label="Giriş formu" dir="ltr">
+          <div className="w-full max-w-md rounded-[28px] border border-slate-200/80 bg-white p-8 text-left shadow-[0_24px_48px_rgba(15,23,42,0.12)]">
+            <div className="flex justify-center">
+              <img src="/logo.png" alt="Judi Mensucat" className="h-auto w-56 object-contain" />
+            </div>
+            <p className="mt-2 text-sm text-slate-600">Sisteme devam etmek için hesap bilgilerinizi girin.</p>
 
             <form onSubmit={onSubmitLogin} className="mt-6 grid gap-4">
               <div className="grid gap-2">
-                <label htmlFor="username" className="text-sm font-medium text-slate-700">اسم المستخدم</label>
+                <label htmlFor="username" className="text-sm font-medium text-slate-700">Kullanıcı adı</label>
                 <input
                   id="username"
                   type="text"
                   autoComplete="username"
                   value={userName}
                   onChange={(event) => setUserName(event.target.value)}
-                  placeholder="ali"
+                  placeholder="Kullanıcı adınızı girin"
                   required
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
                 />
               </div>
 
               <div className="grid gap-2">
-                <label htmlFor="password" className="text-sm font-medium text-slate-700">كلمة المرور</label>
+                <label htmlFor="password" className="text-sm font-medium text-slate-700">Şifre</label>
                 <input
                   id="password"
                   type="password"
                   autoComplete="current-password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  placeholder="*****"
+                  placeholder="Şifrenizi girin"
                   required
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
                 />
@@ -694,7 +695,7 @@ function App() {
                 disabled={isLoginLoading}
                 className="mt-2 inline-flex w-full items-center justify-center rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-wait disabled:opacity-70"
               >
-                {isLoginLoading ? 'جاري تسجيل الدخول...' : 'دخول'}
+                {isLoginLoading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
               </button>
             </form>
           </div>

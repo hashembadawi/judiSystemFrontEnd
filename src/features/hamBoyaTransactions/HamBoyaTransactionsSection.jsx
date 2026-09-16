@@ -333,7 +333,9 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
             body { margin: 0; color: #17212b; font-family: Arial, Tahoma, sans-serif; font-size: 13px; direction: ltr; }
             .report { max-width: 900px; margin: 0 auto; }
             .top-line { height: 5px; background: #0f766e; margin-bottom: 22px; }
-            header { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; border-bottom: 1px solid #cbd5e1; padding-bottom: 16px; }
+            header { border-bottom: 1px solid #cbd5e1; padding-bottom: 16px; text-align: center; }
+            .logo-wrap { display: flex; justify-content: center; margin-bottom: 18px; }
+            .logo { width: 250px; height: auto; max-height: 250px; object-fit: contain; }
             .brand { color: #0f766e; font-size: 14px; font-weight: 700; }
             h1 { margin: 7px 0 0; color: #0f172a; font-size: 24px; }
             .meta { color: #475569; line-height: 1.8; text-align: right; white-space: nowrap; }
@@ -357,8 +359,9 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
         <body>
           <main class="report">
             <div class="top-line"></div>
+            <div class="logo-wrap"><img class="logo" src="/logo.png" alt="Judi Mensucat" /></div>
             <header>
-              <div><div class="brand">judi mensucat</div><h1>Boyahane Ham Kumaş Sevkiyat Raporu</h1></div>
+              <h1> Ham kumaş Sevkiyat Raporu</h1>
             </header>
             <div class="info-grid">
               <div class="info-item"><span class="label">Fatura No</span><span class="value">${escapeHtml(transaction.FaturaNo)}</span></div>
@@ -501,12 +504,13 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
             .report-header {
               display: flex;
               flex-direction: column;
-              align-items: flex-start;
+              align-items: center;
               gap: 4px;
               margin-bottom: 18px;
               font-weight: 700;
               color: #1f5f81;
             }
+            .report-logo { width: 500px; height: auto; max-height: 250px; object-fit: contain; margin-bottom: 12px; }
             .report-date { font-size: 0.95rem; color: #2e5166; }
             .report-user { font-size: 0.95rem; color: #2e5166; }
             .report-title { font-size: 1.05rem; color: #1f5f81; }
@@ -519,6 +523,7 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
         </head>
         <body>
           <div class="report-header">
+            <img class="report-logo" src="/logo.png" alt="Judi Mensucat" />
             <div class="report-date">${formatReportDate(new Date())}</div>
             <div class="report-user">${currentUserName || 'Kullanıcı'}</div>
             <div class="report-title">Boyahanelere Gönderilen Ham Kumaş İşlemleri Raporu</div>
