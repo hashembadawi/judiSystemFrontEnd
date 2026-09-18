@@ -542,6 +542,7 @@ function WeavingOrdersSection({ apiRequest, showNotice, isActive }) {
         date: String(form.date ?? '').trim(),
         weavingOrderStatus: Number(form.weavingOrderStatus) || 1,
         details: form.details.map((detail) => ({
+          id: Number(detail.id) || 0,
           fabricGender: String(detail.fabricGender ?? '').trim(),
           fabricGr: Number(detail.fabricGr) || 0,
           pus: Number(detail.pus ?? 0) || 0,
