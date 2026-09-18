@@ -519,10 +519,29 @@ function App() {
     setAddFabricForm((prev) => ({
       ...prev,
       Details: prev.Details.map((detail, detailIndex) =>
-        detailIndex === index && !detail.isSaved ? { ...detail, [field]: value } : detail,
+        detailIndex === index && !detail.isLocked ? { ...detail, [field]: value } : detail,
       ),
     }))
   }, [])
+
+  const toggleAddFabricDetailLock = useCallback((index) => {
+    const detail = addFabricForm.Details?.[index]
+
+    if (!detail?.isLocked) {
+      return
+    }
+
+    const unlockCode = window.prompt('Satırı düzenlemek için şifreyi girin:')
+    if (unlockCode !== '111') {
+      showNotice('error', 'Şifre hatalı.')
+      return
+    }
+
+    setAddFabricForm((prev) => ({
+      ...prev,
+      Details: prev.Details.map((item, detailIndex) => detailIndex === index ? { ...item, isLocked: false } : item),
+    }))
+  }, [addFabricForm.Details, showNotice])
 
   const addAddFabricDetail = useCallback(async () => {
     if (isAddFabricMachineLoading) {
@@ -538,7 +557,7 @@ function App() {
       setActiveMachinePlans(machines)
       setAddFabricForm((prev) => ({
         ...prev,
-        Details: [...prev.Details, { Weight: '', Makine: '', Operator: '', fabricType: 1, isSaved: false }],
+        Details: [{ Weight: '', Makine: '', Operator: '', fabricType: 1, isSaved: false, isLocked: false }, ...prev.Details],
       }))
     } catch (requestError) {
       const message = requestError.message || 'Aktif makine planları alınamadı.'
@@ -552,7 +571,7 @@ function App() {
   const saveAddFabricDetail = useCallback(async (index) => {
     const detail = addFabricForm.Details?.[index]
 
-    if (!detail || detail.isSaved || savingAddFabricDetailIndex !== null) {
+    if (!detail || detail.isLocked || savingAddFabricDetailIndex !== null) {
       return
     }
 
@@ -580,9 +599,15 @@ function App() {
       })
 
       const savedRoll = response?.data ?? response
+      const savedRollId = savedRoll?.id ?? savedRoll?.Id ?? detail.id ?? detail.Id ?? 0
       setAddFabricForm((prev) => ({
         ...prev,
-        Details: prev.Details.map((item, detailIndex) => detailIndex === index ? { ...item, isSaved: true } : item),
+        Details: prev.Details.map((item, detailIndex) => detailIndex === index ? {
+          ...item,
+          id: savedRollId,
+          isSaved: true,
+          isLocked: true,
+        } : item),
       }))
       const didOpenPrintWindow = printSavedFabricRoll(savedRoll)
       showNotice('success', 'Top başarıyla kaydedildi.')
@@ -1025,6 +1050,7 @@ function App() {
         savingDetailIndex={savingAddFabricDetailIndex}
         onFieldChange={updateAddFabricField}
         onDetailFieldChange={updateAddFabricDetailField}
+        onToggleDetailLock={toggleAddFabricDetailLock}
         onAddDetail={addAddFabricDetail}
         onSaveDetail={saveAddFabricDetail}
         onClose={closeAddFabricModal}
