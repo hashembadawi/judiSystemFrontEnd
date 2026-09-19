@@ -576,7 +576,7 @@ function WeavingOrderPlanningSection({ apiRequest, showNotice, isActive }) {
               body { margin: 0; color: #111827; font-family: Arial, sans-serif; }
               main { max-width: 900px; margin: 0 auto; }
               .report-header { margin-bottom: 24px; text-align: center; }
-              .logo { width: 210px; max-height: 90px; object-fit: contain; margin-bottom: 12px; }
+              .logo { width: 320px; max-height: 135px; object-fit: contain; margin-bottom: 16px; }
               h1 { margin: 0; color: #0f4c81; font-size: 22px; text-align: center; }
               .order-section { margin-bottom: 24px; page-break-inside: avoid; }
               h2 { margin: 0 0 8px; padding: 8px 10px; background: #e0f2fe; color: #075985; font-size: 16px; }
@@ -590,7 +590,7 @@ function WeavingOrderPlanningSection({ apiRequest, showNotice, isActive }) {
             <main>
               <header class="report-header">
                 <img class="logo" src="/logo.png" alt="Judi Mensucat" />
-                <h1>Üretim Raporu</h1>
+                <h1>PLANLAMA</h1>
               </header>
               ${reportSections || '<p>Kumaş ve makine bilgisi bulunamadı.</p>'}
             </main>
