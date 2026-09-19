@@ -100,7 +100,7 @@ function AddFabricTransactionModal({
                           <label htmlFor={`fabricMovementMachine-${index}`} className="block text-xs font-medium text-slate-700">Makine No</label>
                             <select id={`fabricMovementMachine-${index}`} value={detail.Makine ?? ''} onChange={(event) => onDetailFieldChange(index, 'Makine', event.target.value)} disabled={detail.isLocked || savingDetailIndex !== null} className={`${buildInputClasses(false)} w-full py-1.5 text-xs`}>
                             <option value="">Makine seçin</option>
-                            {machines.map((machine) => <option key={machine.machineId} value={machine.machineId}>{machine.makineNo} ({machine.machineId})</option>)}
+                            {machines.map((machine) => <option key={machine.machineId} value={machine.machineId}>{machine.makineNo}</option>)}
                           </select>
                         </div>
                         <div className="space-y-1">
