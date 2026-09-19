@@ -79,6 +79,7 @@ const printSavedFabricRoll = (roll) => {
               <tr><th>Lot</th><td>${escapePrintHtml(value('fabricLot', 'FabricLot'))}</td></tr>
               <tr><th>Kumaş Gramajı</th><td>${escapePrintHtml(value('fabricGr', 'FabricGr'))}</td></tr>
               <tr><th>Sipariş No</th><td>${escapePrintHtml(value('orderNo', 'OrderNo'))}</td></tr>
+              <tr><th>Makine No</th><td>${escapePrintHtml(value('machineNo', 'MachineNo') || value('makineNo', 'MakineNo') || '-')}</td></tr>
               <tr><th>Makine Operatörü</th><td>${escapePrintHtml(value('operator', 'Operator'))}</td></tr>
             </tbody>
           </table>
@@ -600,16 +601,23 @@ function App() {
 
       const savedRoll = response?.data ?? response
       const savedRollId = savedRoll?.id ?? savedRoll?.Id ?? detail.id ?? detail.Id ?? 0
+      const selectedMachine = activeMachinePlans.find((machine) => String(machine.machineId) === String(detail.Makine))
+      const printData = {
+        ...savedRoll,
+        machineNo: savedRoll?.machineNo ?? savedRoll?.MachineNo ?? savedRoll?.makineNo ?? savedRoll?.MakineNo ?? selectedMachine?.makineNo ?? selectedMachine?.machineNo ?? '',
+      }
       setAddFabricForm((prev) => ({
         ...prev,
         Details: prev.Details.map((item, detailIndex) => detailIndex === index ? {
           ...item,
           id: savedRollId,
+          remainingWeight: savedRoll?.remainingWeight ?? savedRoll?.RemainingWeight ?? item.remainingWeight,
+          printData,
           isSaved: true,
           isLocked: true,
         } : item),
       }))
-      const didOpenPrintWindow = printSavedFabricRoll(savedRoll)
+      const didOpenPrintWindow = printSavedFabricRoll(printData)
       showNotice('success', 'Top başarıyla kaydedildi.')
       if (!didOpenPrintWindow) {
         showNotice('error', 'Top kaydedildi ancak yazdırma penceresi açılamadı.')
@@ -621,7 +629,7 @@ function App() {
     } finally {
       setSavingAddFabricDetailIndex(null)
     }
-  }, [addFabricForm, apiRequest, savingAddFabricDetailIndex, showNotice])
+  }, [activeMachinePlans, addFabricForm, apiRequest, savingAddFabricDetailIndex, showNotice])
 
   const onSubmitLogin = async (event) => {
     event.preventDefault()
@@ -1051,6 +1059,7 @@ function App() {
         onFieldChange={updateAddFabricField}
         onDetailFieldChange={updateAddFabricDetailField}
         onToggleDetailLock={toggleAddFabricDetailLock}
+        onPrintDetail={printSavedFabricRoll}
         onAddDetail={addAddFabricDetail}
         onSaveDetail={saveAddFabricDetail}
         onClose={closeAddFabricModal}

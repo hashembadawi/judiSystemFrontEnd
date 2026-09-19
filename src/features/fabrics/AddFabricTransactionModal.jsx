@@ -15,6 +15,7 @@ function AddFabricTransactionModal({
   onFieldChange,
   onDetailFieldChange,
   onToggleDetailLock,
+  onPrintDetail,
   onAddDetail,
   onSaveDetail,
   onClose,
@@ -123,8 +124,14 @@ function AddFabricTransactionModal({
                         <div className="flex items-center gap-1">
                           <button type="button" className="inline-flex h-7 min-w-10 w-auto items-center justify-center rounded border border-emerald-200 bg-emerald-50 px-2 text-sm leading-none text-emerald-700 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60" disabled={detail.isLocked || savingDetailIndex !== null} onClick={() => onSaveDetail(index)} title={savingDetailIndex === index ? 'Kaydediliyor...' : detail.isSaved ? 'Değişiklikleri kaydet' : 'Kaydet'} aria-label={`Top ${index + 1} kaydet`}>{savingDetailIndex === index ? '…' : '💾'}</button>
                           <button type="button" className="inline-flex h-7 min-w-10 w-auto items-center justify-center rounded border border-slate-300 bg-white px-2 text-sm leading-none text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60" disabled={!detail.isSaved || savingDetailIndex !== null} onClick={() => onToggleDetailLock(index)} title={detail.isLocked ? 'Kilidi aç' : 'Kilitle'} aria-label={`Top ${index + 1} kilit durumu`}>{detail.isLocked ? '🔒' : '🔓'}</button>
+                          <button type="button" className="inline-flex h-7 min-w-10 w-auto items-center justify-center rounded border border-blue-200 bg-blue-50 px-2 text-sm leading-none text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-60" disabled={!detail.isSaved || savingDetailIndex !== null} onClick={() => onPrintDetail(detail.printData ?? detail)} title="Top etiketini yeniden yazdır" aria-label={`Top ${index + 1} yeniden yazdır`}>🖨️</button>
                         </div>
                       </div>
+                      {detail.remainingWeight !== undefined && detail.remainingWeight !== null ? (
+                        <p className="mt-1 pl-9 text-[11px] text-slate-500">
+                          Kalan üretim ağırlığı: <span className="font-medium text-slate-700">{detail.remainingWeight} kg</span>
+                        </p>
+                      ) : null}
                     </div>
                   ))}
                   {!machines.length ? <p className="text-xs text-slate-500">Aktif planlı makine bulunamadı.</p> : null}

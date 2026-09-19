@@ -14,6 +14,13 @@ const formatNumber = (value) => {
   return Number(value).toLocaleString('tr-TR', { maximumFractionDigits: 2 })
 }
 
+const escapePrintHtml = (value) => String(value ?? '')
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#039;')
+
 function WeavingOrderPlanningSection({ apiRequest, showNotice, isActive }) {
   const [orders, setOrders] = useState([])
   const [searchText, setSearchText] = useState('')
@@ -25,6 +32,7 @@ function WeavingOrderPlanningSection({ apiRequest, showNotice, isActive }) {
   const [pageSize, setPageSize] = useState(50)
   const [totalCount, setTotalCount] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
+  const [isProductionReportLoading, setIsProductionReportLoading] = useState(false)
   const [error, setError] = useState('')
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [isPlanningLoading, setIsPlanningLoading] = useState(false)
@@ -520,6 +528,90 @@ function WeavingOrderPlanningSection({ apiRequest, showNotice, isActive }) {
     }
   }, [apiRequest, machineYarnForm.machinePlans, showNotice])
 
+  const printProductionReport = useCallback(async () => {
+    if (isProductionReportLoading) {
+      return
+    }
+
+    const printWindow = window.open('', '_blank', 'width=1000,height=800')
+    if (!printWindow) {
+      showNotice('error', 'Yazdırma penceresi açılamadı. Tarayıcı açılır pencere iznini kontrol edin.')
+      return
+    }
+
+    setIsProductionReportLoading(true)
+
+    try {
+      const response = await apiRequest(`${WEAVING_ORDERS_URL}/weavingOrderProductionReport/0`)
+      const reports = Array.isArray(response?.data) ? response.data : []
+      const reportSections = reports.map((report) => {
+        const fabricDetails = Array.isArray(report?.fabricDetails) ? report.fabricDetails : []
+        const fabricRows = fabricDetails.map((detail) => {
+          const machines = Array.isArray(detail?.machines) ? detail.machines : []
+          const machineNumbers = machines
+            .map((machine) => machine?.machineNo ?? machine?.makineNo ?? '')
+            .filter(Boolean)
+            .join(', ') || '-'
+
+          return `<tr><td>${escapePrintHtml(detail?.fabricGender || '-')}</td><td>${escapePrintHtml(machineNumbers)}</td></tr>`
+        }).join('') || '<tr><td colspan="2">Kumaş bilgisi bulunamadı.</td></tr>'
+
+        return `<section class="order-section">
+          <h2>${escapePrintHtml(report?.weavingOrderName || '-')}</h2>
+          <table>
+            <thead><tr><th>Kumaş Cinsi</th><th>Makineler</th></tr></thead>
+            <tbody>${fabricRows}</tbody>
+          </table>
+        </section>`
+      }).join('')
+
+      const reportHtml = `<!doctype html>
+        <html lang="tr">
+          <head>
+            <meta charset="UTF-8" />
+            <title>Üretim Raporu</title>
+            <style>
+              @page { margin: 14mm; }
+              * { box-sizing: border-box; }
+              body { margin: 0; color: #111827; font-family: Arial, sans-serif; }
+              main { max-width: 900px; margin: 0 auto; }
+              .report-header { margin-bottom: 24px; text-align: center; }
+              .logo { width: 210px; max-height: 90px; object-fit: contain; margin-bottom: 12px; }
+              h1 { margin: 0; color: #0f4c81; font-size: 22px; text-align: center; }
+              .order-section { margin-bottom: 24px; page-break-inside: avoid; }
+              h2 { margin: 0 0 8px; padding: 8px 10px; background: #e0f2fe; color: #075985; font-size: 16px; }
+              table { width: 100%; border-collapse: collapse; }
+              th, td { border: 1px solid #cbd5e1; padding: 10px; text-align: left; vertical-align: top; }
+              th { background: #e2e8f0; color: #334155; font-size: 12px; }
+              td { font-size: 13px; }
+            </style>
+          </head>
+          <body>
+            <main>
+              <header class="report-header">
+                <img class="logo" src="/logo.png" alt="Judi Mensucat" />
+                <h1>Üretim Raporu</h1>
+              </header>
+              ${reportSections || '<p>Kumaş ve makine bilgisi bulunamadı.</p>'}
+            </main>
+          </body>
+        </html>`
+
+      printWindow.document.write(reportHtml)
+      printWindow.document.close()
+      printWindow.focus()
+      setTimeout(() => {
+        printWindow.print()
+        printWindow.close()
+      }, 250)
+    } catch (requestError) {
+      printWindow.close()
+      showNotice('error', requestError.message || 'Üretim raporu alınamadı.')
+    } finally {
+      setIsProductionReportLoading(false)
+    }
+  }, [apiRequest, isProductionReportLoading, showNotice])
+
   return (
     <div className="space-y-4" dir="ltr">
       <header className="rounded-2xl border border-sky-200 bg-gradient-to-r from-sky-100 via-sky-50 to-blue-50 px-4 py-6 shadow-sm sm:px-6">
@@ -658,6 +750,15 @@ function WeavingOrderPlanningSection({ apiRequest, showNotice, isActive }) {
 
       <footer className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
         <div className="text-sm text-slate-600">Toplam hareket: <strong className="text-slate-900">{totalCount}</strong></div>
+        <button
+          type="button"
+          onClick={printProductionReport}
+          disabled={isProductionReportLoading}
+          className="inline-flex items-center justify-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <span aria-hidden="true">🖨️</span>
+          {isProductionReportLoading ? 'Rapor hazırlanıyor...' : 'Üretim Raporunu Yazdır'}
+        </button>
         <div className="flex items-center justify-end gap-2">
           <button type="button" className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-50" disabled={pageNumber <= 1 || isLoading} onClick={() => setPageNumber((page) => page - 1)}>Önceki</button>
           <span className="rounded-md bg-slate-100 px-2.5 py-1 text-sm font-medium text-slate-700">Sayfa {pageNumber} / {totalPages}</span>
