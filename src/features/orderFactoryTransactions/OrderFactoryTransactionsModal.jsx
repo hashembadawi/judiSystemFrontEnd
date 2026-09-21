@@ -1,6 +1,23 @@
 import { useEffect } from 'react'
 import { buildButtonClasses, buildInputClasses } from '../../styles/designSystem'
 
+const PROCESS_OPTIONS = [
+  ['fiks', 'Fiks'],
+  ['kasar', 'Kaşar'],
+  ['tekBoya', 'Tek Boya'],
+  ['ciftBoya', 'Çift Boya'],
+  ['enzim', 'Enzim'],
+  ['silikon', 'Silikon'],
+  ['ram', 'Ram'],
+  ['sardon', 'Şardon'],
+  ['kenarKola', 'Kenar Kola'],
+  ['kenarKesim', 'Kenar Kesim'],
+  ['tras', 'Tıraş'],
+  ['firca', 'Fırça'],
+  ['aEnkaucukSanfor', 'A. En Kauçuk Sanfor'],
+  ['tupSanfor', 'Tüp Sanfor'],
+]
+
 function OrderFactoryTransactionsModal({
   isOpen,
   isLoading,
@@ -15,6 +32,8 @@ function OrderFactoryTransactionsModal({
   onCopyDetailRow,
   onRemoveDetailRow,
   onClose,
+  onExportPdf,
+  isExportingPdf,
   onSave,
 }) {
   useEffect(() => {
@@ -137,6 +156,18 @@ function OrderFactoryTransactionsModal({
                       </select>
                     </div>
                   </div>
+                  <div className="mt-3 border-t border-slate-200 pt-3">
+                    <label htmlFor="TransactionNotes" className="block text-xs font-medium text-slate-700 text-left">Notlar</label>
+                    <textarea
+                      id="TransactionNotes"
+                      value={form.Notes ?? ''}
+                      onChange={(event) => onFieldChange('Notes', event.target.value)}
+                      rows={2}
+                      className={`${buildInputClasses(false)} mt-1 w-full resize-y text-sm`}
+                      placeholder="Sipariş notlarını girin"
+                      dir="ltr"
+                    />
+                  </div>
                 </section>
 
                 <section className="space-y-3 border-t border-slate-200 pt-4" dir="ltr">
@@ -156,7 +187,7 @@ function OrderFactoryTransactionsModal({
                     return (
                       <div key={index} className="rounded-xl border border-slate-200 bg-slate-50 p-3 shadow-sm" dir="ltr">
                         <div className="overflow-x-auto" dir="ltr">
-                          <div className="grid w-full grid-cols-[0.7fr_1.8fr_0.5fr_0.5fr_0.9fr_0.9fr_1fr_0.9fr_0.75fr] gap-1.5" dir="ltr">
+                          <div className="grid w-full grid-cols-[0.7fr_1.8fr_0.5fr_0.5fr_0.9fr_0.9fr_1fr_0.75fr] gap-1.5" dir="ltr">
                             <div className="space-y-1" dir="ltr">
                               <label htmlFor={`etiket-${index}`} className="block text-[10px] font-medium text-slate-700 text-left">Etiket</label>
                               <input
@@ -267,20 +298,6 @@ function OrderFactoryTransactionsModal({
                             </div>
 
                             <div className="space-y-1" dir="ltr">
-                              <label htmlFor={`fiyat-${index}`} className="block text-[10px] font-medium text-slate-700 text-left">FİYAT</label>
-                              <input
-                                id={`fiyat-${index}`}
-                                type="number"
-                                step="0.01"
-                                value={detail.Fiyat ?? detail.Price ?? 0}
-                                onChange={(event) => onDetailFieldChange(index, 'Fiyat', event.target.value)}
-                                className={`${buildInputClasses(false)} w-full h-9 text-xs`}
-                                dir="ltr"
-                                style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '11px' }}
-                              />
-                            </div>
-
-                            <div className="space-y-1" dir="ltr">
                               <label className="block text-[10px] font-medium text-slate-700 text-left">İşlemler</label>
                               <div className="flex h-9 items-end gap-1.5" dir="ltr">
                                 <button
@@ -304,6 +321,23 @@ function OrderFactoryTransactionsModal({
                             </div>
                           </div>
                         </div>
+                        <div className="mt-3 border-t border-slate-200 pt-3">
+                          <p className="mb-2 text-[10px] font-medium text-slate-700">İşlem seçenekleri</p>
+                          <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-5">
+                            {PROCESS_OPTIONS.map(([field, label]) => (
+                              <label key={field} htmlFor={`${field}-${index}`} className="flex items-center gap-1.5 text-[11px] text-slate-700">
+                                <input
+                                  id={`${field}-${index}`}
+                                  type="checkbox"
+                                  checked={Boolean(detail[field])}
+                                  onChange={(event) => onDetailFieldChange(index, field, event.target.checked)}
+                                  className="h-3.5 w-3.5 rounded border-slate-300 text-sky-700"
+                                />
+                                {label}
+                              </label>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     )
                   })}
@@ -319,6 +353,15 @@ function OrderFactoryTransactionsModal({
           <div className="sticky bottom-0 flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-4 py-4 sm:flex-row sm:justify-end sm:px-6" dir="ltr">
             <button type="button" className={buildButtonClasses('secondary')} onClick={onClose} disabled={isSaving || isLoading}>
               İptal
+            </button>
+            <button
+              type="button"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50"
+              onClick={onExportPdf}
+              disabled={isSaving || isLoading || isExportingPdf}
+            >
+              <span aria-hidden="true">📄</span>
+              {isExportingPdf ? 'PDF hazırlanıyor...' : 'PDF Dışa Aktar'}
             </button>
             <button type="button" disabled={isSaving || isLoading} className={buildButtonClasses('primary')} onClick={onSave}>
               {isSaving ? 'Kaydediliyor...' : 'Kaydet'}

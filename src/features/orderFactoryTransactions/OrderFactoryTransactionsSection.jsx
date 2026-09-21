@@ -1,8 +1,26 @@
 import { useCallback, useEffect, useState } from 'react'
+import { jsPDF } from 'jspdf'
+import autoTable from 'jspdf-autotable'
 import OrderFactoryTransactionsModal from './OrderFactoryTransactionsModal'
 
 const ORDER_FACTORY_TRANSACTIONS_URL = '/api/order-factory-transactions'
 const getTodayDate = () => new Date().toISOString().slice(0, 10)
+const PROCESS_LABELS = [
+  ['fiks', 'Fiks'],
+  ['kasar', 'Kasar'],
+  ['tekBoya', 'Tek Boya'],
+  ['ciftBoya', 'Çift Boya'],
+  ['enzim', 'Enzim'],
+  ['silikon', 'Silikon'],
+  ['ram', 'Ram'],
+  ['sardon', 'Şardon'],
+  ['kenarKola', 'Kenar Kola'],
+  ['kenarKesim', 'Kenar Kesim'],
+  ['tras', 'Tıraş'],
+  ['firca', 'Fırça'],
+  ['aEnkaucukSanfor', 'A. En Kauçuk Sanfor'],
+  ['tupSanfor', 'Tüp Sanfor'],
+]
 
 function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
   const [searchText, setSearchText] = useState('')
@@ -15,6 +33,7 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isModalLoading, setIsModalLoading] = useState(false)
   const [isModalSaving, setIsModalSaving] = useState(false)
+  const [isExportingPdf, setIsExportingPdf] = useState(false)
   const [modalError, setModalError] = useState('')
   const [customerOrdersOptions, setCustomerOrdersOptions] = useState([])
   const [boyaFactoriesOptions, setBoyaFactoriesOptions] = useState([])
@@ -25,6 +44,7 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
     FactoryId: '',
     Date: getTodayDate(),
     TransactionStatus: 1,
+    Notes: '',
     Details: [
       {
         Id: 0,
@@ -36,6 +56,20 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
         RenkCode: '',
         SiparisMiktari: '',
         Fiyat: 0,
+        fiks: false,
+        kasar: false,
+        tekBoya: false,
+        ciftBoya: false,
+        enzim: false,
+        silikon: false,
+        ram: false,
+        sardon: false,
+        kenarKola: false,
+        kenarKesim: false,
+        tras: false,
+        firca: false,
+        aEnkaucukSanfor: false,
+        tupSanfor: false,
       },
     ],
   })
@@ -109,6 +143,7 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
       FactoryId: '',
       Date: getTodayDate(),
       TransactionStatus: 1,
+      Notes: '',
       Details: [
         {
           Id: 0,
@@ -120,6 +155,20 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
           RenkCode: '',
           SiparisMiktari: '',
           Fiyat: 0,
+          fiks: false,
+          kasar: false,
+          tekBoya: false,
+          ciftBoya: false,
+          enzim: false,
+          silikon: false,
+          ram: false,
+          sardon: false,
+          kenarKola: false,
+          kenarKesim: false,
+          tras: false,
+          firca: false,
+          aEnkaucukSanfor: false,
+          tupSanfor: false,
         },
       ],
     })
@@ -172,6 +221,7 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
           FactoryId: transactionData.factoryId ?? '',
           Date: transactionData.date ? transactionData.date.split('T')[0] : getTodayDate(),
           TransactionStatus: transactionData.transactionStatus ?? 1,
+          Notes: transactionData.notes ?? transactionData.Notes ?? '',
           Details: Array.isArray(transactionData.details)
             ? transactionData.details.map((detail) => ({
                 Id: detail.id || 0,
@@ -183,6 +233,20 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
                 RenkCode: detail.renkCode ?? detail.RenkCode ?? '',
                 SiparisMiktari: detail.siparisMiktari ?? detail.SiparisMiktari ?? '',
                 Fiyat: detail.fiyat ?? detail.Fiyat ?? detail.price ?? detail.Price ?? 0,
+                fiks: detail.fiks ?? detail.Fiks ?? false,
+                kasar: detail.kasar ?? detail.Kasar ?? false,
+                tekBoya: detail.tekBoya ?? detail.TekBoya ?? false,
+                ciftBoya: detail.ciftBoya ?? detail.CiftBoya ?? false,
+                enzim: detail.enzim ?? detail.Enzim ?? false,
+                silikon: detail.silikon ?? detail.Silikon ?? false,
+                ram: detail.ram ?? detail.Ram ?? false,
+                sardon: detail.sardon ?? detail.Sardon ?? false,
+                kenarKola: detail.kenarKola ?? detail.KenarKola ?? false,
+                kenarKesim: detail.kenarKesim ?? detail.KenarKesim ?? false,
+                tras: detail.tras ?? detail.Tras ?? false,
+                firca: detail.firca ?? detail.Firca ?? false,
+                aEnkaucukSanfor: detail.aEnkaucukSanfor ?? detail.AEnkaucukSanfor ?? false,
+                tupSanfor: detail.tupSanfor ?? detail.TupSanfor ?? false,
               }))
             : [
                 {
@@ -195,6 +259,20 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
                   RenkCode: '',
                   SiparisMiktari: '',
                   Fiyat: 0,
+                  fiks: false,
+                  kasar: false,
+                  tekBoya: false,
+                  ciftBoya: false,
+                  enzim: false,
+                  silikon: false,
+                  ram: false,
+                  sardon: false,
+                  kenarKola: false,
+                  kenarKesim: false,
+                  tras: false,
+                  firca: false,
+                  aEnkaucukSanfor: false,
+                  tupSanfor: false,
                 },
               ],
         })
@@ -249,6 +327,20 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
           RenkCode: '',
           SiparisMiktari: '',
           Fiyat: 0,
+          fiks: false,
+          kasar: false,
+          tekBoya: false,
+          ciftBoya: false,
+          enzim: false,
+          silikon: false,
+          ram: false,
+          sardon: false,
+          kenarKola: false,
+          kenarKesim: false,
+          tras: false,
+          firca: false,
+          aEnkaucukSanfor: false,
+          tupSanfor: false,
         },
       ],
     }))
@@ -310,6 +402,7 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
         factoryId: Number(transactionForm.FactoryId) || 0,
         date: transactionForm.Date,
         transactionStatus: Number(transactionForm.TransactionStatus) || 1,
+        notes: String(transactionForm.Notes ?? '').trim(),
         details: transactionForm.Details.map((detail) => ({
           id: Number(detail.Id) || 0,
           etiket_Basligi: detail.Etiket_Basligi || '',
@@ -319,7 +412,21 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
           renk: detail.Renk || '',
           renkCode: detail.RenkCode || '',
           siparisMiktari: Number(detail.SiparisMiktari) || 0,
-          Fiyat: Number(detail.Fiyat ?? detail.Price ?? 0) || 0,
+          fiyat: Number(detail.Fiyat ?? detail.Price ?? 0) || 0,
+          fiks: Boolean(detail.fiks),
+          kasar: Boolean(detail.kasar),
+          tekBoya: Boolean(detail.tekBoya),
+          ciftBoya: Boolean(detail.ciftBoya),
+          enzim: Boolean(detail.enzim),
+          silikon: Boolean(detail.silikon),
+          ram: Boolean(detail.ram),
+          sardon: Boolean(detail.sardon),
+          kenarKola: Boolean(detail.kenarKola),
+          kenarKesim: Boolean(detail.kenarKesim),
+          tras: Boolean(detail.tras),
+          firca: Boolean(detail.firca),
+          aEnkaucukSanfor: Boolean(detail.aEnkaucukSanfor),
+          tupSanfor: Boolean(detail.tupSanfor),
         })),
       }
 
@@ -344,6 +451,158 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
       setIsModalSaving(false)
     }
   }, [apiRequest, loadTransactions, showNotice, transactionForm])
+
+  const exportTransactionPdf = useCallback(async () => {
+    if (isExportingPdf || !transactionForm.Details.length) {
+      return
+    }
+
+    setIsExportingPdf(true)
+
+    try {
+      const factory = boyaFactoriesOptions.find((item) => String(item.id) === String(transactionForm.FactoryId))
+      const fontResponse = await fetch('/fonts/arial.ttf')
+      if (!fontResponse.ok) {
+        throw new Error('PDF yazı tipi yüklenemedi.')
+      }
+
+      const fontBytes = new Uint8Array(await fontResponse.arrayBuffer())
+      let fontBinary = ''
+      for (let offset = 0; offset < fontBytes.length; offset += 0x8000) {
+        fontBinary += String.fromCharCode(...fontBytes.subarray(offset, offset + 0x8000))
+      }
+
+      const pdfDocument = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
+      pdfDocument.addFileToVFS('Arial.ttf', btoa(fontBinary))
+      pdfDocument.addFont('Arial.ttf', 'Arial', 'normal')
+      pdfDocument.addFont('Arial.ttf', 'Arial', 'bold')
+      pdfDocument.setFont('Arial', 'normal')
+      const orderNumber = String(transactionForm.OrderNo ?? '').trim() || 'Sipariş'
+      const factoryName = factory?.name || '-'
+      const safeFilePart = orderNumber.replace(/[<>:"/\\|?*]+/g, '-').trim() || 'siparis'
+
+      pdfDocument.setFillColor(15, 76, 129)
+      pdfDocument.rect(0, 0, 297, 14, 'F')
+      pdfDocument.setTextColor(255, 255, 255)
+      pdfDocument.setFontSize(16)
+      pdfDocument.setFont('Arial', 'bold')
+      pdfDocument.text('BOYALI SİPARİŞ FORMU', 15, 9)
+
+      pdfDocument.setTextColor(31, 41, 55)
+      pdfDocument.setFont('Arial', 'normal')
+      pdfDocument.setFontSize(13)
+      pdfDocument.text(orderNumber, 15, 27)
+      pdfDocument.setFont('Arial', 'normal')
+      pdfDocument.setFontSize(9)
+      pdfDocument.text(`Boya fabrikası: ${factoryName}`, 15, 34)
+      pdfDocument.text(`Tarih: ${transactionForm.Date || '-'}`, 15, 40)
+
+      const rows = transactionForm.Details.map((detail, index) => {
+        return [
+          String(index + 1),
+          detail.Etiket_Basligi || '-',
+          detail.FabricGender || '-',
+          detail.En || '-',
+          detail.Gr || '-',
+          detail.Renk || '-',
+          detail.RenkCode || '-',
+          detail.SiparisMiktari || '-',
+          ...PROCESS_LABELS.map(([field]) => detail[field] ? '1' : ''),
+        ]
+      })
+      const totalOrderQuantity = transactionForm.Details.reduce(
+        (total, detail) => total + (Number(String(detail.SiparisMiktari ?? '').replace(',', '.')) || 0),
+        0,
+      )
+
+      autoTable(pdfDocument, {
+        startY: 48,
+        head: [['No', 'Etiket Başlığı', 'Kumaş Cinsi', 'En', 'Gr', 'Renk', 'Renk Kodu', 'Sipariş Miktarı', ...PROCESS_LABELS.map(([, label]) => label)]],
+        body: rows,
+        foot: [['', '', '', '', '', '', 'TOPLAM', String(totalOrderQuantity), ...PROCESS_LABELS.map(() => '')]],
+        theme: 'grid',
+        pageBreak: 'avoid',
+        rowPageBreak: 'avoid',
+        styles: { font: 'Arial', fontSize: 5, cellPadding: 1.5, minCellHeight: 8, lineWidth: 0.3, lineColor: [148, 163, 184], textColor: [31, 41, 55], overflow: 'linebreak', halign: 'center', valign: 'middle' },
+        headStyles: { fillColor: [226, 232, 240], textColor: [15, 23, 42], fontStyle: 'normal', minCellHeight: 13, cellPadding: 1.5, lineWidth: 0.3, lineColor: [100, 116, 139] },
+        footStyles: { fillColor: [219, 234, 254], textColor: [15, 23, 42], fontStyle: 'normal', minCellHeight: 8, cellPadding: 1.5, lineWidth: 0.3, lineColor: [100, 116, 139] },
+        alternateRowStyles: { fillColor: [248, 250, 252] },
+        columnStyles: {
+          0: { cellWidth: 7 },
+          1: { cellWidth: 18, halign: 'left' },
+          2: { cellWidth: 55, halign: 'left' },
+          3: { cellWidth: 8 },
+          4: { cellWidth: 8 },
+          5: { cellWidth: 15, halign: 'left' },
+          6: { cellWidth: 14 },
+          7: { cellWidth: 16 },
+          ...Object.fromEntries(PROCESS_LABELS.map(([,], index) => [index + 8, { cellWidth: index === 6 ? 14 : 8 }])),
+        },
+        margin: { left: 5, right: 5 },
+        willDrawCell: ({ section, column, cell }) => {
+          if (section === 'body' && column.index >= 8 && column.index < PROCESS_LABELS.length + 8 && cell.raw === '1') {
+            cell.text = []
+          }
+        },
+        didDrawCell: ({ section, column, cell }) => {
+          if (section !== 'body' || column.index < 8 || column.index >= PROCESS_LABELS.length + 8 || cell.raw !== '1') {
+            return
+          }
+
+          const left = cell.x + cell.width / 2 - 1.8
+          const top = cell.y + cell.height / 2
+          pdfDocument.setDrawColor(15, 118, 110)
+          pdfDocument.setLineWidth(0.6)
+          pdfDocument.line(left, top, left + 1.3, top + 1.5)
+          pdfDocument.line(left + 1.3, top + 1.5, left + 4, top - 2)
+        },
+      })
+
+      const notesTop = Math.min((pdfDocument.lastAutoTable?.finalY ?? 190) + 7, 190)
+      const notesText = pdfDocument.splitTextToSize(String(transactionForm.Notes || '-'), 270)
+      const notesHeight = Math.max(24, 15 + notesText.length * 4)
+      pdfDocument.setFillColor(248, 250, 252)
+      pdfDocument.setDrawColor(148, 163, 184)
+      pdfDocument.setLineWidth(0.2)
+      pdfDocument.roundedRect(5, notesTop, 287, notesHeight, 2, 2, 'FD')
+      pdfDocument.setTextColor(15, 76, 129)
+      pdfDocument.setFont('Arial', 'normal')
+      pdfDocument.setFontSize(8)
+      pdfDocument.text('AÇIKLAMALAR', 10, notesTop + 6)
+      pdfDocument.setTextColor(31, 41, 55)
+      pdfDocument.setFont('Arial', 'normal')
+      pdfDocument.setFontSize(8)
+      pdfDocument.text(notesText, 10, notesTop + 16)
+
+      const pdfBlob = pdfDocument.output('blob')
+      const fileName = `boyali-siparis-${safeFilePart}-${transactionForm.Date || getTodayDate()}.pdf`
+
+      if (typeof window.showSaveFilePicker === 'function') {
+        const fileHandle = await window.showSaveFilePicker({
+          suggestedName: fileName,
+          types: [{ description: 'PDF dosyası', accept: { 'application/pdf': ['.pdf'] } }],
+        })
+        const writable = await fileHandle.createWritable()
+        await writable.write(pdfBlob)
+        await writable.close()
+      } else {
+        const downloadUrl = URL.createObjectURL(pdfBlob)
+        const link = document.createElement('a')
+        link.href = downloadUrl
+        link.download = fileName
+        link.click()
+        URL.revokeObjectURL(downloadUrl)
+      }
+
+      showNotice('success', 'PDF dosyası başarıyla hazırlandı.')
+    } catch (requestError) {
+      if (requestError?.name !== 'AbortError') {
+        showNotice('error', requestError.message || 'PDF dosyası oluşturulamadı.')
+      }
+    } finally {
+      setIsExportingPdf(false)
+    }
+  }, [boyaFactoriesOptions, isExportingPdf, showNotice, transactionForm])
 
   useEffect(() => {
     if (!isActive) {
@@ -520,6 +779,8 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
         onCopyDetailRow={copyDetailRow}
         onRemoveDetailRow={removeDetailRow}
         onClose={closeModal}
+        onExportPdf={exportTransactionPdf}
+        isExportingPdf={isExportingPdf}
         onSave={saveTransaction}
       />
     </div>
