@@ -187,24 +187,25 @@ function BoyaliSiparisTakipModal({
                         <tr>
                           <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">E.Başlığı</th>
                           <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">Kumaş Cinsi</th>
-                          <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">LOT</th>
+                          <th className="min-w-[220px] px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">LOT</th>
                           <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">En</th>
                           <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">Gr</th>
                           <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">Renk</th>
                           <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">R.Kodu</th>
                           <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">Sip.MIKTAR</th>
                           <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">Parti No</th>
-                          <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">Top Sayı</th>
                           <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">K.Giriş(Kg)</th>
+                          <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">Giriş Top Sayısı</th>
                           <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">Durum</th>
                           <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">Sevk Hazır</th>
+                          <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">Çıkış Top Sayısı</th>
                           <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">İşlemler</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-200">
                         {orderForm.details.map((detail, index) => (
                           <tr key={detail.id ?? `${detail.fabricGender}-${index}`} className="hover:bg-slate-50">
-                            <td className="px-1 py-1 w-full">
+                            <td className="min-w-[220px] px-1 py-1 w-full">
                               <input
                                 type="text"
                                 value={detail.etiket_Basligi ?? ''}
@@ -233,8 +234,22 @@ function BoyaliSiparisTakipModal({
                             <td className="px-1 py-1 w-full">
                               <input
                                 type="text"
-                                value={detail.PartiNo ?? ''}
-                                onChange={(event) => onDetailFieldChange(index, 'PartiNo', event.target.value)}
+                                value={detail.partiNo ?? ''}
+                                onChange={(event) => onDetailFieldChange(index, 'partiNo', event.target.value)}
+                                className={`${buildInputClasses(false)} h-7 w-full text-[11px]`}
+                                dir="ltr"
+                                style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '11px', padding: '2px 4px' }}
+                              />
+                            </td>
+                            <td className="px-1 py-1 w-full">
+                              <input
+                                type="number"
+                                value={detail.kazanGiris ?? ''}
+                                onFocus={() => loadSendedFabrics(index, detail)}
+                                onChange={(event) => {
+                                  const nextValue = event.target.value === '' ? '' : Number(event.target.value)
+                                  onDetailFieldChange(index, 'kazanGiris', nextValue)
+                                }}
                                 className={`${buildInputClasses(false)} h-7 w-full text-[11px]`}
                                 dir="ltr"
                                 style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '11px', padding: '2px 4px' }}
@@ -244,22 +259,8 @@ function BoyaliSiparisTakipModal({
                               <input
                                 type="number"
                                 step="1"
-                                value={detail.topSayi ?? detail.TopSayi ?? 0}
-                                onChange={(event) => onDetailFieldChange(index, 'topSayi', event.target.value === '' ? 0 : Number(event.target.value))}
-                                className={`${buildInputClasses(false)} h-7 w-full text-[11px]`}
-                                dir="ltr"
-                                style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '11px', padding: '2px 4px' }}
-                              />
-                            </td>
-                            <td className="px-1 py-1 w-full">
-                              <input
-                                type="number"
-                                value={detail.KazanGiris ?? ''}
-                                onFocus={() => loadSendedFabrics(index, detail)}
-                                onChange={(event) => {
-                                  const nextValue = event.target.value === '' ? '' : Number(event.target.value)
-                                  onDetailFieldChange(index, 'KazanGiris', nextValue)
-                                }}
+                                value={detail.girisTopSayisi ?? 0}
+                                onChange={(event) => onDetailFieldChange(index, 'girisTopSayisi', event.target.value === '' ? 0 : Number(event.target.value))}
                                 className={`${buildInputClasses(false)} h-7 w-full text-[11px]`}
                                 dir="ltr"
                                 style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '11px', padding: '2px 4px' }}
@@ -267,8 +268,8 @@ function BoyaliSiparisTakipModal({
                             </td>
                             <td className="px-1 py-1 w-full">
                               <select
-                                value={detail.Status ?? 1}
-                                onChange={(event) => onDetailFieldChange(index, 'Status', Number(event.target.value))}
+                                value={detail.status ?? 1}
+                                onChange={(event) => onDetailFieldChange(index, 'status', Number(event.target.value))}
                                 className={`${buildInputClasses(false)} h-7 w-full text-[11px]`}
                                 dir="ltr"
                                 style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '11px', padding: '2px 4px', lineHeight: 'normal' }}
@@ -284,8 +285,19 @@ function BoyaliSiparisTakipModal({
                               <input
                                 type="number"
                                 step="0.01"
-                                value={detail.SevkHazir ?? 0}
-                                onChange={(event) => onDetailFieldChange(index, 'SevkHazir', Number(event.target.value))}
+                                value={detail.sevkHazir ?? 0}
+                                onChange={(event) => onDetailFieldChange(index, 'sevkHazir', Number(event.target.value))}
+                                className={`${buildInputClasses(false)} h-7 w-full text-[11px]`}
+                                dir="ltr"
+                                style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '11px', padding: '2px 4px' }}
+                              />
+                            </td>
+                            <td className="px-1 py-1 w-full">
+                              <input
+                                type="number"
+                                step="1"
+                                value={detail.cikisTopSayisi ?? 0}
+                                onChange={(event) => onDetailFieldChange(index, 'cikisTopSayisi', event.target.value === '' ? 0 : Number(event.target.value))}
                                 className={`${buildInputClasses(false)} h-7 w-full text-[11px]`}
                                 dir="ltr"
                                 style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '11px', padding: '2px 4px' }}
