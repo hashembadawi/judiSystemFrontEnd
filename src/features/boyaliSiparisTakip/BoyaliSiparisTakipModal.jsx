@@ -185,27 +185,27 @@ function BoyaliSiparisTakipModal({
                     <table className="w-full min-w-[1200px] text-left text-[11px]" dir="ltr" style={{ direction: 'ltr', borderCollapse: 'collapse' }}>
                       <thead className="bg-slate-50">
                         <tr>
-                          <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">E.Başlığı</th>
-                          <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">Kumaş Cinsi</th>
+                          <th className="px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">E.Başlığı</th>
+                          <th className="px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">Kumaş Cinsi</th>
                           <th className="min-w-[220px] px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">LOT</th>
-                          <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">En</th>
-                          <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">Gr</th>
-                          <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">Renk</th>
-                          <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">R.Kodu</th>
-                          <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">Sip.MIKTAR</th>
-                          <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">Parti No</th>
-                          <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">K.Giriş(Kg)</th>
-                          <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">Giriş Top Sayısı</th>
-                          <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">Durum</th>
-                          <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">Sevk Hazır</th>
-                          <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">Çıkış Top Sayısı</th>
-                          <th className="px-1 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 whitespace-nowrap">İşlemler</th>
+                          <th className="px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">En</th>
+                          <th className="px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">Gr</th>
+                          <th className="px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">Renk</th>
+                          <th className="px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">R.Kodu</th>
+                          <th className="px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">Sip.MIKTAR</th>
+                          <th className="min-w-[180px] px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">Parti No</th>
+                          <th className="px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">K.Giriş(Kg)</th>
+                          <th className="min-w-[80px] px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">Giriş Top Sayısı</th>
+                          <th className="min-w-[180px] px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">Durum</th>
+                          <th className="px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">Sevk Hazır</th>
+                          <th className="min-w-[80px] px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">Çıkış Top Sayısı</th>
+                          <th className="px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">İşlemler</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-200">
                         {orderForm.details.map((detail, index) => (
                           <tr key={detail.id ?? `${detail.fabricGender}-${index}`} className="hover:bg-slate-50">
-                            <td className="min-w-[220px] px-1 py-1 w-full">
+                            <td className="px-1 py-1 w-full">
                               <input
                                 type="text"
                                 value={detail.etiket_Basligi ?? ''}
@@ -216,7 +216,7 @@ function BoyaliSiparisTakipModal({
                               />
                             </td>
                             <td className="px-1 py-1 w-full text-[11px] text-slate-700 whitespace-nowrap">{detail.fabricGender ?? '-'}</td>
-                            <td className="px-1 py-1 w-full">
+                            <td className="min-w-[220px] px-1 py-1 w-full">
                               <input
                                 type="text"
                                 value={detail.lot ?? detail.LOT ?? detail.fabricLot ?? detail.FabricLot ?? ''}
@@ -231,12 +231,12 @@ function BoyaliSiparisTakipModal({
                             <td className="px-1 py-1 w-full text-[11px] text-slate-700 whitespace-nowrap">{detail.renk ?? '-'}</td>
                             <td className="px-1 py-1 w-full text-[11px] text-slate-700 whitespace-nowrap">{detail.renkCode ?? '-'}</td>
                             <td className="px-1 py-1 w-full text-[11px] text-slate-700 whitespace-nowrap">{detail.siparisMiktari ?? '-'}</td>
-                            <td className="px-1 py-1 w-full">
+                            <td className="min-w-[180px] px-1 py-1 w-full">
                               <input
                                 type="text"
                                 value={detail.partiNo ?? ''}
                                 onChange={(event) => onDetailFieldChange(index, 'partiNo', event.target.value)}
-                                className={`${buildInputClasses(false)} h-7 w-full text-[11px]`}
+                                className={`${buildInputClasses(false)} h-7 min-w-[170px] w-full text-[11px]`}
                                 dir="ltr"
                                 style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '11px', padding: '2px 4px' }}
                               />
@@ -255,22 +255,22 @@ function BoyaliSiparisTakipModal({
                                 style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '11px', padding: '2px 4px' }}
                               />
                             </td>
-                            <td className="px-1 py-1 w-full">
+                            <td className="min-w-[80px] px-1 py-1 w-full">
                               <input
                                 type="number"
                                 step="1"
                                 value={detail.girisTopSayisi ?? 0}
                                 onChange={(event) => onDetailFieldChange(index, 'girisTopSayisi', event.target.value === '' ? 0 : Number(event.target.value))}
-                                className={`${buildInputClasses(false)} h-7 w-full text-[11px]`}
+                                className={`${buildInputClasses(false)} h-7 min-w-[70px] w-full text-[11px]`}
                                 dir="ltr"
                                 style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '11px', padding: '2px 4px' }}
                               />
                             </td>
-                            <td className="px-1 py-1 w-full">
+                            <td className="min-w-[180px] px-1 py-1 w-full">
                               <select
                                 value={detail.status ?? 1}
                                 onChange={(event) => onDetailFieldChange(index, 'status', Number(event.target.value))}
-                                className={`${buildInputClasses(false)} h-7 w-full text-[11px]`}
+                                className={`${buildInputClasses(false)} h-7 min-w-[170px] w-full text-[11px]`}
                                 dir="ltr"
                                 style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '11px', padding: '2px 4px', lineHeight: 'normal' }}
                               >
@@ -281,7 +281,7 @@ function BoyaliSiparisTakipModal({
                                 ))}
                               </select>
                             </td>
-                            <td className="px-1 py-1 w-full">
+                            <td className="min-w-[80px] px-1 py-1 w-full">
                               <input
                                 type="number"
                                 step="0.01"
@@ -298,7 +298,7 @@ function BoyaliSiparisTakipModal({
                                 step="1"
                                 value={detail.cikisTopSayisi ?? 0}
                                 onChange={(event) => onDetailFieldChange(index, 'cikisTopSayisi', event.target.value === '' ? 0 : Number(event.target.value))}
-                                className={`${buildInputClasses(false)} h-7 w-full text-[11px]`}
+                                className={`${buildInputClasses(false)} h-7 min-w-[70px] w-full text-[11px]`}
                                 dir="ltr"
                                 style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '11px', padding: '2px 4px' }}
                               />
