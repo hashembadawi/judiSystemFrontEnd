@@ -238,6 +238,7 @@ function BoyaliSiparisTakipModal({
                           <th className="min-w-[180px] px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">Durum</th>
                           <th className="px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">Sevk Hazır</th>
                           <th className="min-w-[80px] px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">Çıkış Top Sayısı</th>
+                          <th className="px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">FİRE %</th>
                           <th className="px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">İşlemler</th>
                         </tr>
                       </thead>
@@ -342,6 +343,11 @@ function BoyaliSiparisTakipModal({
                                 dir="ltr"
                                 style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '11px', padding: '2px 4px' }}
                               />
+                            </td>
+                            <td className="px-1 py-1 w-full text-center text-[11px] font-medium text-slate-700">
+                              {parseWeight(detail.sevkHazir) > 0 && parseWeight(detail.kazanGiris) > 0
+                                ? `${(((parseWeight(detail.kazanGiris) - parseWeight(detail.sevkHazir)) / parseWeight(detail.kazanGiris)) * 100).toFixed(2)}%`
+                                : '-'}
                             </td>
                             <td className="px-1 py-1 w-full text-center">
                               <div className="flex items-center justify-center gap-1">
