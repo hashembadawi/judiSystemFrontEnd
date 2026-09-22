@@ -127,6 +127,45 @@ function BoyaliSiparisTakipModal({
     return sendedFabricsByRow[activeKazanRowIndex] || { items: [], selectedLotIds: [], loading: false, error: '' }
   }, [activeKazanRowIndex, sendedFabricsByRow])
 
+  const parseWeight = useCallback((value) => {
+    return Number(String(value ?? 0).replace(',', '.')) || 0
+  }, [])
+
+  const getAvailableWeight = useCallback(
+    (rowIndex, items) => {
+      const totalWeight = items.reduce((total, item) => total + parseWeight(item.totalWeight), 0)
+      const currentEnteredWeight = parseWeight(orderForm.details[rowIndex]?.kazanGiris)
+
+      return totalWeight + currentEnteredWeight
+    },
+    [orderForm.details, parseWeight],
+  )
+
+  const exceededFabricWeight = useMemo(() => {
+    return Object.entries(sendedFabricsByRow).some(([rowIndex, fabricState]) => {
+      if (fabricState.loading || fabricState.error || !fabricState.items.length) {
+        return false
+      }
+
+      const numericRowIndex = Number(rowIndex)
+      const availableWeight = getAvailableWeight(numericRowIndex, fabricState.items)
+      const enteredWeight = parseWeight(orderForm.details[numericRowIndex]?.kazanGiris)
+
+      return enteredWeight > availableWeight
+    })
+  }, [getAvailableWeight, orderForm.details, parseWeight, sendedFabricsByRow])
+
+  const activeAvailableWeight = useMemo(() => {
+    if (!activeFabricState?.items.length) {
+      return 0
+    }
+
+    return getAvailableWeight(activeKazanRowIndex, activeFabricState.items)
+  }, [activeFabricState, activeKazanRowIndex, getAvailableWeight])
+
+  const activeEnteredWeight = parseWeight(orderForm.details[activeKazanRowIndex]?.kazanGiris)
+  const activeRemainingWeight = activeAvailableWeight - activeEnteredWeight
+
   const handleDeleteRow = useCallback(
     (index) => {
       if (onDeleteDetailRow && window.confirm('Bu satırı silmek istediğinizden emin misiniz?')) {
@@ -246,10 +285,11 @@ function BoyaliSiparisTakipModal({
                                 type="number"
                                 value={detail.kazanGiris ?? ''}
                                 onFocus={() => loadSendedFabrics(index, detail)}
-                                onChange={(event) => {
+                                  onChange={(event) => {
                                   const nextValue = event.target.value === '' ? '' : Number(event.target.value)
                                   onDetailFieldChange(index, 'kazanGiris', nextValue)
                                 }}
+                                  max={activeKazanRowIndex === index && activeAvailableWeight > 0 ? activeAvailableWeight : undefined}
                                 className={`${buildInputClasses(false)} h-7 w-full text-[11px]`}
                                 dir="ltr"
                                 style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '11px', padding: '2px 4px' }}
@@ -373,6 +413,14 @@ function BoyaliSiparisTakipModal({
                         })}
                       </div>
                     )}
+                    {!activeFabricState.loading && !activeFabricState.error && activeFabricState.items.length > 0 ? (
+                      <div className={`mt-2 rounded border px-2 py-1.5 text-[11px] ${activeRemainingWeight < 0 ? 'border-red-200 bg-red-50 text-red-700' : 'border-slate-200 bg-white text-slate-700'}`}>
+                        Toplam mevcut: <strong>{activeAvailableWeight.toFixed(2)} kg</strong>
+                        <span className="mx-1">|</span>
+                        Kalan: <strong>{Math.max(activeRemainingWeight, 0).toFixed(2)} kg</strong>
+                        {activeRemainingWeight < 0 ? <span className="ml-2 font-semibold">Girilen ağırlık mevcut miktarı aşıyor.</span> : null}
+                      </div>
+                    ) : null}
                   </div>
                 ) : null}
 
@@ -388,7 +436,7 @@ function BoyaliSiparisTakipModal({
                   <button
                     type="button"
                     onClick={onSave}
-                    disabled={isSaving}
+                    disabled={isSaving || exceededFabricWeight}
                     className={`${buildButtonClasses('primary')} px-3 py-1.5 text-[11px]`}
                   >
                     {isSaving ? 'Kaydediliyor...' : 'Kaydet'}

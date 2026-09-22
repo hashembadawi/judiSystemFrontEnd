@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import BoyaliSiparisTakipModal from './BoyaliSiparisTakipModal'
+import BoyaliSiparisDetailsModal from './BoyaliSiparisDetailsModal'
 
 const FILL_OPTIONS_URL = '/api/fill-options?requestedValues=1'
 const BOYALI_SIPARIS_URL = '/api/order-factory-transaction-takip/fillBoyaliSiparis'
 const TRANSACTION_DETAIL_URL = '/api/order-factory-transaction-takip'
+const ORDER_DETAILS_URL = '/api/order-factory-transactions/getDetails'
 const UPSERT_TRANSACTION_URL = '/api/order-factory-transaction-takip/upsert'
 
 function BoyaliSiparisTakipSection({ apiRequest, showNotice, isActive }) {
@@ -17,10 +19,16 @@ function BoyaliSiparisTakipSection({ apiRequest, showNotice, isActive }) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isModalLoading, setIsModalLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
+  const [isDetailsLoading, setIsDetailsLoading] = useState(false)
+  const [detailsModalError, setDetailsModalError] = useState('')
+  const [selectedOrderDetails, setSelectedOrderDetails] = useState([])
+  const [selectedOrder, setSelectedOrder] = useState(null)
   const [modalError, setModalError] = useState('')
   const [statusOptions, setStatusOptions] = useState([])
   const [orderForm, setOrderForm] = useState({
     id: 0,
+    detailId: 0,
     orderNo: '',
     factoryId: 0,
     factoryName: '',
@@ -116,71 +124,114 @@ function BoyaliSiparisTakipSection({ apiRequest, showNotice, isActive }) {
     return selectedFactory?.name || '-'
   }
 
-  const openOrderDetails = useCallback(async (order) => {
-    if (!order?.id) {
+  const openOrderDetails = useCallback(
+    async (order) => {
+      if (!order?.id) {
+        return
+      }
+
+      setSelectedOrder(order)
+      setSelectedOrderDetails([])
+      setDetailsModalError('')
+      setIsDetailsModalOpen(true)
+      setIsDetailsLoading(true)
+
+      try {
+        const response = await apiRequest(`${ORDER_DETAILS_URL}/${order.id}`)
+        const details = Array.isArray(response?.data) ? response.data : []
+        setSelectedOrderDetails(details)
+      } catch (requestError) {
+        const message = requestError.message || 'Sipariş detayları alınamadı.'
+        setDetailsModalError(message)
+        showNotice('error', message)
+      } finally {
+        setIsDetailsLoading(false)
+      }
+    },
+    [apiRequest, showNotice],
+  )
+
+  const closeOrderDetails = useCallback(() => {
+    if (isDetailsLoading) {
       return
     }
 
-    setModalError('')
-    setIsModalOpen(true)
-    setIsModalLoading(true)
-    setOrderForm({
-      id: order.id,
-      orderNo: order.orderNo ?? '',
-      factoryId: order.factoryId ?? 0,
-      factoryName: order.factoryName ?? '',
-      date: order.date ? order.date.split('T')[0] : '',
-      details: [],
-    })
+    setIsDetailsModalOpen(false)
+    setDetailsModalError('')
+    setSelectedOrderDetails([])
+    setSelectedOrder(null)
+  }, [isDetailsLoading])
 
-    try {
-      const [detailsResponse, optionsResponse] = await Promise.all([
-        apiRequest(`${TRANSACTION_DETAIL_URL}?Id=${order.id}`),
-        apiRequest(FILL_OPTIONS_URL),
-      ])
+  const openTrackingDetailModal = useCallback(
+    async (detail) => {
+      if (!detail?.id) {
+        return
+      }
 
-      const detailsData = detailsResponse.data || {}
-      const optionsData = optionsResponse.data || {}
-      const nextStatusOptions = Array.isArray(optionsData.siparisDurum)
-        ? optionsData.siparisDurum
-        : []
-
-      setStatusOptions(nextStatusOptions)
+      setModalError('')
+      setIsModalOpen(true)
+      setIsModalLoading(true)
+      setStatusOptions([])
       setOrderForm({
-        id: detailsData.id ?? order.id,
-        orderNo: detailsData.orderNo ?? order.orderNo ?? '',
-        factoryId: detailsData.factoryId ?? order.factoryId ?? 0,
-        factoryName: detailsData.factoryName ?? order.factoryName ?? '',
-        date: detailsData.date ? detailsData.date.split('T')[0] : order.date ? order.date.split('T')[0] : '',
-        details: Array.isArray(detailsData.details)
-          ? detailsData.details.map((detail) => ({
-              id: detail.id ?? 0,
-              etiket_Basligi: detail.etiket_Basligi ?? '',
-              fabricGender: detail.fabricGender ?? '',
-              lot: detail.fabricLot ?? detail.lot ?? detail.FabricLot ?? '',
-              en: detail.en ?? 0,
-              gr: detail.gr ?? 0,
-              renk: detail.renk ?? '',
-              renkCode: detail.renkCode ?? '',
-              siparisMiktari: detail.siparisMiktari ?? 0,
-              partiNo: detail.partiNo ?? detail.PartiNo ?? '',
-              kazanGiris: detail.kazanGiris ?? detail.KazanGiris ?? 0,
-              status: detail.status ?? detail.Status ?? 1,
-              sevkHazir: detail.sevkHazir ?? detail.SevkHazir ?? 0,
-              girisTopSayisi: detail.girisTopSayisi ?? detail.GirisTopSayisi ?? detail.topSayi ?? detail.TopSayi ?? 0,
-              cikisTopSayisi: detail.cikisTopSayisi ?? detail.CikisTopSayisi ?? 0,
-            }))
-          : [],
+        id: 0,
+        detailId: detail.id,
+        orderNo: selectedOrder?.orderNo ?? '',
+        factoryId: selectedOrder?.factoryId ?? 0,
+        factoryName: selectedOrder?.factoryName ?? '',
+        date: selectedOrder?.date ? selectedOrder.date.split('T')[0] : '',
+        details: [],
       })
-    } catch (requestError) {
-      const message = requestError.message || 'Sipariş detayı alınırken bir hata oluştu.'
-      setModalError(message)
-      showNotice('error', message)
-      setIsModalOpen(false)
-    } finally {
-      setIsModalLoading(false)
-    }
-  }, [apiRequest, showNotice])
+
+      try {
+        const [detailResponse, optionsResponse] = await Promise.all([
+          apiRequest(`${TRANSACTION_DETAIL_URL}?Id=${detail.id}`),
+          apiRequest(FILL_OPTIONS_URL),
+        ])
+        const trackingDetails = Array.isArray(detailResponse?.data) ? detailResponse.data : []
+        const optionsData = optionsResponse?.data || {}
+        const existingTrackingDetail = trackingDetails[0]
+
+        setStatusOptions(Array.isArray(optionsData.siparisDurum) ? optionsData.siparisDurum : [])
+
+        setOrderForm((prev) => ({
+          ...prev,
+          id: existingTrackingDetail?.id ?? 0,
+          detailId: detail.id,
+          details: trackingDetails.map((trackingDetail) => ({
+            id: trackingDetail.id ?? 0,
+            etiket_Basligi: trackingDetail.etiket_Basligi ?? '',
+            fabricGender: trackingDetail.fabricGender ?? '',
+            lot: trackingDetail.fabricLot ?? trackingDetail.lot ?? trackingDetail.FabricLot ?? '',
+            en: trackingDetail.en ?? 0,
+            gr: trackingDetail.gr ?? 0,
+            renk: trackingDetail.renk ?? '',
+            renkCode: trackingDetail.renkCode ?? '',
+            siparisMiktari: trackingDetail.siparisMiktari ?? 0,
+            partiNo: trackingDetail.partiNo ?? trackingDetail.PartiNo ?? '',
+            kazanGiris: trackingDetail.kazanGiris ?? trackingDetail.KazanGiris ?? 0,
+            status: trackingDetail.status ?? trackingDetail.Status ?? 1,
+            statusName: trackingDetail.statusName ?? '',
+            durum: trackingDetail.durum ?? '',
+            sevkHazir: trackingDetail.sevkHazir ?? trackingDetail.SevkHazir ?? 0,
+            girisTopSayisi: trackingDetail.girisTopSayisi ?? trackingDetail.GirisTopSayisi ?? 0,
+            cikisTopSayisi: trackingDetail.cikisTopSayisi ?? trackingDetail.CikisTopSayisi ?? 0,
+          })),
+        }))
+        setIsDetailsModalOpen(false)
+        setDetailsModalError('')
+        setSelectedOrderDetails([])
+        setSelectedOrder(null)
+      } catch (requestError) {
+        const message = requestError.message || 'تفاصيل المتابعة غير متوفرة.'
+        setModalError(message)
+        showNotice('error', message)
+        setIsModalOpen(false)
+      } finally {
+        setIsModalLoading(false)
+      }
+    },
+    [apiRequest, selectedOrder, showNotice],
+  )
 
   const closeModal = useCallback(() => {
     if (isSaving) {
@@ -191,6 +242,7 @@ function BoyaliSiparisTakipSection({ apiRequest, showNotice, isActive }) {
     setModalError('')
     setOrderForm({
       id: 0,
+      detailId: 0,
       orderNo: '',
       factoryId: 0,
       factoryName: '',
@@ -286,11 +338,10 @@ function BoyaliSiparisTakipSection({ apiRequest, showNotice, isActive }) {
     try {
       const payload = {
         id: orderForm.id,
+        detailId: orderForm.detailId ?? 0,
         orderNo: orderForm.orderNo,
         factoryId: orderForm.factoryId,
-        date: orderForm.date,
         details: orderForm.details.map((detail) => ({
-          id: detail.id ?? 0,
           etiket_Basligi: detail.etiket_Basligi ?? '',
           fabricGender: detail.fabricGender ?? '',
           fabricLot: detail.lot ?? detail.fabricLot ?? detail.FabricLot ?? '',
@@ -425,6 +476,16 @@ function BoyaliSiparisTakipSection({ apiRequest, showNotice, isActive }) {
         onCopyDetailRow={copyDetailRow}
         apiRequest={apiRequest}
         showNotice={showNotice}
+      />
+
+      <BoyaliSiparisDetailsModal
+        isOpen={isDetailsModalOpen}
+        isLoading={isDetailsLoading}
+        error={detailsModalError}
+        order={selectedOrder}
+        details={selectedOrderDetails}
+        onClose={closeOrderDetails}
+        onDetailClick={openTrackingDetailModal}
       />
     </section>
   )
