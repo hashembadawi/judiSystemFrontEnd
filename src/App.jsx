@@ -25,6 +25,7 @@ const OPERATION_LABELS = {
   users: 'ادارة المستخدمين',
   orders: 'ادارة الطلبيات',
   depoHamFabric: 'HAM KUMAŞ DEPO',
+  fasonHamEntry: 'FASON GİRİŞ KUMAŞI',
   yarns: 'ادارة مخزون الخيط',
   fabrics: 'GÜNLÜK ÜRETİM TAKİBİ',
   fabricEntry: 'KUMAŞ HAREKETİ EKLE',
@@ -34,7 +35,7 @@ const OPERATION_LABELS = {
   yarnWeaving: 'ادارة حركات الحياكة',
   weavingOrders: 'ÖRGÜ SİPARİŞLERİ YÖNETİMİ',
   weavingOrderPlanning: 'DOKUMA SİPARİŞİ PLANLAMA',
-  hamBoyahaneStoku: 'HAM BOYAHANE STOKU',
+  hamBoyahaneStoku: 'BOYAHANE HAM STOK',
 }
 
 const OPERATIONS_BY_USER_TYPE = {
@@ -196,7 +197,17 @@ function App() {
   const [activeOperation, setActiveOperation] = useState('users')
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [notice, setNotice] = useState(null)
-  const currentUserType = Number(authData?.user?.userType ?? authData?.user?.userTypeValue ?? authData?.user?.UserType ?? authData?.user?.type ?? 0)
+  const currentUserType = Number(
+    authData?.user?.userType ??
+      authData?.user?.userTypeValue ??
+      authData?.user?.UserType ??
+      authData?.user?.userTypeId ??
+      authData?.user?.UserTypeId ??
+      authData?.user?.roleId ??
+      authData?.user?.RoleId ??
+      authData?.user?.type ??
+      0,
+  )
   const allowedOperations = OPERATIONS_BY_USER_TYPE[currentUserType] || []
   const isRestrictedFabricInspectorUser = currentUserType === 6
   const isWarehouseUser = currentUserType === 3
@@ -877,7 +888,7 @@ function App() {
                     className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'hamBoyahaneStoku' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
                     onClick={() => setActiveOperation('hamBoyahaneStoku')}
                   >
-                    HAM BOYAHANE STOKU
+                    BOYAHANE HAM STOK
                   </button>
                   <button
                     type="button"
@@ -936,7 +947,7 @@ function App() {
                     className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'hamBoyahaneStoku' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
                     onClick={() => setActiveOperation('hamBoyahaneStoku')}
                   >
-                    HAM BOYAHANE STOKU
+                    BOYAHANE HAM STOK
                   </button>
                   <button
                     type="button"
