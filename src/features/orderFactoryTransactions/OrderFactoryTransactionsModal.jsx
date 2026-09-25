@@ -187,7 +187,7 @@ function OrderFactoryTransactionsModal({
                     return (
                       <div key={index} className="rounded-xl border border-slate-200 bg-slate-50 p-3 shadow-sm" dir="ltr">
                         <div className="overflow-x-auto" dir="ltr">
-                          <div className="grid w-full grid-cols-[0.7fr_1.8fr_0.5fr_0.5fr_0.9fr_0.9fr_1fr_0.75fr] gap-1.5" dir="ltr">
+                          <div className="grid w-full grid-cols-[0.7fr_1.8fr_0.5fr_0.5fr_0.9fr_0.9fr_1fr_0.8fr_0.75fr] gap-1.5" dir="ltr">
                             <div className="space-y-1" dir="ltr">
                               <label htmlFor={`etiket-${index}`} className="block text-[10px] font-medium text-slate-700 text-left">Etiket</label>
                               <input
@@ -292,6 +292,21 @@ function OrderFactoryTransactionsModal({
                                 }
                                 className={`${buildInputClasses(false)} w-full h-9 text-xs`}
                                 required
+                                dir="ltr"
+                                style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '11px' }}
+                              />
+                            </div>
+
+                            <div className="space-y-1" dir="ltr">
+                              <label htmlFor={`fiyat-${index}`} className="block text-[10px] font-medium text-slate-700 text-left">Fiyat</label>
+                              <input
+                                id={`fiyat-${index}`}
+                                type="number"
+                                min="0"
+                                step="any"
+                                value={detail.Fiyat ?? ''}
+                                onChange={(event) => onDetailFieldChange(index, 'Fiyat', event.target.value)}
+                                className={`${buildInputClasses(false)} w-full h-9 text-xs`}
                                 dir="ltr"
                                 style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '11px' }}
                               />
