@@ -61,7 +61,6 @@ function YarnWeavingTransactionsModal({
                   <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
                     {sendOrders.map((order) => {
                       const orderId = order?.weavingOrderId ?? order?.WeavingOrderId ?? order?.id
-                      const details = Array.isArray(order?.details) ? order.details : []
                       const isSelected = Boolean(order?.id) && String(selectedSendOrderId) === String(order.id)
 
                       return (
@@ -77,20 +76,22 @@ function YarnWeavingTransactionsModal({
                             />
                             <div className="min-w-0 flex-1">
                               <div className="text-sm font-semibold text-slate-800">{order?.factoryName || '-'}</div>
-                              <div className="mt-2 divide-y divide-slate-200">
-                                {details.length > 0 ? details.map((detail, detailIndex) => {
-                                  const yarnGender = detail?.yarnGender ?? detail?.YarnGender ?? detail?.gender ?? detail?.Gender
-                                  const lot = detail?.yarnLot ?? detail?.YarnLot ?? detail?.lot ?? detail?.Lot
-                                  const weight = detail?.yarnWeight ?? detail?.YarnWeight ?? detail?.requestedWeight ?? detail?.RequestedWeight ?? detail?.weight ?? detail?.Weight
-
-                                  return (
-                                    <div key={`${orderId ?? 'order'}-detail-${detailIndex}`} className="py-2 text-[11px] text-slate-600 first:pt-0 last:pb-0">
-                                      <div>نوع الخيط: <span className="font-medium text-slate-800">{yarnGender || '-'}</span></div>
-                                      <div className="mt-1">لوت: <span className="font-medium text-slate-800">{lot || '-'}</span></div>
-                                      <div className="mt-1 font-medium text-sky-700">الوزن المطلوب: {Number(weight || 0).toLocaleString()} كجم</div>
-                                    </div>
-                                  )
-                                }) : <div className="text-[11px] text-slate-500">لا توجد تفاصيل للخيط</div>}
+                              <div className="mt-1 text-xs font-medium text-slate-700">
+                                أمر النسيج: {order?.weavingOrderName || order?.WeavingOrderName || '-'}
+                              </div>
+                              <div className="mt-2 grid grid-cols-3 gap-1 border-t border-slate-200 pt-2 text-[10px] text-slate-600">
+                                <div>
+                                  <div className="text-slate-500">الوزن المطلوب</div>
+                                  <strong className="text-slate-800">{Number(order?.totalRequiredWeight ?? 0).toLocaleString()} Kg</strong>
+                                </div>
+                                <div>
+                                  <div className="text-slate-500">الوزن المرسل</div>
+                                  <strong className="text-sky-700">{Number(order?.totalSentWeight ?? 0).toLocaleString()} Kg</strong>
+                                </div>
+                                <div>
+                                  <div className="text-slate-500">الوزن المتبقي</div>
+                                  <strong className="text-amber-700">{Number(order?.totalRemainingWeight ?? 0).toLocaleString()} Kg</strong>
+                                </div>
                               </div>
                             </div>
                           </div>

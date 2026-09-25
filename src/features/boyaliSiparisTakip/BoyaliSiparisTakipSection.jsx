@@ -218,9 +218,6 @@ function BoyaliSiparisTakipSection({ apiRequest, showNotice, isActive }) {
           })),
         }))
         setIsDetailsModalOpen(false)
-        setDetailsModalError('')
-        setSelectedOrderDetails([])
-        setSelectedOrder(null)
       } catch (requestError) {
         const message = requestError.message || 'تفاصيل المتابعة غير متوفرة.'
         setModalError(message)
@@ -240,6 +237,7 @@ function BoyaliSiparisTakipSection({ apiRequest, showNotice, isActive }) {
 
     setIsModalOpen(false)
     setModalError('')
+    setIsDetailsModalOpen(Boolean(selectedOrder))
     setOrderForm({
       id: 0,
       detailId: 0,
@@ -249,7 +247,7 @@ function BoyaliSiparisTakipSection({ apiRequest, showNotice, isActive }) {
       date: '',
       details: [],
     })
-  }, [isSaving])
+  }, [isSaving, selectedOrder])
 
   useEffect(() => {
     if (!isModalOpen) {

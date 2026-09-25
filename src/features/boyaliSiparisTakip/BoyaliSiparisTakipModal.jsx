@@ -1,6 +1,173 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { buildButtonClasses, buildInputClasses } from '../../styles/designSystem'
 
+const TRACKING_MODAL_STYLES = `
+  .boyali-tracking-modal {
+    --tracking-font-size: 10px;
+    --tracking-cell-padding: 3px 2px;
+  }
+
+  .boyali-tracking-modal .tracking-table-scroll {
+    overflow-x: auto;
+  }
+
+  .boyali-tracking-modal .tracking-table {
+    width: max-content;
+    min-width: 100% !important;
+    table-layout: auto;
+    font-size: var(--tracking-font-size);
+    border-collapse: collapse;
+    background: #ffffff;
+  }
+
+  .boyali-tracking-modal .tracking-table th,
+  .boyali-tracking-modal .tracking-table td {
+    width: auto;
+    min-width: 0 !important;
+    padding: var(--tracking-cell-padding);
+    vertical-align: middle;
+    overflow-wrap: normal;
+    white-space: nowrap;
+    border: 1px solid #c9ced6;
+    font-size: 10px !important;
+    direction: ltr;
+    text-align: left;
+  }
+
+  .boyali-tracking-modal .tracking-table th {
+    font-size: 12px !important;
+    line-height: 1.15;
+    white-space: nowrap;
+    background: #e7e9ed;
+    color: #1f2937;
+    font-weight: 700;
+    text-align: left;
+  }
+
+  .boyali-tracking-modal .tracking-table tbody tr:nth-child(even) {
+    background: #f8f9fa;
+  }
+
+  .boyali-tracking-modal .tracking-table tbody tr:hover {
+    background: #eaf2ff;
+  }
+
+  .boyali-tracking-modal .tracking-table td > input,
+  .boyali-tracking-modal .tracking-table td > select {
+    width: 100%;
+    min-width: 0 !important;
+    height: 25px;
+    padding: 2px 4px;
+    font-size: 10px !important;
+    line-height: 1.1;
+    border: 1px solid #aeb6c2;
+    border-radius: 0;
+    background: #ffffff;
+    color: #111827;
+    box-shadow: none;
+    direction: ltr;
+    text-align: left;
+  }
+
+  .boyali-tracking-modal .tracking-table td > input:focus,
+  .boyali-tracking-modal .tracking-table td > select:focus {
+    border-color: #2563eb;
+    outline: 1px solid #2563eb;
+    outline-offset: -1px;
+    box-shadow: none;
+  }
+
+  .boyali-tracking-modal .tracking-table th:nth-child(2),
+  .boyali-tracking-modal .tracking-table td:nth-child(2) {
+    width: max-content;
+    min-width: 50px !important;
+    padding-left: 27px;
+    padding-right: 27px;
+    white-space: nowrap;
+    overflow: visible;
+    overflow-wrap: normal;
+  }
+
+  .boyali-tracking-modal .tracking-table th:nth-child(4),
+  .boyali-tracking-modal .tracking-table td:nth-child(4),
+  .boyali-tracking-modal .tracking-table th:nth-child(5),
+  .boyali-tracking-modal .tracking-table td:nth-child(5) {
+    padding-left: 14.5px;
+    padding-right: 14.5px;
+  }
+
+  .boyali-tracking-modal .tracking-table th:nth-child(6),
+  .boyali-tracking-modal .tracking-table td:nth-child(6),
+  .boyali-tracking-modal .tracking-table th:nth-child(7),
+  .boyali-tracking-modal .tracking-table td:nth-child(7) {
+    padding-left: 19.5px;
+    padding-right: 19.5px;
+  }
+
+  .boyali-tracking-modal .tracking-table th:nth-child(10),
+  .boyali-tracking-modal .tracking-table td:nth-child(10),
+  .boyali-tracking-modal .tracking-table th:nth-child(11),
+  .boyali-tracking-modal .tracking-table td:nth-child(11),
+  .boyali-tracking-modal .tracking-table th:nth-child(13),
+  .boyali-tracking-modal .tracking-table td:nth-child(13),
+  .boyali-tracking-modal .tracking-table th:nth-child(14),
+  .boyali-tracking-modal .tracking-table td:nth-child(14) {
+    width: 50px;
+    max-width: 50px;
+    min-width: 50px !important;
+    padding-left: 1px;
+    padding-right: 1px;
+  }
+
+  .boyali-tracking-modal .tracking-table th:nth-child(10),
+  .boyali-tracking-modal .tracking-table td:nth-child(10) {
+    width: 60px;
+    max-width: 60px;
+    min-width: 60px !important;
+  }
+
+  .boyali-tracking-modal .tracking-table th:nth-child(14),
+  .boyali-tracking-modal .tracking-table td:nth-child(14) {
+    width: 60px !important;
+    max-width: 60px !important;
+    min-width: 60px !important;
+  }
+
+  .boyali-tracking-modal .tracking-table th:nth-child(13),
+  .boyali-tracking-modal .tracking-table td:nth-child(13),
+  .boyali-tracking-modal .tracking-table td:nth-child(13) > input {
+    width: 60px !important;
+    max-width: 60px !important;
+    min-width: 0 !important;
+  }
+
+  .boyali-tracking-modal .tracking-table td:nth-child(14) > input {
+    width: 60px !important;
+    max-width: 60px !important;
+    min-width: 0 !important;
+  }
+
+  .boyali-tracking-modal .tracking-table .tracking-action-button {
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    font-size: 10px;
+    border-radius: 0;
+  }
+
+  @media (max-width: 900px) {
+    .boyali-tracking-modal {
+      --tracking-cell-padding: 2px 1px;
+    }
+
+    .boyali-tracking-modal .tracking-table td > input,
+    .boyali-tracking-modal .tracking-table td > select {
+      height: 23px;
+      padding: 1px 2px;
+    }
+  }
+`
+
 function BoyaliSiparisTakipModal({
   isOpen,
   isLoading,
@@ -190,10 +357,11 @@ function BoyaliSiparisTakipModal({
 
   return (
     <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" dir="ltr" style={{ direction: 'ltr' }}>
+      <style>{TRACKING_MODAL_STYLES}</style>
       <div className="absolute inset-0 bg-slate-900/50" onClick={onClose} />
 
       <div className="relative flex min-h-full items-start justify-center p-0 pt-4 sm:p-4 sm:pt-8">
-        <section className="w-full max-h-[88vh] overflow-y-auto rounded-2xl bg-white shadow-[0_30px_60px_rgba(15,23,42,0.22)] ring-1 ring-slate-200 sm:max-w-6xl" dir="ltr" style={{ direction: 'ltr', maxWidth: '95vw' }}>
+        <section className="boyali-tracking-modal w-full max-h-[88vh] overflow-y-auto rounded-2xl bg-white shadow-[0_30px_60px_rgba(15,23,42,0.22)] ring-1 ring-slate-200 sm:max-w-6xl" dir="ltr" style={{ direction: 'ltr', maxWidth: '95vw' }}>
           <header className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white/95 px-4 py-4 backdrop-blur-sm sm:px-6" dir="ltr">
             <div className="text-left">
               <h4 className="mt-1 text-xl font-semibold text-slate-900 text-left">{orderForm.orderNo || 'Sipariş Detayı'}</h4>
@@ -220,8 +388,8 @@ function BoyaliSiparisTakipModal({
                 ) : null}
 
                 <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-                  <div className="overflow-x-auto">
-                    <table className="w-full min-w-[1200px] text-left text-[11px]" dir="ltr" style={{ direction: 'ltr', borderCollapse: 'collapse' }}>
+                  <div className="tracking-table-scroll">
+                    <table className="tracking-table w-full min-w-[1200px] text-left text-[11px]" dir="ltr" style={{ direction: 'ltr', borderCollapse: 'collapse' }}>
                       <thead className="bg-slate-50">
                         <tr>
                           <th className="px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">E.Başlığı</th>
@@ -233,11 +401,11 @@ function BoyaliSiparisTakipModal({
                           <th className="px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">R.Kodu</th>
                           <th className="px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">Sip.MIKTAR</th>
                           <th className="min-w-[180px] px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">Parti No</th>
-                          <th className="px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">K.Giriş(Kg)</th>
-                          <th className="min-w-[80px] px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">Giriş Top Sayısı</th>
+                          <th className="px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">K.Giriş</th>
+                          <th className="min-w-[80px] px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">G.Top</th>
                           <th className="min-w-[180px] px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">Durum</th>
-                          <th className="px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">Sevk Hazır</th>
-                          <th className="min-w-[80px] px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">Çıkış Top Sayısı</th>
+                          <th className="px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">K.Çıkış</th>
+                          <th className="min-w-[80px] px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">Ç.Top</th>
                           <th className="px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">FİRE %</th>
                           <th className="px-1 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-slate-600 whitespace-nowrap">İşlemler</th>
                         </tr>
@@ -322,7 +490,7 @@ function BoyaliSiparisTakipModal({
                                 ))}
                               </select>
                             </td>
-                            <td className="min-w-[80px] px-1 py-1 w-full">
+                            <td className="px-1 py-1 w-full">
                               <input
                                 type="number"
                                 step="0.01"
@@ -339,7 +507,7 @@ function BoyaliSiparisTakipModal({
                                 step="1"
                                 value={detail.cikisTopSayisi ?? 0}
                                 onChange={(event) => onDetailFieldChange(index, 'cikisTopSayisi', event.target.value === '' ? 0 : Number(event.target.value))}
-                                className={`${buildInputClasses(false)} h-7 min-w-[70px] w-full text-[11px]`}
+                                className={`${buildInputClasses(false)} h-7 w-full text-[11px]`}
                                 dir="ltr"
                                 style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '11px', padding: '2px 4px' }}
                               />
@@ -355,7 +523,7 @@ function BoyaliSiparisTakipModal({
                                   type="button"
                                   onClick={() => handleCopyRow(index)}
                                   title="Kopyala"
-                                  className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-slate-300 bg-slate-50 text-[11px] text-slate-600 transition hover:bg-slate-100"
+                                  className="tracking-action-button inline-flex h-6 w-6 items-center justify-center rounded-md border border-slate-300 bg-slate-50 text-[11px] text-slate-600 transition hover:bg-slate-100"
                                 >
                                   📄
                                 </button>
@@ -363,7 +531,7 @@ function BoyaliSiparisTakipModal({
                                   type="button"
                                   onClick={() => handleDeleteRow(index)}
                                   title="Sil"
-                                  className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-red-300 bg-red-50 text-[11px] text-red-600 transition hover:bg-red-100"
+                                  className="tracking-action-button inline-flex h-6 w-6 items-center justify-center rounded-md border border-red-300 bg-red-50 text-[11px] text-red-600 transition hover:bg-red-100"
                                 >
                                   🗑️
                                 </button>
