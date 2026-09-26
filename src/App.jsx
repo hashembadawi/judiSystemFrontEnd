@@ -12,6 +12,7 @@ import OrderFactoryTransactionsSection from './features/orderFactoryTransactions
 import BoyaliSiparisTakipSection from './features/boyaliSiparisTakip/BoyaliSiparisTakipSection'
 import DepoHamFabricSection from './features/depoHamFabric/DepoHamFabricSection'
 import HamBoyahaneStokuSection from './features/hamBoyahaneStoku/HamBoyahaneStokuSection'
+import BoyahaneIsletmeDurumuSection from './features/boyahaneIsletmeDurumu/BoyahaneIsletmeDurumuSection'
 import WeavingOrdersSection from './features/weavingOrders/WeavingOrdersSection'
 import WeavingOrderPlanningSection from './features/weavingOrderPlanning/WeavingOrderPlanningSection'
 import FasonHamEntrySection from './features/fasonHamEntry/FasonHamEntrySection'
@@ -36,6 +37,7 @@ const OPERATION_LABELS = {
   weavingOrders: 'ÖRGÜ SİPARİŞLERİ YÖNETİMİ',
   weavingOrderPlanning: 'DOKUMA SİPARİŞİ PLANLAMA',
   hamBoyahaneStoku: 'BOYAHANE HAM STOK',
+  boyahaneIsletmeDurumu: 'BOYAHANE İŞLETME DURUMU',
 }
 
 const OPERATIONS_BY_USER_TYPE = {
@@ -43,7 +45,7 @@ const OPERATIONS_BY_USER_TYPE = {
   2: [],
   3: ['depoHamFabric', 'yarns', 'hamBoya', 'yarnWeaving'],
   4: ['depoHamFabric', 'yarns', 'fabrics', 'weavingOrders'],
-  5: ['depoHamFabric', 'hamBoyahaneStoku', 'orderFactory', 'boyaliSiparis'],
+  5: ['depoHamFabric', 'hamBoyahaneStoku', 'orderFactory', 'boyaliSiparis', 'boyahaneIsletmeDurumu'],
   6: ['fabricEntry'],
 }
 
@@ -904,6 +906,13 @@ function App() {
                   >
                     BOYALI SİPARİŞ
                   </button>
+                  <button
+                    type="button"
+                    className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'boyahaneIsletmeDurumu' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
+                    onClick={() => setActiveOperation('boyahaneIsletmeDurumu')}
+                  >
+                    BOYAHANE İŞLETME DURUMU
+                  </button>
                 </>
               ) : (
                 <>
@@ -986,6 +995,13 @@ function App() {
                   </button>
                   <button
                     type="button"
+                    className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'boyahaneIsletmeDurumu' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
+                    onClick={() => setActiveOperation('boyahaneIsletmeDurumu')}
+                  >
+                    BOYAHANE İŞLETME DURUMU
+                  </button>
+                  <button
+                    type="button"
                     className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'yarnWeaving' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
                     onClick={() => setActiveOperation('yarnWeaving')}
                   >
@@ -1046,6 +1062,8 @@ function App() {
                 <BoyaliSiparisTakipSection apiRequest={apiRequest} showNotice={showNotice} isActive />
               ) : activeOperation === 'orderFactory' ? (
                 <OrderFactoryTransactionsSection apiRequest={apiRequest} showNotice={showNotice} isActive />
+              ) : activeOperation === 'boyahaneIsletmeDurumu' ? (
+                <BoyahaneIsletmeDurumuSection apiRequest={apiRequest} showNotice={showNotice} isActive />
               ) : null
             ) : activeOperation === 'users' ? (
               <UsersSection apiRequest={apiRequest} showNotice={showNotice} isActive />
@@ -1074,6 +1092,8 @@ function App() {
               <BoyaliSiparisTakipSection apiRequest={apiRequest} showNotice={showNotice} isActive />
             ) : activeOperation === 'orderFactory' ? (
               <OrderFactoryTransactionsSection apiRequest={apiRequest} showNotice={showNotice} isActive />
+            ) : activeOperation === 'boyahaneIsletmeDurumu' ? (
+              <BoyahaneIsletmeDurumuSection apiRequest={apiRequest} showNotice={showNotice} isActive />
             ) : activeOperation === 'yarnWeaving' ? (
               <YarnWeavingTransactionsSection
                 apiRequest={apiRequest}
