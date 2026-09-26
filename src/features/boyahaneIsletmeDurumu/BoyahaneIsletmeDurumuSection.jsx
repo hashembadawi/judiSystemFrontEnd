@@ -1,4 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
+import { jsPDF } from 'jspdf'
+import autoTable from 'jspdf-autotable'
+import { FileDown, LoaderCircle, Search } from 'lucide-react'
 import './BoyahaneIsletmeDurumuSection.css'
 
 const REPORT_URL = '/api/boyaHaneIsletmeDurumu/getReport'
@@ -33,6 +36,7 @@ const COLUMNS = [
   'girisTopSayisi',
   'cikisTopSayisi',
 ]
+const TOTAL_COLUMNS = ['siparisMiktari', 'kazanGiris', 'paketMiktari']
 
 const COPY = {
   ar: {
@@ -48,6 +52,7 @@ const COPY = {
     batch: 'رقم الدفعة',
     color: 'اللون',
     status: 'الحالة',
+    allStatuses: 'كل الحالات',
     dateFrom: 'من تاريخ',
     dateTo: 'إلى تاريخ',
     showReport: 'عرض التقرير',
@@ -56,6 +61,12 @@ const COPY = {
     loadingData: 'جارٍ تحميل بيانات التقرير...',
     dateError: 'تاريخ البداية يجب ألا يتجاوز تاريخ النهاية.',
     rowNumber: '#',
+    total: 'المجموع',
+    exportPdf: 'تصدير PDF',
+    exportingPdf: 'جارٍ إنشاء PDF...',
+    pdfReady: 'تم إنشاء ملف PDF.',
+    pdfError: 'تعذر إنشاء ملف PDF.',
+    pdfFontError: 'تعذر تحميل خط PDF.',
     columns: [
       'رقم الطلب', 'المصبغة', 'تاريخ الطلب', 'عنوان الملصق', 'رقم الدفعة', 'اللون',
       'المعالجة', 'نوع القماش', 'كمية الطلب', 'دخول الغلاية', 'كمية العبوات', 'الوضع',
@@ -75,6 +86,7 @@ const COPY = {
     batch: 'Parti No',
     color: 'Renk',
     status: 'Durum',
+    allStatuses: 'Tüm durumlar',
     dateFrom: 'Başlangıç tarihi',
     dateTo: 'Bitiş tarihi',
     showReport: 'Raporu göster',
@@ -83,6 +95,12 @@ const COPY = {
     loadingData: 'Rapor verileri yükleniyor...',
     dateError: 'Başlangıç tarihi bitiş tarihinden sonra olamaz.',
     rowNumber: '#',
+    total: 'TOPLAM',
+    exportPdf: 'PDF dışa aktar',
+    exportingPdf: 'PDF oluşturuluyor...',
+    pdfReady: 'PDF dosyası oluşturuldu.',
+    pdfError: 'PDF dosyası oluşturulamadı.',
+    pdfFontError: 'PDF yazı tipi yüklenemedi.',
     columns: [
       'Sipariş No', 'Fabrika', 'Sipariş Tarihi', 'Etiket Başlığı', 'Parti No', 'Renk',
       'Proses', 'Kumaş Cinsi', 'Sipariş Miktarı', 'Kazan Giriş', 'Paket Miktarı', 'Durum',
@@ -99,8 +117,10 @@ const displayDate = (value) => value ? String(value).split('T')[0] : '-'
 function BoyahaneIsletmeDurumuSection({ apiRequest, showNotice, isActive }) {
   const [filters, setFilters] = useState(getDefaultFilters)
   const [factories, setFactories] = useState([])
+  const [statusOptions, setStatusOptions] = useState([])
   const [rows, setRows] = useState([])
   const [isLoading, setIsLoading] = useState(false)
+  const [isExportingPdf, setIsExportingPdf] = useState(false)
   const [error, setError] = useState('')
   const [language, setLanguage] = useState('ar')
   const text = COPY[language]
@@ -134,11 +154,12 @@ function BoyahaneIsletmeDurumuSection({ apiRequest, showNotice, isActive }) {
     }
   }, [apiRequest, showNotice])
 
-  const loadFactories = useCallback(async () => {
+  const loadOptions = useCallback(async () => {
     try {
       const response = await apiRequest(FILL_OPTIONS_URL)
-      const options = Array.isArray(response.data?.boyaFactories) ? response.data.boyaFactories : []
-      setFactories(options)
+      const optionsData = response.data || {}
+      setFactories(Array.isArray(optionsData.boyaFactories) ? optionsData.boyaFactories : [])
+      setStatusOptions(Array.isArray(optionsData.siparisDurum) ? optionsData.siparisDurum : [])
     } catch (requestError) {
       const message = requestError.message || 'تعذر تحميل قائمة المصابغ.'
       showNotice('error', message)
@@ -151,10 +172,10 @@ function BoyahaneIsletmeDurumuSection({ apiRequest, showNotice, isActive }) {
     }
 
     void Promise.resolve().then(() => {
-      void loadFactories()
+      void loadOptions()
       void loadReport(getDefaultFilters())
     })
-  }, [isActive, loadFactories, loadReport])
+  }, [isActive, loadOptions, loadReport])
 
   const updateFilter = (event) => {
     const { name, value } = event.target
@@ -169,6 +190,101 @@ function BoyahaneIsletmeDurumuSection({ apiRequest, showNotice, isActive }) {
     }
 
     void loadReport(filters)
+  }
+
+  const totals = TOTAL_COLUMNS.reduce((result, key) => {
+    result[key] = rows.reduce((sum, row) => {
+      const numericValue = Number(String(row[key] ?? '').replace(',', '.'))
+      return sum + (Number.isFinite(numericValue) ? numericValue : 0)
+    }, 0)
+    return result
+  }, {})
+  const numberFormatter = new Intl.NumberFormat(language === 'ar' ? 'ar' : 'tr-TR', {
+    maximumFractionDigits: 2,
+  })
+  const formatNumber = (value) => numberFormatter.format(value)
+
+  const exportReportPdf = async () => {
+    if (rows.length === 0 || isExportingPdf) {
+      return
+    }
+
+    setIsExportingPdf(true)
+
+    try {
+      const fontResponse = await fetch('/fonts/arial.ttf')
+      if (!fontResponse.ok) {
+        throw new Error(text.pdfFontError)
+      }
+
+      const fontBytes = new Uint8Array(await fontResponse.arrayBuffer())
+      let fontBinary = ''
+      for (let offset = 0; offset < fontBytes.length; offset += 0x8000) {
+        fontBinary += String.fromCharCode(...fontBytes.subarray(offset, offset + 0x8000))
+      }
+
+      const pdfDocument = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a3' })
+      pdfDocument.addFileToVFS('Arial.ttf', btoa(fontBinary))
+      pdfDocument.addFont('Arial.ttf', 'Arial', 'normal')
+      pdfDocument.addFont('Arial.ttf', 'Arial', 'bold')
+      pdfDocument.setFont('Arial', 'normal')
+
+      const head = [[text.rowNumber, ...text.columns]]
+      const body = rows.map((row, rowIndex) => [
+        String(rowIndex + 1),
+        ...COLUMNS.map((key) => String(displayValue(key === 'orderDate' ? displayDate(row[key]) : row[key]))),
+      ])
+      const foot = [[
+        '',
+        ...COLUMNS.map((key, index) => {
+          if (TOTAL_COLUMNS.includes(key)) {
+            return formatNumber(totals[key])
+          }
+          return index === 0 ? text.total : ''
+        }),
+      ]]
+
+      pdfDocument.setFontSize(15)
+      pdfDocument.text(
+        language === 'ar' ? pdfDocument.processArabic(text.title) : text.title,
+        pdfDocument.internal.pageSize.getWidth() / 2,
+        12,
+        { align: 'center' },
+      )
+
+      autoTable(pdfDocument, {
+        startY: 20,
+        head,
+        body,
+        foot,
+        showFoot: 'lastPage',
+        theme: 'grid',
+        styles: {
+          font: 'Arial',
+          fontSize: 7,
+          cellPadding: 2,
+          overflow: 'linebreak',
+          halign: language === 'ar' ? 'right' : 'left',
+          valign: 'middle',
+        },
+        headStyles: { fillColor: [231, 239, 233], textColor: [41, 70, 56], fontStyle: 'bold' },
+        footStyles: { fillColor: [220, 232, 223], textColor: [41, 70, 56], fontStyle: 'bold' },
+        didParseCell: (cellData) => {
+          if (language === 'ar') {
+            cellData.cell.text = cellData.cell.text.map((line) => pdfDocument.processArabic(line))
+          }
+        },
+        margin: { left: 8, right: 8 },
+      })
+
+      const fileDate = new Date().toISOString().slice(0, 10)
+      pdfDocument.save(`boyahane-isletme-durumu-${fileDate}.pdf`)
+      showNotice('success', text.pdfReady)
+    } catch (requestError) {
+      showNotice('error', requestError.message || text.pdfError)
+    } finally {
+      setIsExportingPdf(false)
+    }
   }
 
   return (
@@ -220,7 +336,14 @@ function BoyahaneIsletmeDurumuSection({ apiRequest, showNotice, isActive }) {
         </label>
         <label className="boyahane-report__field">
           <span>{text.status}</span>
-          <input name="Status" type="number" min="0" step="1" value={filters.Status} onChange={updateFilter} />
+          <select name="Status" value={filters.Status} onChange={updateFilter}>
+            <option value="">{text.allStatuses}</option>
+            {statusOptions.map((status, index) => (
+              <option key={status.id ?? index} value={status.id}>
+                {status.durum}
+              </option>
+            ))}
+          </select>
         </label>
         <label className="boyahane-report__field">
           <span>{text.dateFrom}</span>
@@ -231,8 +354,24 @@ function BoyahaneIsletmeDurumuSection({ apiRequest, showNotice, isActive }) {
           <input name="DateTo" type="date" value={filters.DateTo} onChange={updateFilter} />
         </label>
         <div className="boyahane-report__actions">
-          <button type="submit" disabled={isLoading}>
-            {isLoading ? text.loading : text.showReport}
+          <button
+            type="submit"
+            className="boyahane-report__search-button"
+            title={isLoading ? text.loading : text.showReport}
+            aria-label={isLoading ? text.loading : text.showReport}
+            disabled={isLoading}
+          >
+            {isLoading ? <LoaderCircle className="boyahane-report__spinner" aria-hidden="true" /> : <Search aria-hidden="true" />}
+          </button>
+          <button
+            type="button"
+            className="boyahane-report__export-button"
+            onClick={exportReportPdf}
+            disabled={isLoading || isExportingPdf || rows.length === 0}
+            title={isExportingPdf ? text.exportingPdf : text.exportPdf}
+            aria-label={isExportingPdf ? text.exportingPdf : text.exportPdf}
+          >
+            {isExportingPdf ? <LoaderCircle className="boyahane-report__spinner" aria-hidden="true" /> : <FileDown aria-hidden="true" />}
           </button>
         </div>
       </form>
@@ -256,6 +395,18 @@ function BoyahaneIsletmeDurumuSection({ apiRequest, showNotice, isActive }) {
                 ))}
               </tr>
             ))}
+            {rows.length > 0 ? (
+              <tr className="boyahane-report__total-row">
+                <td className="boyahane-report__row-number"></td>
+                {COLUMNS.map((key, index) => (
+                  <td key={key}>
+                    {TOTAL_COLUMNS.includes(key)
+                      ? formatNumber(totals[key])
+                      : index === 0 ? text.total : ''}
+                  </td>
+                ))}
+              </tr>
+            ) : null}
             {!isLoading && rows.length === 0 ? (
               <tr>
                 <td className="boyahane-report__empty" colSpan={COLUMNS.length + 1}>{text.noData}</td>

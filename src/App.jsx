@@ -698,7 +698,7 @@ function App() {
           <div className="global-loading-overlay" aria-live="polite" aria-busy="true">
             <div className="global-loading-content">
               <span className="spinner" aria-hidden="true"></span>
-              <p>جاري تنفيذ الطلب...</p>
+              <p>Veri Yükleniyor...</p>
             </div>
           </div>
         ) : null}
@@ -767,7 +767,7 @@ function App() {
         <div className="global-loading-overlay" aria-live="polite" aria-busy="true">
           <div className="global-loading-content">
             <span className="spinner" aria-hidden="true"></span>
-            <p>جاري تنفيذ الطلب...</p>
+            <p>Veri Yükleniyor...</p>
           </div>
         </div>
       ) : null}

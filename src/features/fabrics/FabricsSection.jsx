@@ -1,4 +1,7 @@
 ﻿import React, { useCallback, useEffect, useState } from 'react'
+import { jsPDF } from 'jspdf'
+import autoTable from 'jspdf-autotable'
+import { FileDown, LoaderCircle } from 'lucide-react'
 
 const DAILY_FABRICS_URL = '/api/DailyHamFabricsTransaction'
 const getLocalDate = () => {
@@ -19,6 +22,7 @@ function FabricsSection({ apiRequest, showNotice, isActive }) {
   const [dateFrom, setDateFrom] = useState(today)
   const [dateTo, setDateTo] = useState(today)
   const [isLoading, setIsLoading] = useState(false)
+  const [isExportingPdf, setIsExportingPdf] = useState(false)
   const [error, setError] = useState('')
   const [expandedShifts, setExpandedShifts] = useState([])
 
@@ -91,6 +95,104 @@ function FabricsSection({ apiRequest, showNotice, isActive }) {
     setExpandedShifts((prev) => prev.includes(shiftKey)
       ? prev.filter((key) => key !== shiftKey)
       : [...prev, shiftKey])
+  }
+
+  const exportTableToPdf = async () => {
+    if (!shifts.length || isExportingPdf) {
+      return
+    }
+
+    setIsExportingPdf(true)
+
+    try {
+      const fontResponse = await fetch('/fonts/arial.ttf')
+      if (!fontResponse.ok) {
+        throw new Error('PDF yazı tipi yüklenemedi.')
+      }
+
+      const fontBytes = new Uint8Array(await fontResponse.arrayBuffer())
+      let fontBinary = ''
+      for (let offset = 0; offset < fontBytes.length; offset += 0x8000) {
+        fontBinary += String.fromCharCode(...fontBytes.subarray(offset, offset + 0x8000))
+      }
+
+      const pdfDocument = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
+      pdfDocument.addFileToVFS('Arial.ttf', btoa(fontBinary))
+      pdfDocument.addFont('Arial.ttf', 'Arial', 'normal')
+      pdfDocument.addFont('Arial.ttf', 'Arial', 'bold')
+      pdfDocument.setFont('Arial', 'bold')
+      pdfDocument.setFontSize(15)
+      pdfDocument.setTextColor(13, 42, 62)
+      pdfDocument.text('Günlük Üretim Takibi', 14, 14)
+      pdfDocument.setFont('Arial', 'normal')
+      pdfDocument.setFontSize(9)
+      pdfDocument.text(`Tarih aralığı: ${dateFrom || '-'} - ${dateTo || '-'}`, 14, 21)
+
+      autoTable(pdfDocument, {
+        startY: 26,
+        head: [['Tarih', 'Vardiya', 'Toplam Ağırlık', 'Sağlam Ağırlık', 'Hatalı Ağırlık', 'Makine Sayısı']],
+        body: shifts.map((shift) => [
+          formatApiDate(shift.date),
+          shift.shiftName ?? shift.shift ?? '-',
+          String(shift.totalWeight ?? 0),
+          String(shift.saglamWeight ?? 0),
+          String(shift.hataWeight ?? 0),
+          String(Array.isArray(shift.machines) ? shift.machines.length : 0),
+        ]),
+        theme: 'grid',
+        styles: { font: 'Arial', fontSize: 8, cellPadding: 2, textColor: [46, 81, 102] },
+        headStyles: { fillColor: [233, 242, 247], textColor: [13, 42, 62], fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [248, 251, 253] },
+        margin: { left: 14, right: 14 },
+      })
+
+      shifts.forEach((shift) => {
+        const machines = Array.isArray(shift.machines) ? shift.machines : []
+        if (!machines.length) {
+          return
+        }
+
+        let sectionTop = (pdfDocument.lastAutoTable?.finalY ?? 26) + 8
+        if (sectionTop > 180) {
+          pdfDocument.addPage()
+          sectionTop = 15
+        }
+
+        pdfDocument.setFont('Arial', 'bold')
+        pdfDocument.setFontSize(10)
+        pdfDocument.setTextColor(13, 42, 62)
+        pdfDocument.text(
+          `${formatApiDate(shift.date)} | ${shift.shiftName ?? shift.shift ?? '-'} - Makine Detayları`,
+          14,
+          sectionTop,
+        )
+
+        autoTable(pdfDocument, {
+          startY: sectionTop + 3,
+          head: [['Makine No', 'Makine Operatörü', 'Top Sayısı', 'Toplam Ağırlık', 'Sağlam', 'Hatalı']],
+          body: machines.map((machine) => [
+            String(machine.makineNo ?? machine.machineId ?? '-'),
+            String(machine.operator ?? '-'),
+            String(machine.rollsCount ?? 0),
+            String(machine.totalWeight ?? 0),
+            String(machine.saglamWeight ?? 0),
+            String(machine.hataWeight ?? 0),
+          ]),
+          theme: 'grid',
+          styles: { font: 'Arial', fontSize: 7, cellPadding: 1.8, textColor: [46, 81, 102] },
+          headStyles: { fillColor: [241, 247, 250], textColor: [13, 42, 62], fontStyle: 'bold' },
+          margin: { left: 14, right: 14 },
+        })
+      })
+
+      const fileName = `gunluk-uretim-takibi-${dateFrom}-${dateTo}.pdf`
+      pdfDocument.save(fileName)
+      showNotice('success', 'PDF dosyası başarıyla oluşturuldu.')
+    } catch (requestError) {
+      showNotice('error', requestError.message || 'PDF dosyası oluşturulamadı.')
+    } finally {
+      setIsExportingPdf(false)
+    }
   }
 
   return (
@@ -230,6 +332,16 @@ function FabricsSection({ apiRequest, showNotice, isActive }) {
             <p>Toplam sonuç: <strong className="text-slate-900">{totalCount}</strong> | Sayfa: <strong className="text-slate-900">{pageNumber}</strong> / <strong className="text-slate-900">{Math.max(Math.ceil(totalCount / pageSize), 1)}</strong></p>
           </div>
           <div className="flex items-center justify-end gap-2">
+            <button
+              type="button"
+              className="inline-flex h-[42px] w-[42px] items-center justify-center rounded-[4px] border border-[#b8cfde] bg-white text-[#0d5988] transition hover:bg-[#eef6fa] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0f6fa7] disabled:cursor-not-allowed disabled:opacity-50"
+              title={isExportingPdf ? 'PDF oluşturuluyor...' : 'PDF indir'}
+              aria-label={isExportingPdf ? 'PDF oluşturuluyor...' : 'PDF indir'}
+              disabled={!shifts.length || isLoading || isExportingPdf}
+              onClick={exportTableToPdf}
+            >
+              {isExportingPdf ? <LoaderCircle className="h-6 w-6 animate-spin" aria-hidden="true" /> : <FileDown className="h-6 w-6" aria-hidden="true" />}
+            </button>
             <button
               type="button"
               className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
