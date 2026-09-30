@@ -9,6 +9,7 @@ function HamBoyaTransactionsModal({
   form,
   boyaFactoriesOptions,
   hamFabricsOptions,
+  onFabricSelect,
   onFieldChange,
   onDetailFieldChange,
   onAddDetailRow,
@@ -159,45 +160,20 @@ function HamBoyaTransactionsModal({
                           <label htmlFor={`detail-fabric-${index}`} className="block text-sm font-medium text-slate-700 text-right">جنس القماش</label>
                           <select
                             id={`detail-fabric-${index}`}
-                            value={detail.FabricGender ?? ''}
-                            onChange={(event) => onDetailFieldChange(index, 'FabricGender', event.target.value)}
+                            value={String(detail.HamFabricId ?? '')}
+                            onChange={(event) => onFabricSelect(index, event.target.value)}
                             className={`${buildInputClasses(false)} w-full text-sm`}
                           >
                             <option value="">اختر القماش</option>
                             {hamFabricsOptions.map((fabric, optionIndex) => (
-                              <option key={`${fabric}-${optionIndex}`} value={fabric || ''}>
-                                {fabric}
+                              <option key={fabric.id ?? `${fabric.fabricGender}-${optionIndex}`} value={fabric.id}>
+                                {`${fabric.fabricGender ?? ''} - Lot: ${fabric.fabricLOT ?? ''} - Gr: ${fabric.fabricGSM ?? ''} - Kg: ${fabric.weight ?? ''} - F: ${fabric.factoryName ?? ''}`}
                               </option>
                             ))}
                           </select>
                         </div>
 
-                        {/* باقي الحقول في سطر واحد */}
-                        <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5" dir="rtl">
-                          <div className="space-y-2" dir="rtl">
-                            <label htmlFor={`detail-lot-${index}`} className="block text-sm font-medium text-slate-700 text-right">لوت القماش</label>
-                            <input
-                              id={`detail-lot-${index}`}
-                              type="text"
-                              value={detail.FabricLot ?? detail.lot ?? detail.Lot ?? ''}
-                              onChange={(event) => onDetailFieldChange(index, 'FabricLot', event.target.value)}
-                              className={`${buildInputClasses(false)} w-full text-sm`}
-                            />
-                          </div>
-
-                          <div className="space-y-2" dir="rtl">
-                            <label htmlFor={`detail-gr-${index}`} className="block text-sm font-medium text-slate-700 text-right">GR</label>
-                            <input
-                              id={`detail-gr-${index}`}
-                              type="number"
-                              value={detail.FabricGr ?? detail.fabricGr ?? ''}
-                              onChange={(event) => onDetailFieldChange(index, 'FabricGr', event.target.value)}
-                              className={`${buildInputClasses(false)} w-full text-sm`}
-                              dir="ltr"
-                              style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
-                            />
-                          </div>
-
+                        <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-3" dir="rtl">
                           <div className="space-y-2" dir="rtl">
                             <label htmlFor={`detail-weight-${index}`} className="block text-sm font-medium text-slate-700 text-right">الوزن</label>
                             <input

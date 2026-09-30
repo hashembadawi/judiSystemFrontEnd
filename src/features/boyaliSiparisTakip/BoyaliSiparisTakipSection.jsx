@@ -33,6 +33,7 @@ function BoyaliSiparisTakipSection({ apiRequest, showNotice, isActive }) {
     factoryId: 0,
     factoryName: '',
     date: '',
+    previousKazanGirisByFabricGender: {},
     details: [],
   })
   const [error, setError] = useState('')
@@ -179,6 +180,7 @@ function BoyaliSiparisTakipSection({ apiRequest, showNotice, isActive }) {
         factoryId: selectedOrder?.factoryId ?? 0,
         factoryName: selectedOrder?.factoryName ?? '',
         date: selectedOrder?.date ? selectedOrder.date.split('T')[0] : '',
+        previousKazanGirisByFabricGender: {},
         details: [],
       })
 
@@ -190,20 +192,30 @@ function BoyaliSiparisTakipSection({ apiRequest, showNotice, isActive }) {
         const trackingDetails = Array.isArray(detailResponse?.data) ? detailResponse.data : []
         const optionsData = optionsResponse?.data || {}
         const existingTrackingDetail = trackingDetails[0]
+        const previousKazanGirisByFabricGender = trackingDetails.reduce((totals, trackingDetail) => {
+          const fabricGender = String(trackingDetail.fabricGender ?? '')
+          const kazanGiris = Number(trackingDetail.kazanGiris ?? trackingDetail.KazanGiris ?? 0) || 0
+          totals[fabricGender] = (totals[fabricGender] || 0) + kazanGiris
+          return totals
+        }, {})
 
         setStatusOptions(Array.isArray(optionsData.siparisDurum) ? optionsData.siparisDurum : [])
 
         setOrderForm((prev) => ({
           ...prev,
           id: existingTrackingDetail?.id ?? 0,
-          detailId: detail.id,
+          detailId: existingTrackingDetail?.detailId ?? detail.id,
+          previousKazanGirisByFabricGender,
           details: trackingDetails.map((trackingDetail) => ({
             id: trackingDetail.id ?? 0,
+            takipId: trackingDetail.takipId ?? trackingDetail.id ?? 0,
+            detailId: trackingDetail.detailId ?? detail.id,
+            hamFabricIds: trackingDetail.hamFabricId ? [Number(trackingDetail.hamFabricId)] : [],
             etiket_Basligi: trackingDetail.etiket_Basligi ?? '',
             fabricGender: trackingDetail.fabricGender ?? '',
             lot: trackingDetail.fabricLot ?? trackingDetail.lot ?? trackingDetail.FabricLot ?? '',
             en: trackingDetail.en ?? 0,
-            gr: trackingDetail.gr ?? 0,
+            gr: trackingDetail.gr ?? trackingDetail.fabricGSM ?? 0,
             renk: trackingDetail.renk ?? '',
             renkCode: trackingDetail.renkCode ?? '',
             siparisMiktari: trackingDetail.siparisMiktari ?? 0,
@@ -245,6 +257,7 @@ function BoyaliSiparisTakipSection({ apiRequest, showNotice, isActive }) {
       factoryId: 0,
       factoryName: '',
       date: '',
+      previousKazanGirisByFabricGender: {},
       details: [],
     })
   }, [isSaving, selectedOrder])
@@ -280,6 +293,9 @@ function BoyaliSiparisTakipSection({ apiRequest, showNotice, isActive }) {
         ...prev.details,
         {
           id: null,
+          takipId: 0,
+          detailId: prev.detailId ?? 0,
+          hamFabricIds: [],
           etiket_Basligi: '',
           fabricGender: '',
           lot: '',
@@ -316,6 +332,8 @@ function BoyaliSiparisTakipSection({ apiRequest, showNotice, isActive }) {
       const copiedDetail = {
         ...detailToCopy,
         id: null,
+        takipId: 0,
+        hamFabricIds: Array.isArray(detailToCopy.hamFabricIds) ? [...detailToCopy.hamFabricIds] : [],
       }
 
       return {
@@ -336,25 +354,25 @@ function BoyaliSiparisTakipSection({ apiRequest, showNotice, isActive }) {
     try {
       const payload = {
         id: orderForm.id,
-        detailId: orderForm.detailId ?? 0,
+        detailId: orderForm.details[0]?.detailId ?? orderForm.detailId ?? 0,
         orderNo: orderForm.orderNo,
         factoryId: orderForm.factoryId,
-        details: orderForm.details.map((detail) => ({
-          etiket_Basligi: detail.etiket_Basligi ?? '',
-          fabricGender: detail.fabricGender ?? '',
-          fabricLot: detail.lot ?? detail.fabricLot ?? detail.FabricLot ?? '',
-          en: Number(detail.en ?? 0),
-          gr: Number(detail.gr ?? 0),
-          renk: detail.renk ?? '',
-          renkCode: detail.renkCode ?? '',
-          siparisMiktari: Number(detail.siparisMiktari ?? 0),
-          partiNo: detail.partiNo ?? detail.PartiNo ?? '',
-          kazanGiris: Number(detail.kazanGiris ?? detail.KazanGiris ?? 0),
-          status: Number(detail.status ?? detail.Status ?? 1),
-          sevkHazir: Number(detail.sevkHazir ?? detail.SevkHazir ?? 0),
-          girisTopSayisi: Number(detail.girisTopSayisi ?? detail.GirisTopSayisi ?? detail.topSayi ?? detail.TopSayi ?? 0),
-          cikisTopSayisi: Number(detail.cikisTopSayisi ?? detail.CikisTopSayisi ?? 0),
-        })),
+        details: orderForm.details.map((detail) => {
+          const hamFabricIds = Array.isArray(detail.hamFabricIds) ? detail.hamFabricIds : []
+          const hamFabricId = hamFabricIds.length > 0 ? Number(hamFabricIds[0]) : 0
+
+          return {
+            takipId: Number(detail.takipId ?? 0),
+            detailId: detail.detailId ?? orderForm.detailId ?? 0,
+            hamFabricId,
+            partiNo: detail.partiNo ?? detail.PartiNo ?? '',
+            kazanGiris: Number(detail.kazanGiris ?? detail.KazanGiris ?? 0),
+            status: Number(detail.status ?? detail.Status ?? 1),
+            sevkHazir: Number(detail.sevkHazir ?? detail.SevkHazir ?? 0),
+            girisTopSayisi: Number(detail.girisTopSayisi ?? detail.GirisTopSayisi ?? detail.topSayi ?? detail.TopSayi ?? 0),
+            cikisTopSayisi: Number(detail.cikisTopSayisi ?? detail.CikisTopSayisi ?? 0),
+          }
+        }),
       }
 
       await apiRequest(UPSERT_TRANSACTION_URL, {

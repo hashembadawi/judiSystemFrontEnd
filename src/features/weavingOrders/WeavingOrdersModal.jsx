@@ -377,9 +377,8 @@ function WeavingOrdersModal({
                                 <input
                                   type="number"
                                   value={yarnDetail.percentage ?? ''}
-                                  readOnly={yarnDetail.percentage !== '' && yarnDetail.percentage !== null && yarnDetail.percentage !== undefined}
                                   onChange={(event) => onYarnDetailChange(detailIndex, yarnIndex, 'percentage', event.target.value)}
-                                  className="w-full rounded-md border border-slate-300 bg-white px-1.5 py-1 text-[10px] text-slate-900 outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200 disabled:bg-slate-100 disabled:text-slate-500"
+                                  className="w-full rounded-md border border-slate-300 bg-white px-1.5 py-1 text-[10px] text-slate-900 outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200"
                                   style={{ direction: 'ltr', textAlign: 'left' }}
                                 />
                               </div>

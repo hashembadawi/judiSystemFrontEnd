@@ -3,6 +3,7 @@ import HamBoyaTransactionsModal from './HamBoyaTransactionsModal'
 import { buildButtonClasses } from '../../styles/designSystem'
 
 const HAM_BOYA_TRANSACTIONS_URL = '/api/ham-boya-transactions'
+const HAM_FABRICS_URL = `${HAM_BOYA_TRANSACTIONS_URL}/hamFabricGetAll`
 
 const getTodayDate = () => new Date().toISOString().slice(0, 10)
 
@@ -21,33 +22,6 @@ const formatReportNumber = (value) => Number(value || 0).toLocaleString('en-US',
 const formatReportDate = (value) => new Date(value).toLocaleDateString('tr-TR-u-nu-latn')
 
 const formatReportValue = (value) => String(value ?? '-').replace(/[٠-٩]/g, (digit) => String('٠١٢٣٤٥٦٧٨٩'.indexOf(digit)))
-
-const getOptionDisplayText = (item) => {
-  if (item == null) {
-    return ''
-  }
-
-  if (typeof item === 'string') {
-    return item
-  }
-
-  if (typeof item === 'object') {
-    const candidate =
-      item.label ??
-      item.text ??
-      item.name ??
-      item.displayName ??
-      item.value ??
-      item.fabricName ??
-      item.fabricGender ??
-      item.FabricGender ??
-      item.displayText
-
-    return typeof candidate === 'string' ? candidate : String(candidate ?? '')
-  }
-
-  return String(item)
-}
 
 function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentUserName = '' }) {
   const [searchText, setSearchText] = useState('')
@@ -75,12 +49,11 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
     Details: [
       {
         Id: 0,
+        ParentId: 0,
+        HamFabricId: 0,
         OrderNo: '',
-        FabricGender: '',
         FabricWeight: '',
         FabricTopCount: '',
-        FabricLot: '',
-        FabricGr: '',
       },
     ],
   })
@@ -164,21 +137,23 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
       Details: [
         {
           Id: 0,
+          ParentId: 0,
+          HamFabricId: 0,
           OrderNo: '',
-          FabricGender: '',
           FabricWeight: '',
           FabricTopCount: '',
-          FabricLot: '',
-          FabricGr: '',
         },
       ],
     })
     try {
-      const response = await apiRequest('/api/fill-options?requestedValues=1')
-      const data = response.data || {}
+      const [optionsResponse, fabricsResponse] = await Promise.all([
+        apiRequest('/api/fill-options?requestedValues=1'),
+        apiRequest(HAM_FABRICS_URL),
+      ])
+      const data = optionsResponse.data || {}
       setCustomerOrdersOptions(Array.isArray(data.customerOrders) ? data.customerOrders : [])
       setBoyaFactoriesOptions(Array.isArray(data.boyaFactories) ? data.boyaFactories : [])
-      setHamFabricsOptions(Array.isArray(data.items) ? data.items.map((item) => getOptionDisplayText(item)) : [])
+      setHamFabricsOptions(Array.isArray(fabricsResponse.data) ? fabricsResponse.data : [])
     } catch (requestError) {
       const message = requestError.message || 'حدث خطأ عند جلب خيارات الحركة.'
       setModalError(message)
@@ -202,17 +177,30 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
       setHamFabricsOptions([])
 
       try {
-        const [optionsResponse, transactionResponse] = await Promise.all([
+        const [optionsResponse, fabricsResponse, transactionResponse] = await Promise.all([
           apiRequest('/api/fill-options?requestedValues=1'),
+          apiRequest(HAM_FABRICS_URL),
           apiRequest(`${HAM_BOYA_TRANSACTIONS_URL}/${id}`),
         ])
 
         const optionsData = optionsResponse.data || {}
         const transactionData = transactionResponse.data || {}
+        const transactionDetails = Array.isArray(transactionData.details) ? transactionData.details : []
+        const inventoryFabrics = Array.isArray(fabricsResponse.data) ? fabricsResponse.data : []
+        const selectedFabrics = transactionDetails
+          .filter((detail) => detail.hamFabricId != null)
+          .filter((detail) => !inventoryFabrics.some((fabric) => String(fabric.id) === String(detail.hamFabricId)))
+          .map((detail) => ({
+            id: detail.hamFabricId,
+            fabricGender: detail.fabricGender ?? '',
+            fabricLOT: detail.fabricLot ?? '',
+            fabricGSM: detail.fabricGr ?? '',
+            weight: detail.fabricWeight ?? '',
+          }))
 
         setCustomerOrdersOptions(Array.isArray(optionsData.customerOrders) ? optionsData.customerOrders : [])
         setBoyaFactoriesOptions(Array.isArray(optionsData.boyaFactories) ? optionsData.boyaFactories : [])
-        setHamFabricsOptions(Array.isArray(optionsData.items) ? optionsData.items.map((item) => getOptionDisplayText(item)) : [])
+        setHamFabricsOptions([...inventoryFabrics, ...selectedFabrics])
 
         setTransactionForm({
           Id: transactionData.id || 0,
@@ -222,25 +210,23 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
           Writer: transactionData.writer || '',
           CarBLK: transactionData.carBLK ?? transactionData.CarBLK ?? '',
           CarOwner: transactionData.carOwner || '',
-          Details: Array.isArray(transactionData.details)
-            ? transactionData.details.map((detail) => ({
+          Details: transactionDetails.length > 0
+            ? transactionDetails.map((detail) => ({
                 Id: detail.id || 0,
+                ParentId: detail.parentId ?? 0,
+                HamFabricId: detail.hamFabricId ?? 0,
                 OrderNo: detail.orderNo ?? detail.OrderNo ?? detail.orderId ?? '',
-                FabricGender: detail.fabricGender ?? detail.FabricGender ?? '',
                 FabricWeight: detail.fabricWeight ?? '',
                 FabricTopCount: detail.fabricTopCount ?? '',
-                FabricLot: detail.FabricLot ?? detail.fabricLot ?? detail.lot ?? detail.Lot ?? '',
-                FabricGr: detail.fabricGr ?? detail.FabricGr ?? '',
               }))
             : [
                 {
                   Id: 0,
+                  ParentId: 0,
+                  HamFabricId: 0,
                   OrderNo: '',
-                  FabricGender: '',
                   FabricWeight: '',
                   FabricTopCount: '',
-                  FabricLot: '',
-                  FabricGr: '',
                 },
               ],
         })
@@ -280,6 +266,25 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
     }))
   }, [])
 
+  const updateDetailFromHamFabric = useCallback((index, fabricId) => {
+    const fabric = hamFabricsOptions.find((option) => String(option.id) === String(fabricId))
+    if (!fabric) {
+      return
+    }
+
+    setTransactionForm((prev) => ({
+      ...prev,
+      Details: prev.Details.map((detail, rowIndex) =>
+        rowIndex === index
+          ? {
+              ...detail,
+              HamFabricId: Number(fabric.id) || 0,
+            }
+          : detail,
+      ),
+    }))
+  }, [hamFabricsOptions])
+
   const addDetailRow = useCallback(() => {
     setTransactionForm((prev) => ({
       ...prev,
@@ -287,12 +292,11 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
         ...prev.Details,
         {
           Id: 0,
+          ParentId: 0,
+          HamFabricId: 0,
           OrderNo: '',
-          FabricGender: '',
           FabricWeight: '',
           FabricTopCount: '',
-          FabricLot: '',
-          FabricGr: '',
         },
       ],
     }))
@@ -306,20 +310,23 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
   }, [])
 
   const printSavedTransaction = useCallback((transaction) => {
-    const factory = boyaFactoriesOptions.find((option) => String(option.id) === String(transaction.FactoryId))
-    const factoryName = factory?.name ?? factory?.label ?? transaction.FactoryId
-    const totalWeight = transaction.Details.reduce((sum, detail) => sum + Number(detail.FabricWeight || 0), 0)
-    const totalTopCount = transaction.Details.reduce((sum, detail) => sum + Number(detail.FabricTopCount || 0), 0)
-    const detailRows = transaction.Details.map((detail, index) => `
+    const factory = boyaFactoriesOptions.find((option) => String(option.id) === String(transaction.factoryId))
+    const factoryName = factory?.name ?? factory?.label ?? transaction.factoryId
+    const totalWeight = transaction.details.reduce((sum, detail) => sum + Number(detail.fabricWeight || 0), 0)
+    const totalTopCount = transaction.details.reduce((sum, detail) => sum + Number(detail.fabricTopCount || 0), 0)
+    const detailRows = transaction.details.map((detail, index) => {
+      const fabric = hamFabricsOptions.find((option) => String(option.id) === String(detail.hamFabricId))
+      return `
       <tr>
         <td>${index + 1}</td>
-        <td>${escapeHtml(detail.OrderNo)}</td>
-        <td>${escapeHtml(detail.FabricGender)}</td>
-        <td>${escapeHtml(detail.FabricLot)}</td>
-        <td>${formatReportNumber(detail.FabricTopCount)}</td>
-        <td>${formatReportNumber(detail.FabricWeight)}</td>
+        <td>${escapeHtml(detail.orderNo)}</td>
+        <td>${escapeHtml(fabric?.fabricGender)}</td>
+        <td>${escapeHtml(fabric?.fabricLOT)}</td>
+        <td>${formatReportNumber(detail.fabricTopCount)}</td>
+        <td>${formatReportNumber(detail.fabricWeight)}</td>
       </tr>
-    `).join('')
+      `
+    }).join('')
 
     const reportHtml = `<!DOCTYPE html>
       <html lang="tr" dir="ltr">
@@ -364,9 +371,9 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
               <h1> Ham kumaş Sevkiyat Raporu</h1>
             </header>
             <div class="info-grid">
-              <div class="info-item"><span class="label">Fatura No</span><span class="value">${escapeHtml(transaction.FaturaNo)}</span></div>
+              <div class="info-item"><span class="label">Fatura No</span><span class="value">${escapeHtml(transaction.faturaNo)}</span></div>
               <div class="info-item"><span class="label">Sevk Boyahane</span><span class="value">${escapeHtml(factoryName)}</span></div>
-              <div class="info-item"><span class="label">İşlem Tarihi</span><span class="value">${escapeHtml(transaction.Date)}</span></div>
+              <div class="info-item"><span class="label">İşlem Tarihi</span><span class="value">${escapeHtml(transaction.date)}</span></div>
             </div>
             <div class="section-title">Gönderilen Kumaş Detayları</div>
             <table>
@@ -378,8 +385,8 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
               <div class="stat"><span class="label">Toplam Ağırlık</span><strong>${formatReportNumber(totalWeight)}</strong></div>
             </footer>
             <div class="driver-info">
-              <div class="info-item"><span class="label">Şoför</span><span class="value">${escapeHtml(transaction.CarOwner)}</span></div>
-              <div class="info-item"><span class="label">Araç Plakası</span><span class="value">${escapeHtml(transaction.CarBLK)}</span></div>
+              <div class="info-item"><span class="label">Şoför</span><span class="value">${escapeHtml(transaction.carOwner)}</span></div>
+              <div class="info-item"><span class="label">Araç Plakası</span><span class="value">${escapeHtml(transaction.carBLK)}</span></div>
             </div>
           </main>
         </body>
@@ -398,7 +405,7 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
       printWindow.print()
       printWindow.close()
     }, 250)
-  }, [boyaFactoriesOptions, showNotice])
+  }, [boyaFactoriesOptions, hamFabricsOptions, showNotice])
 
   const saveTransaction = useCallback(async () => {
     setModalError('')
@@ -406,21 +413,20 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
 
     try {
       const payload = {
-        Id: Number(transactionForm.Id) || 0,
-        FaturaNo: transactionForm.FaturaNo,
-        FactoryId: Number(transactionForm.FactoryId) || 0,
-        Date: transactionForm.Date,
-        Writer: transactionForm.Writer,
-        CarBLK: transactionForm.CarBLK ?? '',
-        CarOwner: transactionForm.CarOwner,
-        Details: transactionForm.Details.map((detail) => ({
-          Id: Number(detail.Id) || 0,
-          OrderNo: String(detail.OrderNo ?? '').trim(),
-          FabricGender: String(detail.FabricGender ?? '').trim(),
-          FabricWeight: Number(detail.FabricWeight) || 0,
-          FabricTopCount: Number(detail.FabricTopCount) || 0,
-          FabricLot: String(detail.FabricLot ?? detail.fabricLot ?? detail.lot ?? '').trim(),
-          FabricGr: Number(detail.FabricGr ?? detail.fabricGr ?? 0) || 0,
+        id: Number(transactionForm.Id) || 0,
+        faturaNo: transactionForm.FaturaNo,
+        factoryId: Number(transactionForm.FactoryId) || 0,
+        date: transactionForm.Date,
+        writer: transactionForm.Writer,
+        carBLK: transactionForm.CarBLK ?? '',
+        carOwner: transactionForm.CarOwner,
+        details: transactionForm.Details.map((detail) => ({
+          id: Number(detail.Id) || 0,
+          parentId: Number(detail.ParentId) || 0,
+          orderNo: String(detail.OrderNo ?? '').trim(),
+          fabricWeight: Number(detail.FabricWeight) || 0,
+          fabricTopCount: Number(detail.FabricTopCount) || 0,
+          hamFabricId: Number(detail.HamFabricId) || 0,
         })),
       }
 
@@ -742,6 +748,7 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
         customerOrdersOptions={customerOrdersOptions}
         boyaFactoriesOptions={boyaFactoriesOptions}
         hamFabricsOptions={hamFabricsOptions}
+        onFabricSelect={updateDetailFromHamFabric}
         onFieldChange={updateTransactionField}
         onDetailFieldChange={updateDetailField}
         onAddDetailRow={addDetailRow}

@@ -4,6 +4,7 @@ import autoTable from 'jspdf-autotable'
 import OrderFactoryTransactionsModal from './OrderFactoryTransactionsModal'
 
 const ORDER_FACTORY_TRANSACTIONS_URL = '/api/order-factory-transactions'
+const HAM_FABRICS_URL = '/api/ham-boya-transactions/hamFabricGetAll'
 const getTodayDate = () => new Date().toISOString().slice(0, 10)
 const PROCESS_LABELS = [
   ['fiks', 'Fiks'],
@@ -37,7 +38,7 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
   const [modalError, setModalError] = useState('')
   const [customerOrdersOptions, setCustomerOrdersOptions] = useState([])
   const [boyaFactoriesOptions, setBoyaFactoriesOptions] = useState([])
-  const [fabricTypesOptions, setFabricTypesOptions] = useState([])
+  const [hamFabricsOptions, setHamFabricsOptions] = useState([])
   const [transactionForm, setTransactionForm] = useState({
     Id: 0,
     OrderNo: '',
@@ -48,6 +49,7 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
     Details: [
       {
         Id: 0,
+        HamFabricId: 0,
         Etiket_Basligi: '',
         FabricGender: '',
         En: '',
@@ -136,7 +138,7 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
     setIsModalLoading(true)
     setCustomerOrdersOptions([])
     setBoyaFactoriesOptions([])
-    setFabricTypesOptions([])
+    setHamFabricsOptions([])
     setTransactionForm({
       Id: 0,
       OrderNo: '',
@@ -147,6 +149,7 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
       Details: [
         {
           Id: 0,
+          HamFabricId: 0,
           Etiket_Basligi: '',
           FabricGender: '',
           En: '',
@@ -174,11 +177,14 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
     })
 
     try {
-      const response = await apiRequest('/api/fill-options?requestedValues=1')
-      const data = response.data || {}
+      const [optionsResponse, fabricsResponse] = await Promise.all([
+        apiRequest('/api/fill-options?requestedValues=1'),
+        apiRequest(HAM_FABRICS_URL),
+      ])
+      const data = optionsResponse.data || {}
       setCustomerOrdersOptions(Array.isArray(data.customerOrders) ? data.customerOrders : [])
       setBoyaFactoriesOptions(Array.isArray(data.boyaFactories) ? data.boyaFactories : [])
-      setFabricTypesOptions(Array.isArray(data.items) ? data.items.map((it) => it.value ?? it) : [])
+      setHamFabricsOptions(Array.isArray(fabricsResponse.data) ? fabricsResponse.data : [])
     } catch (requestError) {
       const message = requestError.message || 'Hareket seçenekleri alınırken bir hata oluştu.'
       setModalError(message)
@@ -201,20 +207,32 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
       setIsModalLoading(true)
       setCustomerOrdersOptions([])
       setBoyaFactoriesOptions([])
+      setHamFabricsOptions([])
       
 
       try {
-        const [optionsResponse, transactionResponse] = await Promise.all([
+        const [optionsResponse, fabricsResponse, transactionResponse] = await Promise.all([
           apiRequest('/api/fill-options?requestedValues=1'),
+          apiRequest(HAM_FABRICS_URL),
           apiRequest(`${ORDER_FACTORY_TRANSACTIONS_URL}/${id}`),
         ])
 
         const optionsData = optionsResponse.data || {}
         const transactionData = transactionResponse.data || {}
+        const inventoryFabrics = Array.isArray(fabricsResponse.data) ? fabricsResponse.data : []
+        const details = Array.isArray(transactionData.details) ? transactionData.details : []
+        const selectedFabrics = details
+          .filter((detail) => detail.hamFabricId != null)
+          .filter((detail) => !inventoryFabrics.some((fabric) => String(fabric.id) === String(detail.hamFabricId)))
+          .map((detail) => ({
+            id: detail.hamFabricId,
+            fabricGender: detail.fabricGender ?? '',
+            fabricLOT: detail.fabricLOT ?? detail.fabricLot ?? '',
+          }))
 
         setCustomerOrdersOptions(Array.isArray(optionsData.customerOrders) ? optionsData.customerOrders : [])
         setBoyaFactoriesOptions(Array.isArray(optionsData.boyaFactories) ? optionsData.boyaFactories : [])
-        setFabricTypesOptions(Array.isArray(optionsData.items) ? optionsData.items.map((it) => it.value ?? it) : [])
+        setHamFabricsOptions([...inventoryFabrics, ...selectedFabrics])
         setTransactionForm({
           Id: transactionData.id || 0,
           OrderNo: transactionData.orderNo ?? transactionData.OrderNo ?? '',
@@ -222,9 +240,10 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
           Date: transactionData.date ? transactionData.date.split('T')[0] : getTodayDate(),
           TransactionStatus: transactionData.transactionStatus ?? 1,
           Notes: transactionData.notes ?? transactionData.Notes ?? '',
-          Details: Array.isArray(transactionData.details)
-            ? transactionData.details.map((detail) => ({
+          Details: details.length > 0
+            ? details.map((detail) => ({
                 Id: detail.id || 0,
+                HamFabricId: detail.hamFabricId ?? 0,
                 Etiket_Basligi: detail.etiket_Basligi ?? detail.Etiket_Basligi ?? '',
                 FabricGender: detail.fabricGender ?? detail.FabricGender ?? '',
                 En: detail.en ?? '',
@@ -251,6 +270,7 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
             : [
                 {
                   Id: 0,
+                  HamFabricId: 0,
                   Etiket_Basligi: '',
                   FabricGender: '',
                   En: '',
@@ -312,6 +332,22 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
     }))
   }, [])
 
+  const updateDetailFabric = useCallback((index, fabricId) => {
+    const fabric = hamFabricsOptions.find((option) => String(option.id) === String(fabricId))
+    setTransactionForm((prev) => ({
+      ...prev,
+      Details: prev.Details.map((detail, rowIndex) =>
+        rowIndex === index
+          ? {
+              ...detail,
+              HamFabricId: Number(fabricId) || 0,
+              FabricGender: fabric?.fabricGender ?? '',
+            }
+          : detail,
+      ),
+    }))
+  }, [hamFabricsOptions])
+
   const addDetailRow = useCallback(() => {
     setTransactionForm((prev) => ({
       ...prev,
@@ -319,6 +355,7 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
         ...prev.Details,
         {
           Id: 0,
+          HamFabricId: 0,
           Etiket_Basligi: '',
           FabricGender: '',
           En: '',
@@ -384,6 +421,7 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
     const hasInvalidDetailRow = transactionForm.Details.some(
       (detail) =>
         !String(detail.FabricGender ?? '').trim() ||
+        !Number(detail.HamFabricId) ||
         !String(detail.Renk ?? '').trim() ||
         String(detail.SiparisMiktari ?? '').trim() === '',
     )
@@ -406,7 +444,7 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
         details: transactionForm.Details.map((detail) => ({
           id: Number(detail.Id) || 0,
           etiket_Basligi: detail.Etiket_Basligi || '',
-          fabricGender: detail.FabricGender || '',
+          hamFabricId: Number(detail.HamFabricId) || 0,
           en: Number(detail.En) || 0,
           gr: Number(detail.Gr) || 0,
           renk: detail.Renk || '',
@@ -772,7 +810,8 @@ function OrderFactoryTransactionsSection({ apiRequest, showNotice, isActive }) {
         form={transactionForm}
         customerOrdersOptions={customerOrdersOptions}
         boyaFactoriesOptions={boyaFactoriesOptions}
-        fabricTypesOptions={fabricTypesOptions}
+        hamFabricsOptions={hamFabricsOptions}
+        onFabricSelect={updateDetailFabric}
         onFieldChange={updateTransactionField}
         onDetailFieldChange={updateDetailField}
         onAddDetailRow={addDetailRow}

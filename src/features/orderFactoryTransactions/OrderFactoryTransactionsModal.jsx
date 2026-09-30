@@ -25,7 +25,8 @@ function OrderFactoryTransactionsModal({
   error,
   form,
   boyaFactoriesOptions,
-  fabricTypesOptions,
+  hamFabricsOptions,
+  onFabricSelect,
   onFieldChange,
   onDetailFieldChange,
   onAddDetailRow,
@@ -179,10 +180,10 @@ function OrderFactoryTransactionsModal({
                   </div>
 
                   {form.Details.map((detail, index) => {
-                    const selectedFabricType = String(detail.FabricGender ?? '').trim()
-                    const hasSelectedFabricTypeInOptions =
-                      selectedFabricType !== '' &&
-                      fabricTypesOptions.some((fabric) => String(fabric ?? '') === selectedFabricType)
+                    const selectedHamFabricId = String(detail.HamFabricId ?? '')
+                    const hasSelectedFabricInOptions = hamFabricsOptions.some(
+                      (fabric) => String(fabric.id) === selectedHamFabricId,
+                    )
 
                     return (
                       <div key={index} className="rounded-xl border border-slate-200 bg-slate-50 p-3 shadow-sm" dir="ltr">
@@ -207,22 +208,20 @@ function OrderFactoryTransactionsModal({
                               <label htmlFor={`fabric-${index}`} className="block text-[10px] font-medium text-slate-700 text-left">KUMAŞ CİNSİ</label>
                               <select
                                 id={`fabric-${index}`}
-                                value={selectedFabricType}
-                                onChange={(event) =>
-                                  onDetailFieldChange(index, 'FabricGender', event.target.value)
-                                }
+                                value={selectedHamFabricId}
+                                onChange={(event) => onFabricSelect(index, event.target.value)}
                                 className={`${buildInputClasses(false)} w-full h-9 text-xs`}
                                 required
                                 dir="ltr"
                                 style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '11px',lineHeight: '36px',padding: '0 8px' }}
                               >
                                 <option value="">-- Seçin --</option>
-                                {!hasSelectedFabricTypeInOptions && selectedFabricType ? (
-                                  <option value={selectedFabricType}>{selectedFabricType}</option>
+                                {!hasSelectedFabricInOptions && selectedHamFabricId ? (
+                                  <option value={selectedHamFabricId}>{detail.FabricGender || selectedHamFabricId}</option>
                                 ) : null}
-                                {fabricTypesOptions.map((fabric, idx) => (
-                                  <option key={idx} value={fabric || ''}>
-                                    {fabric}
+                                {hamFabricsOptions.map((fabric, idx) => (
+                                  <option key={fabric.id ?? idx} value={fabric.id}>
+                                    {`${fabric.fabricGender ?? ''} - Lot: ${fabric.fabricLOT ?? fabric.fabricLot ?? ''}`}
                                   </option>
                                 ))}
                               </select>

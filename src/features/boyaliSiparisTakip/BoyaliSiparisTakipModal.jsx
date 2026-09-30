@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { buildButtonClasses, buildInputClasses } from '../../styles/designSystem'
 
 const TRACKING_MODAL_STYLES = `
@@ -185,6 +185,7 @@ function BoyaliSiparisTakipModal({
 }) {
   const [activeKazanRowIndex, setActiveKazanRowIndex] = useState(null)
   const [sendedFabricsByRow, setSendedFabricsByRow] = useState({})
+  const kazanGirisInputRefs = useRef({})
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -216,12 +217,22 @@ function BoyaliSiparisTakipModal({
       }
 
       setActiveKazanRowIndex(index)
+      const existingFabricState = sendedFabricsByRow[index]
+      if (
+        existingFabricState?.factoryId === orderForm.factoryId &&
+        existingFabricState?.fabricGender === detail.fabricGender &&
+        (existingFabricState.loading || !existingFabricState.error)
+      ) {
+        return
+      }
+
       setSendedFabricsByRow((prev) => ({
         ...prev,
         [index]: {
           loading: true,
+          factoryId: orderForm.factoryId,
+          fabricGender: detail.fabricGender,
           items: prev[index]?.items || [],
-          selectedLotIds: prev[index]?.selectedLotIds || [],
           error: '',
         },
       }))
@@ -231,14 +242,19 @@ function BoyaliSiparisTakipModal({
           `/api/fill-sended-fabrics?factoryId=${orderForm.factoryId}&fabricGender=${encodeURIComponent(detail.fabricGender)}`,
         )
 
-        const items = Array.isArray(response?.data?.items) ? response.data.items : []
+        const items = Array.isArray(response?.data)
+          ? response.data
+          : Array.isArray(response?.data?.items)
+            ? response.data.items
+            : []
 
         setSendedFabricsByRow((prev) => ({
           ...prev,
           [index]: {
             loading: false,
+            factoryId: orderForm.factoryId,
+            fabricGender: detail.fabricGender,
             items,
-            selectedLotIds: [],
             error: '',
           },
         }))
@@ -248,8 +264,9 @@ function BoyaliSiparisTakipModal({
           ...prev,
           [index]: {
             loading: false,
+            factoryId: orderForm.factoryId,
+            fabricGender: detail.fabricGender,
             items: [],
-            selectedLotIds: [],
             error: message,
           },
         }))
@@ -259,31 +276,32 @@ function BoyaliSiparisTakipModal({
         }
       }
     },
-    [apiRequest, orderForm.factoryId, showNotice],
+    [apiRequest, orderForm.factoryId, sendedFabricsByRow, showNotice],
   )
 
   const toggleSelectedLot = useCallback(
-    (index, fabricLot) => {
-      setSendedFabricsByRow((prev) => {
-        const current = prev[index] || { items: [], selectedLotIds: [] }
-        const nextSelectedLotIds = current.selectedLotIds.includes(fabricLot)
-          ? current.selectedLotIds.filter((lot) => lot !== fabricLot)
-          : [...current.selectedLotIds, fabricLot]
+    (index, fabric) => {
+      const current = sendedFabricsByRow[index] || { items: [] }
+      const hamFabricId = Number(fabric.hamFabricId)
+      const selectedLots = current.items
+        .filter((item) => Number(item.hamFabricId) === hamFabricId)
+        .map((item) => item.fabricLot)
 
-        if (onDetailFieldChange) {
-          onDetailFieldChange(index, 'lot', nextSelectedLotIds.join(','))
-        }
+      if (onDetailFieldChange) {
+        onDetailFieldChange(index, 'hamFabricIds', [hamFabricId])
+        onDetailFieldChange(index, 'lot', selectedLots.join(','))
+      }
 
-        return {
-          ...prev,
-          [index]: {
-            ...current,
-            selectedLotIds: nextSelectedLotIds,
-          },
-        }
-      })
+      setSendedFabricsByRow((prev) => ({
+        ...prev,
+        [index]: {
+          ...current,
+        },
+      }))
+
+      kazanGirisInputRefs.current[index]?.focus()
     },
-    [onDetailFieldChange],
+    [onDetailFieldChange, sendedFabricsByRow],
   )
 
   const activeFabricState = useMemo(() => {
@@ -291,47 +309,62 @@ function BoyaliSiparisTakipModal({
       return null
     }
 
-    return sendedFabricsByRow[activeKazanRowIndex] || { items: [], selectedLotIds: [], loading: false, error: '' }
+    return sendedFabricsByRow[activeKazanRowIndex] || { items: [], loading: false, error: '' }
   }, [activeKazanRowIndex, sendedFabricsByRow])
 
   const parseWeight = useCallback((value) => {
     return Number(String(value ?? 0).replace(',', '.')) || 0
   }, [])
 
-  const getAvailableWeight = useCallback(
-    (rowIndex, items) => {
-      const totalWeight = items.reduce((total, item) => total + parseWeight(item.totalWeight), 0)
-      const currentEnteredWeight = parseWeight(orderForm.details[rowIndex]?.kazanGiris)
+  const inventoryByFabricGender = useMemo(() => {
+    const inventory = {}
 
-      return totalWeight + currentEnteredWeight
-    },
-    [orderForm.details, parseWeight],
-  )
-
-  const exceededFabricWeight = useMemo(() => {
-    return Object.entries(sendedFabricsByRow).some(([rowIndex, fabricState]) => {
-      if (fabricState.loading || fabricState.error || !fabricState.items.length) {
-        return false
+    Object.entries(sendedFabricsByRow).forEach(([rowIndex, fabricState]) => {
+      if (fabricState.loading || fabricState.error) {
+        return
       }
 
-      const numericRowIndex = Number(rowIndex)
-      const availableWeight = getAvailableWeight(numericRowIndex, fabricState.items)
-      const enteredWeight = parseWeight(orderForm.details[numericRowIndex]?.kazanGiris)
+      const fabricGender = String(orderForm.details[Number(rowIndex)]?.fabricGender ?? '')
+      if (!fabricGender || Object.hasOwn(inventory, fabricGender)) {
+        return
+      }
 
-      return enteredWeight > availableWeight
+      const availableInFactory = fabricState.items.reduce(
+        (total, item) => total + parseWeight(item.totalWeight),
+        0,
+      )
+      const previousMovement = parseWeight(
+        orderForm.previousKazanGirisByFabricGender?.[fabricGender],
+      )
+      const enteredWeight = orderForm.details
+        .filter((detail) => String(detail.fabricGender ?? '') === fabricGender)
+        .reduce((total, detail) => total + parseWeight(detail.kazanGiris), 0)
+      const availableWeight = availableInFactory + previousMovement
+
+      inventory[fabricGender] = {
+        availableWeight,
+        enteredWeight,
+        remainingWeight: availableWeight - enteredWeight,
+      }
     })
-  }, [getAvailableWeight, orderForm.details, parseWeight, sendedFabricsByRow])
 
-  const activeAvailableWeight = useMemo(() => {
-    if (!activeFabricState?.items.length) {
-      return 0
-    }
+    return inventory
+  }, [orderForm.details, orderForm.previousKazanGirisByFabricGender, parseWeight, sendedFabricsByRow])
 
-    return getAvailableWeight(activeKazanRowIndex, activeFabricState.items)
-  }, [activeFabricState, activeKazanRowIndex, getAvailableWeight])
+  const exceededFabricWeight = useMemo(
+    () => Object.values(inventoryByFabricGender).some(({ remainingWeight }) => remainingWeight < 0),
+    [inventoryByFabricGender],
+  )
 
-  const activeEnteredWeight = parseWeight(orderForm.details[activeKazanRowIndex]?.kazanGiris)
-  const activeRemainingWeight = activeAvailableWeight - activeEnteredWeight
+  const activeDetail = orderForm.details[activeKazanRowIndex]
+  const activeFabricGender = String(activeDetail?.fabricGender ?? '')
+  const activeInventory = inventoryByFabricGender[activeFabricGender]
+  const activeAvailableWeight = activeInventory?.availableWeight ?? 0
+  const activeRemainingWeight = activeInventory?.remainingWeight ?? 0
+  const activeEnteredWeight = parseWeight(activeDetail?.kazanGiris)
+  const activeMaximumWeight = activeInventory
+    ? Math.max(0, activeAvailableWeight - (activeInventory.enteredWeight - activeEnteredWeight))
+    : undefined
 
   const handleDeleteRow = useCallback(
     (index) => {
@@ -453,12 +486,19 @@ function BoyaliSiparisTakipModal({
                               <input
                                 type="number"
                                 value={detail.kazanGiris ?? ''}
+                                ref={(element) => {
+                                  if (element) {
+                                    kazanGirisInputRefs.current[index] = element
+                                  } else {
+                                    delete kazanGirisInputRefs.current[index]
+                                  }
+                                }}
                                 onFocus={() => loadSendedFabrics(index, detail)}
                                   onChange={(event) => {
                                   const nextValue = event.target.value === '' ? '' : Number(event.target.value)
                                   onDetailFieldChange(index, 'kazanGiris', nextValue)
                                 }}
-                                  max={activeKazanRowIndex === index && activeAvailableWeight > 0 ? activeAvailableWeight : undefined}
+                                max={activeKazanRowIndex === index ? activeMaximumWeight : undefined}
                                 className={`${buildInputClasses(false)} h-7 w-full text-[11px]`}
                                 dir="ltr"
                                 style={{ unicodeBidi: 'plaintext', textAlign: 'left', fontSize: '11px', padding: '2px 4px' }}
@@ -558,16 +598,18 @@ function BoyaliSiparisTakipModal({
                     ) : (
                       <div className="space-y-1">
                         {activeFabricState.items.map((item) => {
-                          const isSelected = activeFabricState.selectedLotIds.includes(item.fabricLot)
+                          const selectedHamFabricId = Number(activeDetail?.hamFabricIds?.[0])
+                          const isSelected = selectedHamFabricId === Number(item.hamFabricId)
                           return (
                             <div
-                              key={`${item.fabricLot}-${item.totalWeight}`}
+                              key={item.hamFabricId}
                               className="flex items-center gap-2 rounded border border-slate-200 bg-white px-2 py-1.5 hover:bg-slate-50"
                             >
                               <input
-                                type="checkbox"
+                                type="radio"
+                                name={`sent-fabric-${activeKazanRowIndex}`}
                                 checked={isSelected}
-                                onChange={() => toggleSelectedLot(activeKazanRowIndex, item.fabricLot)}
+                                onChange={() => toggleSelectedLot(activeKazanRowIndex, item)}
                                 className="h-4 w-4 flex-shrink-0 rounded border-slate-300 text-slate-700 focus:ring-slate-400"
                               />
                               <div className="min-w-0 flex-1">
@@ -587,7 +629,7 @@ function BoyaliSiparisTakipModal({
                         })}
                       </div>
                     )}
-                    {!activeFabricState.loading && !activeFabricState.error && activeFabricState.items.length > 0 ? (
+                    {!activeFabricState.loading && !activeFabricState.error ? (
                       <div className={`mt-2 rounded border px-2 py-1.5 text-[11px] ${activeRemainingWeight < 0 ? 'border-red-200 bg-red-50 text-red-700' : 'border-slate-200 bg-white text-slate-700'}`}>
                         Toplam mevcut: <strong>{activeAvailableWeight.toFixed(2)} kg</strong>
                         <span className="mx-1">|</span>
