@@ -10,10 +10,7 @@ function YarnWeavingTransactionsModal({
   form,
   yarnOptions,
   factoryOptions,
-  sendOrders = [],
-  selectedSendOrderId = '',
   onFieldChange,
-  onSendOrderSelect,
   onDetailFieldChange,
   onAddDetailRow,
   onRemoveDetailRow,
@@ -55,53 +52,6 @@ function YarnWeavingTransactionsModal({
             <p className="py-8 text-center text-sm text-slate-500">جارٍ تحميل الخيارات...</p>
           ) : (
             <>
-              {Array.isArray(sendOrders) && sendOrders.length > 0 ? (
-                <div className="mb-5 rounded-xl border border-slate-200 bg-slate-50 p-3">
-                  <div className="mb-2 text-[11px] font-semibold tracking-wide text-slate-500">طلبات إرسال الخيط</div>
-                  <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-                    {sendOrders.map((order) => {
-                      const orderId = order?.weavingOrderId ?? order?.WeavingOrderId ?? order?.id
-                      const isSelected = Boolean(order?.id) && String(selectedSendOrderId) === String(order.id)
-
-                      return (
-                        <label key={orderId ?? `${order?.factoryId ?? 'factory'}-${order?.weavingOrderName ?? 'order'}`} className={`rounded-lg border p-3 shadow-sm transition ${isSelected ? 'border-sky-500 bg-sky-50 ring-1 ring-sky-200' : 'border-slate-200 bg-white'}`} style={{ direction: 'ltr', textAlign: 'left' }}>
-                          <div className="flex items-start gap-2">
-                            <input
-                              type="checkbox"
-                              checked={isSelected}
-                              onChange={(event) => onSendOrderSelect(order, event.target.checked)}
-                              disabled={!orderId}
-                              className="mt-1 h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
-                              aria-label={`اختيار طلب من ${order?.factoryName || ''}`}
-                            />
-                            <div className="min-w-0 flex-1">
-                              <div className="text-sm font-semibold text-slate-800">{order?.factoryName || '-'}</div>
-                              <div className="mt-1 text-xs font-medium text-slate-700">
-                                أمر النسيج: {order?.weavingOrderName || order?.WeavingOrderName || '-'}
-                              </div>
-                              <div className="mt-2 grid grid-cols-3 gap-1 border-t border-slate-200 pt-2 text-[10px] text-slate-600">
-                                <div>
-                                  <div className="text-slate-500">الوزن المطلوب</div>
-                                  <strong className="text-slate-800">{Number(order?.totalRequiredWeight ?? 0).toLocaleString()} Kg</strong>
-                                </div>
-                                <div>
-                                  <div className="text-slate-500">الوزن المرسل</div>
-                                  <strong className="text-sky-700">{Number(order?.totalSentWeight ?? 0).toLocaleString()} Kg</strong>
-                                </div>
-                                <div>
-                                  <div className="text-slate-500">الوزن المتبقي</div>
-                                  <strong className="text-amber-700">{Number(order?.totalRemainingWeight ?? 0).toLocaleString()} Kg</strong>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </label>
-                      )
-                    })}
-                  </div>
-                </div>
-              ) : null}
-
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 <div className="space-y-1.5">
                   <label htmlFor="faturaNo" className="block text-xs font-medium text-slate-600 text-right">رقم الفاتورة</label>
@@ -193,7 +143,7 @@ function YarnWeavingTransactionsModal({
                 <div className="space-y-4">
                   {form.Details.map((detail, index) => (
                     <div key={index} className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
-                      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-6">
+                      <div className="space-y-3">
                         <div className="space-y-1.5">
                           <label htmlFor={`detail-yarn-${index}`} className="block text-xs font-medium text-slate-600 text-right">الخيط</label>
                           <select
@@ -204,26 +154,21 @@ function YarnWeavingTransactionsModal({
                             style={{ direction: 'ltr', textAlign: 'left' }}
                           >
                             <option value="">اختر الخيط</option>
-                            {yarnOptions.map((yarn) => (
-                              <option key={yarn.id} value={yarn.id}>
-                                {yarn.yarnGender || yarn.name || yarn.id}
-                              </option>
-                            ))}
+                            {yarnOptions.map((yarn) => {
+                              const yarnId = yarn.id ?? yarn.yarnId
+                              const yarnGender = yarn.yarnGender ?? yarn.YarnGender ?? yarn.name ?? yarnId
+                              const yarnLot = yarn.yarnLot ?? yarn.lot ?? yarn.Lot ?? '-'
+
+                              return (
+                                <option key={yarnId} value={yarnId}>
+                                  {yarnGender} - Lot : {yarnLot}
+                                </option>
+                              )
+                            })}
                           </select>
                         </div>
 
-                        <div className="space-y-1.5">
-                          <label htmlFor={`detail-lot-${index}`} className="block text-xs font-medium text-slate-600 text-right">لوت</label>
-                          <input
-                            id={`detail-lot-${index}`}
-                            type="text"
-                            value={detail.Lot}
-                            onChange={(event) => onDetailFieldChange(index, 'Lot', event.target.value)}
-                            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
-                            style={{ direction: 'ltr', textAlign: 'left' }}
-                          />
-                        </div>
-
+                        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                         <div className="space-y-1.5">
                           <label htmlFor={`detail-yarnType-${index}`} className="block text-xs font-medium text-slate-600 text-right">نوع الخيط</label>
                           <input
@@ -270,6 +215,7 @@ function YarnWeavingTransactionsModal({
                             className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
                             style={{ direction: 'ltr', textAlign: 'left' }}
                           />
+                        </div>
                         </div>
                       </div>
 

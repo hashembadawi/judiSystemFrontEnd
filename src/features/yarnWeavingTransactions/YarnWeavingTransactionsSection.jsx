@@ -32,13 +32,10 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
   const [modalError, setModalError] = useState('')
   const [yarnOptions, setYarnOptions] = useState([])
   const [factoryOptions, setFactoryOptions] = useState([])
-  const [sendOrders, setSendOrders] = useState([])
-  const [selectedSendOrderId, setSelectedSendOrderId] = useState('')
   const [form, setForm] = useState({
     id: 0,
     faturaNo: '',
     factoryId: '',
-    weavingOrderId: '',
     date: '',
     writer: '',
     carBLK: '',
@@ -46,7 +43,6 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
     Details: [
       {
         YarnId: '',
-        Lot: '',
         YarnType: 1,
         Count: '',
         NetKg: '',
@@ -100,7 +96,6 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
       id: 0,
       faturaNo: '',
       factoryId: '',
-      weavingOrderId: '',
       date: new Date().toISOString().slice(0, 10),
       writer: '',
       carBLK: '',
@@ -108,7 +103,6 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
       Details: [
         {
           YarnId: '',
-          Lot: '',
           YarnType: 1,
           Count: '',
           NetKg: '',
@@ -124,28 +118,16 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
     setIsModalLoading(true)
     setYarnOptions([])
     setFactoryOptions([])
-    setSendOrders([])
-    setSelectedSendOrderId('')
     resetForm()
 
     try {
-      const [optionsResponse, sendOrdersResponse] = await Promise.all([
-        apiRequest('/api/fill-options?requestedValues=1'),
-        apiRequest('/api/yarn-weaving-transactions/GetAllSendOrders'),
-      ])
+      const optionsResponse = await apiRequest('/api/fill-options?requestedValues=1')
 
       const optionsData = optionsResponse.data || {}
-      const rawSendOrders = Array.isArray(sendOrdersResponse?.data)
-        ? sendOrdersResponse.data
-        : Array.isArray(sendOrdersResponse?.data?.data)
-          ? sendOrdersResponse.data.data
-          : []
-
       const nextYarns = Array.isArray(optionsData.yarns) ? optionsData.yarns : []
       const nextFactories = Array.isArray(optionsData.fasonFactories) ? optionsData.fasonFactories : []
       setYarnOptions(nextYarns)
       setFactoryOptions(nextFactories)
-      setSendOrders(rawSendOrders)
     } catch (requestError) {
       const message = requestError.message || 'حدث خطأ عند جلب الخيارات.'
       setModalError(message)
@@ -171,14 +153,6 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
     }))
   }, [])
 
-  const onSendOrderSelect = useCallback((order, isSelected) => {
-    setSelectedSendOrderId(isSelected ? order.id : '')
-    setForm((prev) => ({
-      ...prev,
-      weavingOrderId: isSelected ? order.weavingOrderId ?? order.WeavingOrderId ?? '' : '',
-    }))
-  }, [])
-
   const onDetailFieldChange = useCallback((index, field, value) => {
     setForm((prev) => ({
       ...prev,
@@ -195,7 +169,6 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
         ...prev.Details,
         {
           YarnId: '',
-          Lot: '',
           YarnType: 1,
           Count: '',
           NetKg: '',
@@ -214,26 +187,21 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
 
   const printSavedTransaction = useCallback((payload) => {
     const factory = factoryOptions.find((item) => String(item.id) === String(payload.factoryId))
-    const selectedOrder = sendOrders.find((order) => (
-      String(order.weavingOrderId ?? order.WeavingOrderId ?? '') === String(payload.weavingOrderId)
-      && String(order.factoryId ?? '') === String(payload.factoryId)
-    ))
-    const factoryName = factory?.name ?? factory?.factoryName ?? selectedOrder?.factoryName ?? '-'
+    const factoryName = factory?.name ?? factory?.factoryName ?? '-'
     const yarnName = (yarnId) => {
       const yarn = yarnOptions.find((item) => String(item.id ?? item.yarnId) === String(yarnId))
       return yarn?.yarnGender ?? yarn?.YarnGender ?? yarn?.name ?? yarnId ?? '-'
     }
-    const totalCount = payload.Details.reduce((sum, detail) => sum + Number(detail.Count || 0), 0)
-    const totalNetKg = payload.Details.reduce((sum, detail) => sum + Number(detail.NetKg || 0), 0)
+    const totalCount = payload.Details.reduce((sum, detail) => sum + Number(detail.count ?? detail.Count ?? 0), 0)
+    const totalNetKg = payload.Details.reduce((sum, detail) => sum + Number(detail.netKg ?? detail.NetKg ?? 0), 0)
     const detailRows = payload.Details.map((detail, index) => `
       <tr>
         <td>${index + 1}</td>
-        <td>${escapeHtml(yarnName(detail.YarnId))}</td>
-        <td>${escapeHtml(detail.Lot)}</td>
-        <td>${escapeHtml(detail.YarnType)}</td>
-        <td>${escapeHtml(detail.Count)}</td>
-        <td>${escapeHtml(detail.NetKg)} KG</td>
-        <td>${escapeHtml(detail.BrutKg)} KG</td>
+        <td>${escapeHtml(yarnName(detail.yarnId ?? detail.YarnId))}</td>
+        <td>${escapeHtml(detail.yarnType ?? detail.YarnType)}</td>
+        <td>${escapeHtml(detail.count ?? detail.Count)}</td>
+        <td>${escapeHtml(detail.netKg ?? detail.NetKg)} KG</td>
+        <td>${escapeHtml(detail.brutKg ?? detail.BrutKg)} KG</td>
       </tr>
     `).join('')
     const reportHtml = `<!DOCTYPE html>
@@ -280,7 +248,7 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
           </section>
           <table>
             <thead>
-              <tr><th>#</th><th>İplik</th><th>LOT</th><th>İplik tipi</th><th>Adet</th><th>Net ağırlık</th><th>Brüt ağırlık</th></tr>
+              <tr><th>#</th><th>İplik</th><th>İplik tipi</th><th>Adet</th><th>Net ağırlık</th><th>Brüt ağırlık</th></tr>
             </thead>
             <tbody>${detailRows}</tbody>
           </table>
@@ -305,7 +273,7 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
       printWindow.print()
       printWindow.close()
     }, 250)
-  }, [currentUserName, factoryOptions, sendOrders, showNotice, yarnOptions])
+  }, [currentUserName, factoryOptions, showNotice, yarnOptions])
 
   const saveTransaction = useCallback(async () => {
     setModalError('')
@@ -316,18 +284,16 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
         id: Number(form.id) || 0,
         faturaNo: form.faturaNo,
         factoryId: Number(form.factoryId) || 0,
-        weavingOrderId: Number(form.weavingOrderId) || 0,
         date: form.date || new Date().toISOString().slice(0, 10),
         writer: form.writer,
         carBLK: form.carBLK,
         carOwner: form.carOwner,
         Details: form.Details.map((detail) => ({
-          YarnId: Number(detail.YarnId) || 0,
-          Lot: detail.Lot,
-          YarnType: Number(detail.YarnType) || 1,
-          Count: Number(detail.Count) || 0,
-          NetKg: Number(detail.NetKg) || 0,
-          BrutKg: Number(detail.BrutKg) || 0,
+          yarnId: Number(detail.YarnId) || 0,
+          yarnType: Number(detail.YarnType) || 1,
+          count: Number(detail.Count) || 0,
+          netKg: Number(detail.NetKg) || 0,
+          brutKg: Number(detail.BrutKg) || 0,
         })),
       }
 
@@ -363,47 +329,52 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
     setIsModalLoading(true)
     setYarnOptions([])
     setFactoryOptions([])
-    setSendOrders([])
-    setSelectedSendOrderId('')
 
     try {
-      const [optionsResponse, transactionResponse, sendOrdersResponse] = await Promise.all([
+      const [optionsResponse, transactionResponse] = await Promise.all([
         apiRequest('/api/fill-options?requestedValues=1'),
         apiRequest(`${YARN_WEAVING_TRANSACTIONS_URL}/${id}`),
-        apiRequest('/api/yarn-weaving-transactions/GetAllSendOrders'),
       ])
 
       const optionsData = optionsResponse.data || {}
       const transactionData = transactionResponse.data || {}
-      const rawSendOrders = Array.isArray(sendOrdersResponse?.data)
-        ? sendOrdersResponse.data
-        : Array.isArray(sendOrdersResponse?.data?.data)
-          ? sendOrdersResponse.data.data
-          : []
-      const nextYarns = Array.isArray(optionsData.yarns) ? optionsData.yarns : []
+      const transactionDetails = Array.isArray(transactionData.details) ? transactionData.details : []
+      const nextYarns = Array.isArray(optionsData.yarns) ? [...optionsData.yarns] : []
+      transactionDetails.forEach((detail) => {
+        const yarnId = detail.yarnId ?? detail.YarnId
+        const yarnIndex = nextYarns.findIndex(
+          (yarn) => String(yarn.id ?? yarn.yarnId) === String(yarnId),
+        )
+        const existingYarn = yarnIndex >= 0 ? nextYarns[yarnIndex] : {}
+        const transactionYarn = {
+          id: yarnId,
+          yarnGender: detail.yarnGender ?? detail.YarnGender
+            ?? existingYarn.yarnGender ?? existingYarn.YarnGender ?? existingYarn.name,
+          yarnLot: detail.lot ?? detail.yarnLot ?? detail.Lot
+            ?? existingYarn.yarnLot ?? existingYarn.lot ?? existingYarn.Lot,
+        }
+
+        if (yarnIndex >= 0) {
+          nextYarns[yarnIndex] = { ...existingYarn, ...transactionYarn }
+        } else if (yarnId != null) {
+          nextYarns.push(transactionYarn)
+        }
+      })
       const nextFactories = Array.isArray(optionsData.fasonFactories) ? optionsData.fasonFactories : []
 
       setYarnOptions(nextYarns)
       setFactoryOptions(nextFactories)
-      setSendOrders(rawSendOrders)
-      const selectedOrder = rawSendOrders.find((order) => (
-        String(order.weavingOrderId ?? order.WeavingOrderId ?? '') === String(transactionData.weavingOrderId ?? transactionData.WeavingOrderId ?? '')
-        && String(order.factoryId ?? '') === String(transactionData.factoryId ?? '')
-      ))
-      setSelectedSendOrderId(selectedOrder?.id ?? '')
       setForm({
         id: transactionData.id || 0,
         faturaNo: transactionData.faturaNo || '',
         factoryId: transactionData.factoryId ?? '',
-        weavingOrderId: transactionData.weavingOrderId ?? transactionData.WeavingOrderId ?? '',
         date: transactionData.date || new Date().toISOString().slice(0, 10),
         writer: transactionData.writer || '',
         carBLK: transactionData.carBLK || '',
         carOwner: transactionData.carOwner || '',
-        Details: Array.isArray(transactionData.details)
-          ? transactionData.details.map((detail) => ({
+        Details: transactionDetails.length > 0
+          ? transactionDetails.map((detail) => ({
               YarnId: detail.yarnId ?? detail.YarnId ?? '',
-              Lot: detail.lot ?? detail.Lot ?? '',
               YarnType: detail.yarnType ?? detail.YarnType ?? 1,
               Count: detail.count ?? detail.Count ?? '',
               NetKg: detail.netKg ?? detail.NetKg ?? '',
@@ -412,7 +383,6 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
           : [
               {
                 YarnId: '',
-                Lot: '',
                 YarnType: 1,
                 Count: '',
                 NetKg: '',
@@ -678,7 +648,7 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
                           title="تعديل الحركة"
                           aria-label="تعديل الحركة"
                         >
-                          ✎
+                          ✏️
                         </button>
                         <button
                           type="button"
@@ -687,7 +657,7 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
                           title="حذف الحركة"
                           aria-label="حذف الحركة"
                         >
-                          🗑
+                          🗑️
                         </button>
                       </div>
                     </td>
@@ -730,7 +700,7 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
                       title="تعديل الحركة"
                       aria-label="تعديل الحركة"
                     >
-                      ✎
+                      ✏️
                     </button>
                     <button
                       type="button"
@@ -739,7 +709,7 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
                       title="حذف الحركة"
                       aria-label="حذف الحركة"
                     >
-                      🗑
+                      🗑️
                     </button>
                   </div>
                 </div>
@@ -788,10 +758,7 @@ function YarnWeavingTransactionsSection({ apiRequest, showNotice, isActive, curr
         form={form}
         yarnOptions={yarnOptions}
         factoryOptions={factoryOptions}
-        sendOrders={sendOrders}
-        selectedSendOrderId={selectedSendOrderId}
         onFieldChange={onFormFieldChange}
-        onSendOrderSelect={onSendOrderSelect}
         onDetailFieldChange={onDetailFieldChange}
         onAddDetailRow={onAddDetailRow}
         onRemoveDetailRow={onRemoveDetailRow}
