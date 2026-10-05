@@ -1,5 +1,48 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { buildButtonClasses, buildInputClasses } from '../../styles/designSystem'
+
+const EMPTY_DETAILS = []
+
+const extractWeightValue = (message) => {
+  let value = message
+
+  if (typeof message === 'string') {
+    try {
+      value = JSON.parse(message)
+    } catch {
+      return message.trim()
+    }
+  }
+
+  const findValue = (candidate) => {
+    if (typeof candidate === 'number') {
+      return String(candidate)
+    }
+
+    if (typeof candidate === 'string') {
+      return candidate.trim()
+    }
+
+    if (Array.isArray(candidate)) {
+      return candidate.length ? findValue(candidate[0]) : ''
+    }
+
+    if (candidate && typeof candidate === 'object') {
+      for (const key of ['weight', 'Weight', 'value', 'Value', 'result', 'Result', 'data', 'Data']) {
+        if (candidate[key] !== undefined && candidate[key] !== null) {
+          const nestedValue = findValue(candidate[key])
+          if (nestedValue !== '') {
+            return nestedValue
+          }
+        }
+      }
+    }
+
+    return ''
+  }
+
+  return findValue(value)
+}
 
 function AddFabricTransactionModal({
   isOpen,
@@ -20,7 +63,88 @@ function AddFabricTransactionModal({
   onSaveDetail,
   onClose,
 }) {
-  const details = form?.Details ?? []
+  const details = form?.Details ?? EMPTY_DETAILS
+  const weightSockets = useRef(new Map())
+  const [weightReadStates, setWeightReadStates] = useState({})
+
+  const readWeight = useCallback((index) => {
+    if (!isOpen || details[index]?.isLocked || savingDetailIndex !== null || weightSockets.current.has(index)) {
+      return
+    }
+
+    setWeightReadStates((previous) => ({ ...previous, [index]: 'loading' }))
+
+    let socket
+    try {
+      socket = new WebSocket('ws://localhost:8181')
+      weightSockets.current.set(index, socket)
+    } catch {
+      setWeightReadStates((previous) => ({ ...previous, [index]: 'Teraziye bağlanılamadı.' }))
+      return
+    }
+
+    const failRead = () => {
+      if (weightSockets.current.get(index) !== socket) {
+        return
+      }
+
+      weightSockets.current.delete(index)
+      setWeightReadStates((previous) => ({ ...previous, [index]: 'Terazi verisi alınamadı.' }))
+      socket.close()
+    }
+
+    socket.onopen = () => {
+      try {
+        socket.send('READ')
+      } catch {
+        failRead()
+      }
+    }
+
+    socket.onmessage = async (event) => {
+      if (weightSockets.current.get(index) !== socket) {
+        return
+      }
+
+      try {
+        const message = typeof event.data === 'string' ? event.data : await event.data.text()
+        const weight = extractWeightValue(message)
+        if (weight === '') {
+          failRead()
+          return
+        }
+
+        weightSockets.current.delete(index)
+        setWeightReadStates((previous) => {
+          const next = { ...previous }
+          delete next[index]
+          return next
+        })
+        onDetailFieldChange(index, 'Weight', weight)
+        socket.close()
+      } catch {
+        failRead()
+      }
+    }
+
+    socket.onerror = failRead
+    socket.onclose = () => {
+      if (weightSockets.current.get(index) === socket) {
+        weightSockets.current.delete(index)
+        setWeightReadStates((previous) => ({ ...previous, [index]: 'Terazi bağlantısı kesildi.' }))
+      }
+    }
+  }, [details, isOpen, onDetailFieldChange, savingDetailIndex])
+
+  useEffect(() => {
+    if (isOpen) {
+      return undefined
+    }
+
+    weightSockets.current.forEach((socket) => socket.close())
+    weightSockets.current.clear()
+    return undefined
+  }, [isOpen])
 
   const handleCloseRequest = useCallback(() => {
     if (savingDetailIndex !== null || isLoading) {
@@ -28,6 +152,7 @@ function AddFabricTransactionModal({
     }
 
     if (window.confirm('Kaydetmeden önce pencereyi kapatmak istediğinize emin misiniz?')) {
+      setWeightReadStates({})
       onClose()
     }
   }, [isLoading, onClose, savingDetailIndex])
@@ -112,7 +237,8 @@ function AddFabricTransactionModal({
                         </div>
                         <div className="space-y-1">
                           <label htmlFor={`fabricMovementWeight-${index}`} className="block text-xs font-medium text-slate-700">Ağırlık</label>
-                            <input id={`fabricMovementWeight-${index}`} type="number" min="0" step="0.01" value={detail.Weight ?? ''} onChange={(event) => onDetailFieldChange(index, 'Weight', event.target.value)} disabled={detail.isLocked || savingDetailIndex !== null} className={`${buildInputClasses(false)} w-full py-1.5 text-xs`} placeholder="Ağırlık girin" />
+                            <input id={`fabricMovementWeight-${index}`} type="number" min="0" step="0.01" value={detail.Weight ?? ''} onFocus={() => readWeight(index)} readOnly disabled={detail.isLocked || savingDetailIndex !== null} className={`${buildInputClasses(false)} w-full py-1.5 text-xs`} placeholder={weightReadStates[index] === 'loading' ? 'Terazi okunuyor...' : 'Tartım için odaklanın'} />
+                          {weightReadStates[index] && weightReadStates[index] !== 'loading' ? <p className="text-[11px] text-red-600">{weightReadStates[index]}</p> : null}
                         </div>
                         <div className="space-y-1">
                           <label htmlFor={`fabricMovementType-${index}`} className="block text-xs font-medium text-slate-700">Kumaş Türü</label>
