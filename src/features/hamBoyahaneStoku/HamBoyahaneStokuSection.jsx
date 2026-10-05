@@ -96,21 +96,22 @@ function HamBoyahaneStokuSection({ apiRequest, showNotice, isActive }) {
 
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-100">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px] text-sm" dir="ltr" style={{ direction: 'ltr' }}>
+          <table className="w-full min-w-[900px] text-sm" dir="ltr" style={{ direction: 'ltr' }}>
             <thead>
               <tr className="border-b border-slate-200 bg-slate-100">
                 <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">Kumaş Cinsi</th>
                 <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">GR</th>
                 <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">LOT</th>
                 <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">Toplam Ağırlık</th>
+                <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">Toplam Top</th>
                 <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700">BoyaHane</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
               {isLoading ? (
-                <tr><td colSpan={5} className="px-6 py-12 text-center text-slate-500">Veriler yükleniyor...</td></tr>
+                <tr><td colSpan={6} className="px-6 py-12 text-center text-slate-500">Veriler yükleniyor...</td></tr>
               ) : items.length === 0 ? (
-                <tr><td colSpan={5} className="px-6 py-12 text-center text-slate-500">Eşleşen stok bulunamadı.</td></tr>
+                <tr><td colSpan={6} className="px-6 py-12 text-center text-slate-500">Eşleşen stok bulunamadı.</td></tr>
               ) : (
                 items.map((item) => (
                   <tr key={item.id} className="transition hover:bg-slate-50">
@@ -118,6 +119,7 @@ function HamBoyahaneStokuSection({ apiRequest, showNotice, isActive }) {
                     <td className="px-6 py-4 text-left text-slate-700">{item.fabricGr ?? '-'}</td>
                     <td className="px-6 py-4 text-left text-slate-700">{item.fabricLot ?? '-'}</td>
                     <td className="px-6 py-4 text-left text-slate-700">{item.totalWeight ?? '-'}</td>
+                    <td className="px-6 py-4 text-left text-slate-700">{item.totalTopCount ?? '-'}</td>
                     <td className="px-6 py-4 text-left text-slate-700">{item.factoryName ?? '-'}</td>
                   </tr>
                 ))
