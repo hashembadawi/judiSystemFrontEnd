@@ -13,6 +13,7 @@ import BoyaliSiparisTakipSection from './features/boyaliSiparisTakip/BoyaliSipar
 import DepoHamFabricSection from './features/depoHamFabric/DepoHamFabricSection'
 import HamBoyahaneStokuSection from './features/hamBoyahaneStoku/HamBoyahaneStokuSection'
 import BoyahaneIsletmeDurumuSection from './features/boyahaneIsletmeDurumu/BoyahaneIsletmeDurumuSection'
+import ReadyBoyaliFabricsSection from './features/readyBoyaliFabrics/ReadyBoyaliFabricsSection'
 import WeavingOrdersSection from './features/weavingOrders/WeavingOrdersSection'
 import WeavingOrderPlanningSection from './features/weavingOrderPlanning/WeavingOrderPlanningSection'
 import FasonHamEntrySection from './features/fasonHamEntry/FasonHamEntrySection'
@@ -38,6 +39,7 @@ const OPERATION_LABELS = {
   weavingOrderPlanning: 'DOKUMA SİPARİŞİ PLANLAMA',
   hamBoyahaneStoku: 'BOYAHANE HAM STOK',
   boyahaneIsletmeDurumu: 'BOYAHANE İŞLETME DURUMU',
+  readyBoyaliFabrics: 'İHRACATA HAZIR BOYALI KUMAŞLAR',
 }
 
 const OPERATIONS_BY_USER_TYPE = {
@@ -45,8 +47,9 @@ const OPERATIONS_BY_USER_TYPE = {
   2: [],
   3: ['depoHamFabric', 'yarns', 'hamBoya', 'yarnWeaving'],
   4: ['depoHamFabric', 'yarns', 'fabrics', 'weavingOrders'],
-  5: ['depoHamFabric', 'hamBoyahaneStoku', 'orderFactory', 'boyaliSiparis', 'boyahaneIsletmeDurumu'],
+  5: ['depoHamFabric', 'hamBoyahaneStoku', 'orderFactory', 'boyaliSiparis', 'boyahaneIsletmeDurumu', 'readyBoyaliFabrics'],
   6: ['fabricEntry'],
+  7: ['readyBoyaliFabrics'],
 }
 
 const getTodayDate = () => new Date().toISOString().slice(0, 10)
@@ -216,6 +219,7 @@ function App() {
   const isProductionManagerUser = currentUserType === 4
   const isDyeFollowUpUser = currentUserType === 5
   const isAccountantUser = currentUserType === 2
+  const isCustomerUser = currentUserType === 7
   const [pendingRequests, setPendingRequests] = useState(0)
   const [isAddFabricModalOpen, setIsAddFabricModalOpen] = useState(false)
   const [isAddFabricModalLoading, setIsAddFabricModalLoading] = useState(false)
@@ -814,7 +818,15 @@ function App() {
                 >
                   KUMAŞ HAREKETİ EKLE
                 </button>
-              ) : isAccountantUser ? null : isWarehouseUser ? (
+              ) : isAccountantUser ? null : isCustomerUser ? (
+                <button
+                  type="button"
+                  className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'readyBoyaliFabrics' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
+                  onClick={() => setActiveOperation('readyBoyaliFabrics')}
+                >
+                  İHRACATA HAZIR BOYALI KUMAŞLAR
+                </button>
+              ) : isWarehouseUser ? (
                 <>
                   <button
                     type="button"
@@ -913,6 +925,13 @@ function App() {
                   >
                     BOYAHANE İŞLETME DURUMU
                   </button>
+                  <button
+                    type="button"
+                    className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'readyBoyaliFabrics' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
+                    onClick={() => setActiveOperation('readyBoyaliFabrics')}
+                  >
+                    İHRACATA HAZIR BOYALI KUMAŞLAR
+                  </button>
                 </>
               ) : (
                 <>
@@ -1002,6 +1021,13 @@ function App() {
                   </button>
                   <button
                     type="button"
+                    className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'readyBoyaliFabrics' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
+                    onClick={() => setActiveOperation('readyBoyaliFabrics')}
+                  >
+                    İHRACATA HAZIR BOYALI KUMAŞLAR
+                  </button>
+                  <button
+                    type="button"
                     className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'yarnWeaving' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
                     onClick={() => setActiveOperation('yarnWeaving')}
                   >
@@ -1028,7 +1054,11 @@ function App() {
           ) : null}
 
           <section className="min-h-[calc(100vh-8rem)] rounded-3xl border border-slate-200 bg-white/80 p-5 shadow-[0_16px_30px_rgba(15,23,42,0.08)] backdrop-blur-sm">
-            {isRestrictedFabricInspectorUser || isAccountantUser ? null : isWarehouseUser ? (
+            {isCustomerUser ? (
+              activeOperation === 'readyBoyaliFabrics' ? (
+                <ReadyBoyaliFabricsSection apiRequest={apiRequest} showNotice={showNotice} isActive />
+              ) : null
+            ) : isRestrictedFabricInspectorUser || isAccountantUser ? null : isWarehouseUser ? (
               activeOperation === 'depoHamFabric' ? (
                 <DepoHamFabricSection apiRequest={apiRequest} showNotice={showNotice} isActive />
               ) : activeOperation === 'yarns' ? (
@@ -1064,6 +1094,8 @@ function App() {
                 <OrderFactoryTransactionsSection apiRequest={apiRequest} showNotice={showNotice} isActive />
               ) : activeOperation === 'boyahaneIsletmeDurumu' ? (
                 <BoyahaneIsletmeDurumuSection apiRequest={apiRequest} showNotice={showNotice} isActive />
+              ) : activeOperation === 'readyBoyaliFabrics' ? (
+                <ReadyBoyaliFabricsSection apiRequest={apiRequest} showNotice={showNotice} isActive />
               ) : null
             ) : activeOperation === 'users' ? (
               <UsersSection apiRequest={apiRequest} showNotice={showNotice} isActive />
@@ -1094,6 +1126,8 @@ function App() {
               <OrderFactoryTransactionsSection apiRequest={apiRequest} showNotice={showNotice} isActive />
             ) : activeOperation === 'boyahaneIsletmeDurumu' ? (
               <BoyahaneIsletmeDurumuSection apiRequest={apiRequest} showNotice={showNotice} isActive />
+            ) : activeOperation === 'readyBoyaliFabrics' ? (
+              <ReadyBoyaliFabricsSection apiRequest={apiRequest} showNotice={showNotice} isActive />
             ) : activeOperation === 'yarnWeaving' ? (
               <YarnWeavingTransactionsSection
                 apiRequest={apiRequest}
