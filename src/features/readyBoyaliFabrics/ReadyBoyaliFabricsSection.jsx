@@ -5,12 +5,12 @@ import { FileDown, LoaderCircle, Search } from 'lucide-react'
 
 const FILL_OPTIONS_URL = '/api/fill-options?requestedValues=1'
 const READY_FABRICS_URL = '/api/ReadyBoyaliFabrics/getReadFabrics'
-const COLUMNS = ['orderNo', 'factoryName', 'etiket_Basligi', 'fabricGender', 'cikisTopSayisi', 'cikisWeight', 'renk']
+const COLUMNS = ['orderNo', 'factoryName', 'etiket_Basligi', 'fabricGender', 'remainingWeight', 'remainingTopCount', 'renk']
 const COPY = {
   ar: {
     direction: 'rtl', title: 'القماش الجاهز للتصدير', eyebrow: 'تجهيز التصدير', switchLabel: 'Türkçe diline geç',
     factory: 'المعمل', allFactories: 'كل المعامل', orderNo: 'رقم الطلب', label: 'عنوان الملصق',
-    columns: ['رقم الطلب', 'المعمل', 'عنوان الملصق', 'نوع القماش', 'عدد لفات الخروج', 'وزن الخروج', 'اللون'],
+    columns: ['رقم الطلب', 'المعمل', 'عنوان الملصق', 'نوع القماش', 'الوزن المتبقي', 'عدد الأتواب المتبقية', 'اللون'],
     rowNumber: '#',
     total: 'الإجمالي',
     search: 'بحث', loading: 'جارٍ تحميل البيانات...', noData: 'لا توجد بيانات مطابقة للفلاتر.',
@@ -22,7 +22,7 @@ const COPY = {
   tr: {
     direction: 'ltr', title: 'İhracata Hazır Boyalı Kumaşlar', eyebrow: 'İHRACAT HAZIRLIK', switchLabel: 'Arapça diline geç',
     factory: 'Boyahane', allFactories: 'Tüm boyahaneler', orderNo: 'Sipariş No', label: 'Etiket Başlığı',
-    columns: ['Sipariş No', 'Boyahane', 'Etiket Başlığı', 'Kumaş Cinsi', 'Çıkış Top Sayısı', 'Çıkış Ağırlığı', 'Renk'],
+    columns: ['Sipariş No', 'Boyahane', 'Etiket Başlığı', 'Kumaş Cinsi', 'Kalan Ağırlık', 'Kalan Top Sayısı', 'Renk'],
     rowNumber: '#',
     total: 'TOPLAM',
     search: 'Ara', loading: 'Veriler yükleniyor...', noData: 'Filtrelerle eşleşen kayıt bulunamadı.',
@@ -35,6 +35,7 @@ const COPY = {
 
 const getFactoryId = (factory) => factory?.id ?? factory?.factoryId ?? factory?.FactoryId ?? ''
 const getFactoryName = (factory) => factory?.name ?? factory?.factoryName ?? factory?.Name ?? factory?.label ?? '-'
+const getItemValue = (item, key) => item?.[key] ?? item?.[key[0].toUpperCase() + key.slice(1)]
 const displayValue = (value) => value == null || value === '' ? '-' : String(value)
 const parseWeight = (value) => {
   const parsedValue = Number(String(value ?? 0).trim().replace(',', '.'))
@@ -50,10 +51,22 @@ function ReadyBoyaliFabricsSection({ apiRequest, showNotice, isActive }) {
   const [error, setError] = useState('')
   const [language, setLanguage] = useState('ar')
   const text = COPY[language]
-  const totalWeight = items.reduce((total, item) => total + parseWeight(item.cikisWeight), 0)
-  const totalRollCount = items.reduce((total, item) => total + parseWeight(item.cikisTopSayisi), 0)
+  const totalRemainingWeight = items.reduce((total, item) => total + parseWeight(getItemValue(item, 'remainingWeight')), 0)
+  const totalRemainingTopCount = items.reduce((total, item) => total + parseWeight(getItemValue(item, 'remainingTopCount')), 0)
   const formatWeight = (value) => new Intl.NumberFormat(language === 'ar' ? 'ar' : 'tr-TR', { maximumFractionDigits: 2 }).format(value)
   const formatRollCount = (value) => new Intl.NumberFormat(language === 'ar' ? 'ar' : 'tr-TR', { maximumFractionDigits: 0 }).format(value)
+  const formatColumnValue = (key, value) => {
+    if (value == null || value === '') {
+      return '-'
+    }
+    if (key === 'remainingWeight') {
+      return formatWeight(parseWeight(value))
+    }
+    if (key === 'remainingTopCount') {
+      return formatRollCount(parseWeight(value))
+    }
+    return displayValue(value)
+  }
 
   const loadFabrics = useCallback(async (criteria) => {
     setIsLoading(true)
@@ -143,16 +156,16 @@ function ReadyBoyaliFabricsSection({ apiRequest, showNotice, isActive }) {
       const head = [[text.rowNumber, ...text.columns]]
       const body = items.map((item, rowIndex) => [
         String(rowIndex + 1),
-        ...COLUMNS.map((key) => displayValue(item[key])),
+        ...COLUMNS.map((key) => formatColumnValue(key, getItemValue(item, key))),
       ])
       const foot = [[
         '',
         ...COLUMNS.map((key, index) => {
-          if (key === 'cikisTopSayisi') {
-            return formatRollCount(totalRollCount)
+          if (key === 'remainingWeight') {
+            return formatWeight(totalRemainingWeight)
           }
-          if (key === 'cikisWeight') {
-            return formatWeight(totalWeight)
+          if (key === 'remainingTopCount') {
+            return formatRollCount(totalRemainingTopCount)
           }
           return index === 0 ? text.total : ''
         }),
@@ -273,16 +286,16 @@ function ReadyBoyaliFabricsSection({ apiRequest, showNotice, isActive }) {
                 <tr><td colSpan={COLUMNS.length} className="px-4 py-10 text-center text-slate-500">{text.noData}</td></tr>
               ) : items.map((item, index) => (
                 <tr key={item.id ?? index} className="transition hover:bg-slate-50">
-                  {COLUMNS.map((key) => <td key={key} className="whitespace-nowrap px-4 py-3 text-start text-slate-700">{displayValue(item[key])}</td>)}
+                  {COLUMNS.map((key) => <td key={key} className="whitespace-nowrap px-4 py-3 text-start text-slate-700">{formatColumnValue(key, getItemValue(item, key))}</td>)}
                 </tr>
               ))}
             </tbody>
             {items.length > 0 ? (
               <tfoot>
                 <tr className="border-t-2 border-slate-300 bg-slate-100 font-bold text-slate-900">
-                  <td colSpan={COLUMNS.indexOf('cikisTopSayisi')} className="px-4 py-3 text-end">{text.total}</td>
-                  <td className="whitespace-nowrap px-4 py-3 text-start">{formatRollCount(totalRollCount)}</td>
-                  <td className="whitespace-nowrap px-4 py-3 text-start">{formatWeight(totalWeight)}</td>
+                  <td colSpan={COLUMNS.indexOf('remainingWeight')} className="px-4 py-3 text-end">{text.total}</td>
+                  <td className="whitespace-nowrap px-4 py-3 text-start">{formatWeight(totalRemainingWeight)}</td>
+                  <td className="whitespace-nowrap px-4 py-3 text-start">{formatRollCount(totalRemainingTopCount)}</td>
                   <td className="px-4 py-3"></td>
                 </tr>
               </tfoot>

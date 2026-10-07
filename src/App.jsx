@@ -14,6 +14,7 @@ import DepoHamFabricSection from './features/depoHamFabric/DepoHamFabricSection'
 import HamBoyahaneStokuSection from './features/hamBoyahaneStoku/HamBoyahaneStokuSection'
 import BoyahaneIsletmeDurumuSection from './features/boyahaneIsletmeDurumu/BoyahaneIsletmeDurumuSection'
 import ReadyBoyaliFabricsSection from './features/readyBoyaliFabrics/ReadyBoyaliFabricsSection'
+import FabricShipmentsSection from './features/fabricShipments/FabricShipmentsSection'
 import WeavingOrdersSection from './features/weavingOrders/WeavingOrdersSection'
 import WeavingOrderPlanningSection from './features/weavingOrderPlanning/WeavingOrderPlanningSection'
 import FasonHamEntrySection from './features/fasonHamEntry/FasonHamEntrySection'
@@ -40,6 +41,7 @@ const OPERATION_LABELS = {
   hamBoyahaneStoku: 'BOYAHANE HAM STOK',
   boyahaneIsletmeDurumu: 'BOYAHANE İŞLETME DURUMU',
   readyBoyaliFabrics: 'İHRACATA HAZIR BOYALI KUMAŞLAR',
+  fabricShipments: 'BOYALI KUMAŞ SEVKİYATLARI',
 }
 
 const OPERATIONS_BY_USER_TYPE = {
@@ -1028,6 +1030,13 @@ function App() {
                   </button>
                   <button
                     type="button"
+                    className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'fabricShipments' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
+                    onClick={() => setActiveOperation('fabricShipments')}
+                  >
+                    BOYALI KUMAŞ SEVKİYATLARI
+                  </button>
+                  <button
+                    type="button"
                     className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'yarnWeaving' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
                     onClick={() => setActiveOperation('yarnWeaving')}
                   >
@@ -1128,6 +1137,8 @@ function App() {
               <BoyahaneIsletmeDurumuSection apiRequest={apiRequest} showNotice={showNotice} isActive />
             ) : activeOperation === 'readyBoyaliFabrics' ? (
               <ReadyBoyaliFabricsSection apiRequest={apiRequest} showNotice={showNotice} isActive />
+            ) : activeOperation === 'fabricShipments' ? (
+              <FabricShipmentsSection apiRequest={apiRequest} showNotice={showNotice} isActive />
             ) : activeOperation === 'yarnWeaving' ? (
               <YarnWeavingTransactionsSection
                 apiRequest={apiRequest}
