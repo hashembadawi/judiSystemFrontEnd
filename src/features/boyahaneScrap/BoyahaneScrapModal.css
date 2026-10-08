@@ -1,0 +1,91 @@
+.scrap-modal__backdrop {
+  border: 0;
+}
+
+.scrap-modal__panel {
+  border-radius: 10px;
+}
+
+.scrap-modal__table-scroll {
+  max-height: min(54vh, 560px);
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.scrap-modal__details-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+}
+
+.scrap-modal__details-table th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  border-bottom: 1px solid #cbd5df;
+  border-right: 1px solid #d7dfe7;
+  background: #eaf0f4;
+  color: #334155;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.35;
+  vertical-align: middle;
+}
+
+.scrap-modal__details-table th:last-child,
+.scrap-modal__details-table td:last-child {
+  border-right: 0;
+}
+
+.scrap-modal__details-table td {
+  border-bottom: 1px solid #e1e7ec;
+  border-right: 1px solid #e1e7ec;
+  background: #fff;
+  vertical-align: top;
+}
+
+.scrap-modal__details-table tbody tr:nth-child(even) td {
+  background: #f8fafb;
+}
+
+.scrap-modal__details-table tbody tr:hover td {
+  background: #f0f6f4;
+}
+
+.scrap-modal__details-table td input,
+.scrap-modal__details-table td select {
+  box-sizing: border-box;
+  min-height: 32px;
+  width: 100%;
+  border: 1px solid #d7dfe7;
+  border-radius: 3px;
+  background: #fff;
+  padding: 6px 7px;
+  color: #1f2937;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.scrap-modal__details-table td input:read-only {
+  border-color: #e5e9ed;
+  background: #f3f5f7;
+  color: #475569;
+}
+
+.scrap-modal__details-table td input:focus,
+.scrap-modal__details-table td select:focus {
+  border-color: #39836d;
+  outline: 2px solid rgb(57 131 109 / 16%);
+  outline-offset: 0;
+}
+
+.scrap-modal__details-table td button {
+  min-height: 30px;
+  min-width: 30px;
+}
+
+@media (max-width: 640px) {
+  .scrap-modal__table-scroll {
+    max-height: 46vh;
+  }
+}

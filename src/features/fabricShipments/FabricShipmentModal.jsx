@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import './FabricShipmentModal.css'
 
 const FILL_OPTIONS_URL = '/api/fill-options?requestedValues=1'
 const AVAILABLE_PARTI_NOS_URL = '/api/fabricShipment/getAvailablePartiNos'
@@ -284,8 +285,8 @@ function FabricShipmentModal({ isOpen, shipmentId, apiRequest, showNotice, onClo
             proses: selectedFabric.proses ?? '',
             renk: selectedFabric.renk ?? '',
             renkCode: selectedFabric.renkCode ?? '',
-            kazanGiris: selectedFabric.girisWeight ?? selectedFabric.kazanGiris ?? '',
-            girisTopSayisi: selectedFabric.girisTopSayisi ?? '',
+            kazanGiris: selectedFabric.remainingGirisWeight ?? selectedFabric.girisWeight ?? selectedFabric.kazanGiris ?? '',
+            girisTopSayisi: selectedFabric.remainingGirisTopCount ?? '',
             kazanCikis: selectedFabric.kazanCikis ?? selectedFabric.remainingWeight ?? '',
             cikisTopSayisi: selectedFabric.remainingTopCount ?? selectedFabric.cikisTopSayisi ?? '',
             remainingWeight: selectedFabric.remainingWeight ?? null,
@@ -388,10 +389,10 @@ function FabricShipmentModal({ isOpen, shipmentId, apiRequest, showNotice, onClo
   }
 
   return (
-    <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-labelledby="fabricShipmentModalTitle" dir="ltr" lang="tr">
-      <button type="button" aria-label="Kapat" className="absolute inset-0 h-full w-full cursor-default bg-slate-900/50" onClick={closeModal} />
+    <div className="shipment-modal fixed inset-0 z-50" role="dialog" aria-modal="true" aria-labelledby="fabricShipmentModalTitle" dir="ltr" lang="tr">
+      <button type="button" aria-label="Kapat" className="shipment-modal__backdrop absolute inset-0 h-full w-full cursor-default bg-slate-900/50" onClick={closeModal} />
       <div className="relative flex min-h-full items-start justify-center p-2 pt-4 sm:p-5 sm:pt-8">
-        <section className="flex max-h-[92vh] w-full max-w-[1440px] flex-col overflow-hidden rounded-xl bg-white shadow-[0_30px_60px_rgba(15,23,42,0.22)] ring-1 ring-slate-200">
+        <section className="shipment-modal__panel flex max-h-[92vh] w-full max-w-[1440px] flex-col overflow-hidden rounded-xl bg-white shadow-[0_30px_60px_rgba(15,23,42,0.22)] ring-1 ring-slate-200">
           <header className="flex shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 py-4 sm:px-6">
             <div>
               <h2 id="fabricShipmentModalTitle" className="mt-1 text-lg font-bold text-slate-900">{shipmentId ? 'BOYALI KUMAŞ SEVKİYATINI DÜZENLE' : 'YENİ BOYALI KUMAŞ SEVKİYATI'}</h2>
@@ -407,7 +408,7 @@ function FabricShipmentModal({ isOpen, shipmentId, apiRequest, showNotice, onClo
               <div className="flex items-center justify-between border-b border-slate-200 pb-2">
                 <h3 className="text-sm font-bold text-slate-900">SEVKİYAT BİLGİLERİ</h3>
               </div>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="shipment-modal__main-fields grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <label className="grid gap-1.5 text-xs font-medium text-slate-700">
                   <span>Sevkiyat No <span className="text-red-600">*</span></span>
                   <input name="shipmentNo" value={form.shipmentNo} onChange={updateMainField} className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm outline-none focus:border-sky-500" />
@@ -450,9 +451,9 @@ function FabricShipmentModal({ isOpen, shipmentId, apiRequest, showNotice, onClo
                 {form.groups.map((group) => {
                   const listId = `shipment-parti-options-${group.key}`
                   return (
-                    <section key={group.key} className="overflow-hidden rounded-lg border border-slate-200 bg-white">
-                      <header className="flex flex-wrap items-end justify-between gap-3 border-b border-slate-200 bg-slate-50 px-3 py-3 sm:px-4">
-                        <label className="grid w-full max-w-md gap-1.5 text-xs font-semibold text-slate-700">
+                    <section key={group.key} className="shipment-modal__group overflow-hidden rounded-lg border border-slate-200 bg-white">
+                      <header className="shipment-modal__group-header flex flex-wrap items-end justify-between gap-3 border-b border-slate-200 bg-slate-50 px-3 py-3 sm:px-4">
+                        <label className="shipment-modal__factory-field grid w-full max-w-md gap-1.5 text-xs font-semibold text-slate-700">
                           <select value={group.factoryId} onChange={(event) => updateGroupFactory(group.key, event.target.value)} disabled={isLoadingFactories || isSaving} className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-sky-500 disabled:bg-slate-100">
                             <option value="">Boyahane seçin</option>
                             {factoryOptions.map((factory, index) => (
@@ -474,8 +475,8 @@ function FabricShipmentModal({ isOpen, shipmentId, apiRequest, showNotice, onClo
                       {group.isLoadingPartiNos ? <p className="border-b border-slate-100 px-4 py-2 text-xs text-slate-500">Parti numaraları yükleniyor...</p> : null}
                       {group.factoryId && !group.isLoadingPartiNos && group.availablePartiNos.length === 0 ? <p className="border-b border-slate-100 px-4 py-2 text-xs text-slate-500">Sevk edilebilir parti numarası bulunamadı.</p> : null}
 
-                      <div className="overflow-x-auto">
-                        <table className="w-full min-w-[1620px] table-fixed text-xs">
+                      <div className="shipment-modal__table-scroll overflow-x-auto">
+                        <table className="shipment-modal__details-table w-full min-w-[1620px] table-fixed text-xs">
                           <thead className="bg-white text-slate-600">
                             <tr className="border-b border-slate-200">
                               <th className="w-[190px] px-2 py-2 text-left font-semibold">Parti No</th>
