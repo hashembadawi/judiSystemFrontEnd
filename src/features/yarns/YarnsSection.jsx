@@ -67,13 +67,13 @@ function YarnsSection({ apiRequest, showNotice, isActive, currentUserName = '' }
       setTotalCount(data.totalRecords ?? data.totalCount ?? 0)
     } catch (requestError) {
       if (requestError instanceof TypeError) {
-        setError('تعذر الاتصال بالخادم. تأكد أن API متاحة وأن الأذونات تسمح بالوصول.')
+        setError('Sunucuya bağlanılamadı. API’nin kullanılabilir ve erişim izinlerinin uygun olduğundan emin olun.')
       } else {
-        setError(requestError.message || 'حدث خطأ عند جلب بيانات الخيط.')
+        setError(requestError.message || 'İplik verileri alınırken bir hata oluştu.')
       }
       setYarns([])
       setTotalCount(0)
-      showNotice('error', requestError.message || 'حدث خطأ عند جلب بيانات الخيط.')
+      showNotice('error', requestError.message || 'İplik verileri alınırken bir hata oluştu.')
     } finally {
       setIsLoading(false)
     }
@@ -148,10 +148,10 @@ function YarnsSection({ apiRequest, showNotice, isActive, currentUserName = '' }
       setIsModalOpen(false)
       setIsModalSaving(false)
       loadYarns()
-      showNotice('success', 'تم حفظ الخيط بنجاح.')
+      showNotice('success', 'İplik başarıyla kaydedildi.')
     } catch (requestError) {
-      setModalError(requestError.message || 'حدث خطأ عند حفظ الخيط.')
-      showNotice('error', requestError.message || 'حدث خطأ عند حفظ الخيط.')
+      setModalError(requestError.message || 'İplik kaydedilirken bir hata oluştu.')
+      showNotice('error', requestError.message || 'İplik kaydedilirken bir hata oluştu.')
       setIsModalSaving(false)
     }
   }
@@ -185,7 +185,7 @@ function YarnsSection({ apiRequest, showNotice, isActive, currentUserName = '' }
         incomDate: data.incomDate || getTodayDate(),
       })
     } catch (requestError) {
-      const message = requestError.message || 'حدث خطأ عند جلب بيانات الخيط.'
+      const message = requestError.message || 'İplik bilgileri alınırken bir hata oluştu.'
       setModalError(message)
       showNotice('error', message)
       setIsModalOpen(false)
@@ -197,7 +197,7 @@ function YarnsSection({ apiRequest, showNotice, isActive, currentUserName = '' }
       return
     }
 
-    const confirmed = window.confirm('هل أنت متأكد من حذف هذا الخيط؟')
+    const confirmed = window.confirm('Bu ipliği silmek istediğinizden emin misiniz?')
     if (!confirmed) {
       return
     }
@@ -208,9 +208,9 @@ function YarnsSection({ apiRequest, showNotice, isActive, currentUserName = '' }
       })
 
       loadYarns()
-      showNotice('success', 'تم حذف الخيط بنجاح.')
+      showNotice('success', 'İplik başarıyla silindi.')
     } catch (requestError) {
-      const message = requestError.message || 'حدث خطأ عند حذف الخيط.'
+      const message = requestError.message || 'İplik silinirken bir hata oluştu.'
       setError(message)
       showNotice('error', message)
     }
@@ -265,11 +265,11 @@ function YarnsSection({ apiRequest, showNotice, isActive, currentUserName = '' }
       .join('')
 
     const reportHtml = `<!DOCTYPE html>
-      <html lang="ar" dir="rtl">
+      <html lang="tr" dir="rtl">
         <head>
           <meta charset="UTF-8" />
           <meta name="robots" content="noindex,nofollow" />
-          <title>تقرير مخزون الخيط</title>
+          <title>İplik Stok Raporu</title>
           <style>
             @page { margin: 8mm; }
             body {
@@ -300,26 +300,26 @@ function YarnsSection({ apiRequest, showNotice, isActive, currentUserName = '' }
         <body>
           <div class="report-header">
             <div class="report-date">${new Date().toISOString().split('T')[0]}</div>
-            <div class="report-user">${currentUserName || 'المستخدم'}</div>
-            <div class="report-title">تقرير مخزون الخيط</div>
+            <div class="report-user">${currentUserName || 'Kullanıcı'}</div>
+            <div class="report-title">İplik Stok Raporu</div>
           </div>
-          <div class="summary">عدد النتائج: ${totalCount} | الصافي: ${totalNetKg} | القائم: ${totalBrutKg} | المتبقي صافي: ${totalRemainNetKg} | المتبقي قائم: ${totalRemainBrutKg}</div>
+          <div class="summary">Toplam kayıt: ${totalCount} | Net: ${totalNetKg} | Brüt: ${totalBrutKg} | Kalan net: ${totalRemainNetKg} | Kalan brüt: ${totalRemainBrutKg}</div>
           <table>
             <thead>
               <tr>
                 <th>#</th>
-                <th>النوع</th>
+                <th>İplik türü</th>
                 <th>LOT</th>
-                <th>العدد</th>
-                <th>الصافي KG</th>
-                <th>القائم KG</th>
-                <th>العدد المتبقي</th>
-                <th>الصافي المتبقي KG</th>
-                <th>القائم المتبقي KG</th>
-                <th>الشركة</th>
-                <th>السعر</th>
-                <th>رقم الفاتورة</th>
-                <th>تاريخ الاستلام</th>
+                <th>Adet</th>
+                <th>Net KG</th>
+                <th>Brüt KG</th>
+                <th>Kalan adet</th>
+                <th>Kalan net KG</th>
+                <th>Kalan brüt KG</th>
+                <th>Firma</th>
+                <th>Fiyat</th>
+                <th>Fatura No</th>
+                <th>Giriş tarihi</th>
               </tr>
             </thead>
             <tbody>${rows}</tbody>
@@ -333,7 +333,7 @@ function YarnsSection({ apiRequest, showNotice, isActive, currentUserName = '' }
 
     if (!printWindow) {
       URL.revokeObjectURL(reportUrl)
-      showNotice('error', 'تعذر فتح نافذة الطباعة.')
+      showNotice('error', 'Yazdırma penceresi açılamadı.')
       return
     }
 
@@ -353,7 +353,7 @@ function YarnsSection({ apiRequest, showNotice, isActive, currentUserName = '' }
         <header className="rounded-2xl border border-sky-200 bg-gradient-to-r from-sky-100 via-sky-50 to-blue-50 px-4 py-6 shadow-sm sm:px-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="text-right">
-              <h3 className="text-2xl font-bold text-sky-900">إدارة مخزون الخيط</h3>
+              <h3 className="text-2xl font-bold text-sky-900">İplik Stok Yönetimi</h3>
             </div>
 
             <button
@@ -361,13 +361,13 @@ function YarnsSection({ apiRequest, showNotice, isActive, currentUserName = '' }
               onClick={handleAddYarn}
               className="inline-flex items-center justify-center rounded-lg bg-sky-700 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-sky-800 active:bg-sky-900"
             >
-              + إضافة خيط جديد
+              + Yeni İplik Ekle
             </button>
           </div>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             <div className="flex flex-col gap-2 text-right">
-              <label htmlFor="yarnsSearch" className="text-xs font-medium text-slate-600">بحث</label>
+              <label htmlFor="yarnsSearch" className="text-xs font-medium text-slate-600">Ara</label>
               <input
                 id="yarnsSearch"
                 type="text"
@@ -376,7 +376,7 @@ function YarnsSection({ apiRequest, showNotice, isActive, currentUserName = '' }
                   setSearchText(event.target.value)
                   setPageNumber(1)
                 }}
-                placeholder="ابحث بالنوع أو LOT أو الشركة"
+                placeholder="Tür, LOT veya firmaya göre ara"
                 className="w-full rounded-lg border-0 bg-slate-100 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:bg-slate-50"
                 dir="ltr"
                 style={{ unicodeBidi: 'plaintext', textAlign: 'left' }}
@@ -384,7 +384,7 @@ function YarnsSection({ apiRequest, showNotice, isActive, currentUserName = '' }
             </div>
 
             <div className="flex flex-col gap-2 text-right">
-              <label htmlFor="yarnsPageSize" className="text-xs font-medium text-slate-600">حجم الصفحة</label>
+              <label htmlFor="yarnsPageSize" className="text-xs font-medium text-slate-600">Sayfa başına kayıt</label>
               <select
                 id="yarnsPageSize"
                 value={pageSize}
@@ -412,54 +412,54 @@ function YarnsSection({ apiRequest, showNotice, isActive, currentUserName = '' }
 
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="hidden overflow-x-auto md:block">
-            <table className="w-full text-sm" style={{ direction: 'rtl' }}>
+            <table className="w-full text-sm" dir="ltr">
               <thead>
                 <tr className="border-b border-slate-200 bg-white">
-                  <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">النوع</span></th>
-                  <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">LOT</span></th>
-                  <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">العدد</span></th>
-                  <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">الصافي KG</span></th>
-                  <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">القائم KG</span></th>
-                  <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">العدد المتبقي</span></th>
-                  <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">الصافي المتبقي KG</span></th>
-                  <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">القائم المتبقي KG</span></th>
-                  <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">الشركة</span></th>
-                  <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">السعر</span></th>
-                  <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">رقم الفاتورة</span></th>
-                  <th className="px-6 py-3 text-right"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">تاريخ الاستلام</span></th>
-                  <th className="px-6 py-3 text-center"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">الإجراءات</span></th>
+                  <th className="px-6 py-3 text-left"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">İplik türü</span></th>
+                  <th className="px-6 py-3 text-left"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">LOT</span></th>
+                  <th className="px-6 py-3 text-left"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Adet</span></th>
+                  <th className="px-6 py-3 text-left"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Net KG</span></th>
+                  <th className="px-6 py-3 text-left"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Brüt KG</span></th>
+                  <th className="px-6 py-3 text-left"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Kalan adet</span></th>
+                  <th className="px-6 py-3 text-left"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Kalan net KG</span></th>
+                  <th className="px-6 py-3 text-left"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Kalan brüt KG</span></th>
+                  <th className="px-6 py-3 text-left"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Firma</span></th>
+                  <th className="px-6 py-3 text-left"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Fiyat</span></th>
+                  <th className="px-6 py-3 text-left"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Fatura No</span></th>
+                  <th className="px-6 py-3 text-left"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Giriş tarihi</span></th>
+                  <th className="px-6 py-3 text-center"><span className="text-xs font-semibold uppercase tracking-wider text-slate-600">İşlemler</span></th>
                 </tr>
               </thead>
 
               <tbody className="divide-y divide-slate-200">
                 {isLoading ? (
                   <tr>
-                    <td colSpan={13} className="px-6 py-12 text-center text-slate-500">جاري تحميل بيانات الخيط...</td>
+                    <td colSpan={13} className="px-6 py-12 text-center text-slate-500">İplik verileri yükleniyor...</td>
                   </tr>
                 ) : yarns.length === 0 ? (
                   <tr>
-                    <td colSpan={13} className="px-6 py-12 text-center text-slate-500">لا توجد بيانات مطابقة.</td>
+                    <td colSpan={13} className="px-6 py-12 text-center text-slate-500">Eşleşen kayıt bulunamadı.</td>
                   </tr>
                 ) : (
                   yarns.map((yarn, index) => (
                     <tr key={yarn.id ?? index} className="transition hover:bg-slate-50">
-                      <td className="px-6 py-4 text-right"><span className="text-sm text-slate-900">{yarn.yarnGender ?? '-'}</span></td>
-                      <td className="px-6 py-4 text-right"><span className="text-sm text-slate-700">{yarn.lot ?? '-'}</span></td>
-                      <td className="px-6 py-4 text-right"><span className="text-sm text-slate-700">{yarn.count ?? '-'}</span></td>
-                      <td className="px-6 py-4 text-right"><span className="text-sm text-slate-700">{yarn.netKg ?? '-'}</span></td>
-                      <td className="px-6 py-4 text-right"><span className="text-sm text-slate-700">{yarn.brutKg ?? '-'}</span></td>
-                      <td className="px-6 py-4 text-right"><span className="text-sm font-semibold text-slate-800">{yarn.remainCount ?? '-'}</span></td>
-                      <td className="px-6 py-4 text-right"><span className="text-sm font-semibold text-slate-800">{yarn.remainNetKg ?? '-'}</span></td>
-                      <td className="px-6 py-4 text-right"><span className="text-sm font-semibold text-slate-800">{yarn.remainBrutKg ?? '-'}</span></td>
-                      <td className="px-6 py-4 text-right"><span className="text-sm text-slate-700">{yarn.company ?? '-'}</span></td>
-                      <td className="px-6 py-4 text-right"><span className="text-sm text-slate-700">{yarn.price ?? '-'}</span></td>
-                      <td className="px-6 py-4 text-right"><span className="text-sm text-slate-700">{yarn.faturaNo ?? '-'}</span></td>
-                      <td className="px-6 py-4 text-right"><span className="text-sm text-slate-700">{yarn.incomDate ?? '-'}</span></td>
+                      <td className="px-6 py-4 text-left"><span className="text-sm text-slate-900">{yarn.yarnGender ?? '-'}</span></td>
+                      <td className="px-6 py-4 text-left"><span className="text-sm text-slate-700">{yarn.lot ?? '-'}</span></td>
+                      <td className="px-6 py-4 text-left"><span className="text-sm text-slate-700">{yarn.count ?? '-'}</span></td>
+                      <td className="px-6 py-4 text-left"><span className="text-sm text-slate-700">{yarn.netKg ?? '-'}</span></td>
+                      <td className="px-6 py-4 text-left"><span className="text-sm text-slate-700">{yarn.brutKg ?? '-'}</span></td>
+                      <td className="px-6 py-4 text-left"><span className="text-sm font-semibold text-slate-800">{yarn.remainCount ?? '-'}</span></td>
+                      <td className="px-6 py-4 text-left"><span className="text-sm font-semibold text-slate-800">{yarn.remainNetKg ?? '-'}</span></td>
+                      <td className="px-6 py-4 text-left"><span className="text-sm font-semibold text-slate-800">{yarn.remainBrutKg ?? '-'}</span></td>
+                      <td className="px-6 py-4 text-left"><span className="text-sm text-slate-700">{yarn.company ?? '-'}</span></td>
+                      <td className="px-6 py-4 text-left"><span className="text-sm text-slate-700">{yarn.price ?? '-'}</span></td>
+                      <td className="px-6 py-4 text-left"><span className="text-sm text-slate-700">{yarn.faturaNo ?? '-'}</span></td>
+                      <td className="px-6 py-4 text-left"><span className="text-sm text-slate-700">{yarn.incomDate ?? '-'}</span></td>
                       <td className="px-6 py-4 text-center">
                         <div className="flex items-center justify-center gap-2">
                           <button
                             type="button"
-                            title="تعديل"
+                            title="Düzenle"
                             onClick={() => handleEditYarn(yarn.id)}
                             className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-300 text-slate-600 transition hover:bg-slate-100 hover:border-slate-400"
                           >
@@ -467,7 +467,7 @@ function YarnsSection({ apiRequest, showNotice, isActive, currentUserName = '' }
                           </button>
                           <button
                             type="button"
-                            title="حذف"
+                            title="Sil"
                             onClick={() => handleDeleteYarn(yarn.id)}
                             className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-red-300 bg-red-50 text-red-600 transition hover:bg-red-100 hover:border-red-400"
                           >
@@ -484,9 +484,9 @@ function YarnsSection({ apiRequest, showNotice, isActive, currentUserName = '' }
 
           <div className="md:hidden">
             {isLoading ? (
-              <div className="px-4 py-12 text-center text-slate-500">جاري تحميل بيانات الخيط...</div>
+              <div className="px-4 py-12 text-center text-slate-500">İplik verileri yükleniyor...</div>
             ) : yarns.length === 0 ? (
-              <div className="px-4 py-12 text-center text-slate-500">لا توجد بيانات مطابقة.</div>
+              <div className="px-4 py-12 text-center text-slate-500">Eşleşen kayıt bulunamadı.</div>
             ) : (
               <div className="divide-y divide-slate-200">
                 {yarns.map((yarn, index) => (
@@ -497,12 +497,12 @@ function YarnsSection({ apiRequest, showNotice, isActive, currentUserName = '' }
                     </div>
 
                     <div className="space-y-2 text-xs text-slate-700">
-                      <div className="flex items-center justify-between gap-3"><span>العدد:</span><span className="font-medium text-slate-900">{yarn.count ?? '-'}</span></div>
-                      <div className="flex items-center justify-between gap-3"><span>الصافي KG:</span><span className="font-medium text-slate-900">{yarn.netKg ?? '-'}</span></div>
-                      <div className="flex items-center justify-between gap-3"><span>القائم KG:</span><span className="font-medium text-slate-900">{yarn.brutKg ?? '-'}</span></div>
-                      <div className="flex items-center justify-between gap-3"><span>الصافي المتبقي:</span><span className="font-medium text-slate-900">{yarn.remainNetKg ?? '-'}</span></div>
-                      <div className="flex items-center justify-between gap-3"><span>الشركة:</span><span className="font-medium text-slate-900">{yarn.company ?? '-'}</span></div>
-                      <div className="flex items-center justify-between gap-3"><span>تاريخ الاستلام:</span><span className="font-medium text-slate-900">{yarn.incomDate ?? '-'}</span></div>
+                      <div className="flex items-center justify-between gap-3"><span>Adet:</span><span className="font-medium text-slate-900">{yarn.count ?? '-'}</span></div>
+                      <div className="flex items-center justify-between gap-3"><span>Net KG:</span><span className="font-medium text-slate-900">{yarn.netKg ?? '-'}</span></div>
+                      <div className="flex items-center justify-between gap-3"><span>Brüt KG:</span><span className="font-medium text-slate-900">{yarn.brutKg ?? '-'}</span></div>
+                      <div className="flex items-center justify-between gap-3"><span>Kalan net:</span><span className="font-medium text-slate-900">{yarn.remainNetKg ?? '-'}</span></div>
+                      <div className="flex items-center justify-between gap-3"><span>Firma:</span><span className="font-medium text-slate-900">{yarn.company ?? '-'}</span></div>
+                      <div className="flex items-center justify-between gap-3"><span>Giriş tarihi:</span><span className="font-medium text-slate-900">{yarn.incomDate ?? '-'}</span></div>
                     </div>
 
                     <div className="mt-4 flex items-center justify-end gap-2">
@@ -530,9 +530,9 @@ function YarnsSection({ apiRequest, showNotice, isActive, currentUserName = '' }
 
         <footer className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <div className="space-y-1 text-sm text-slate-700 text-right">
-            <p>إجمالي النتائج: <strong className="text-slate-900">{totalCount}</strong></p>
-            <p>الصافي: <strong className="text-slate-900">{totalNetKg}</strong> | القائم: <strong className="text-slate-900">{totalBrutKg}</strong></p>
-            <p>المتبقي صافي: <strong className="text-slate-900">{totalRemainNetKg}</strong> | المتبقي قائم: <strong className="text-slate-900">{totalRemainBrutKg}</strong></p>
+              <p>Toplam kayıt: <strong className="text-slate-900">{totalCount}</strong></p>
+            <p>Net: <strong className="text-slate-900">{totalNetKg}</strong> | Brüt: <strong className="text-slate-900">{totalBrutKg}</strong></p>
+            <p>Kalan net: <strong className="text-slate-900">{totalRemainNetKg}</strong> | Kalan brüt: <strong className="text-slate-900">{totalRemainBrutKg}</strong></p>
           </div>
 
           <div className="flex items-center justify-end gap-2">
@@ -541,7 +541,7 @@ function YarnsSection({ apiRequest, showNotice, isActive, currentUserName = '' }
               onClick={handlePrintYarns}
               className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
             >
-              طباعة
+              Yazdır
             </button>
             <button
               type="button"
@@ -549,10 +549,10 @@ function YarnsSection({ apiRequest, showNotice, isActive, currentUserName = '' }
               disabled={pageNumber <= 1 || isLoading}
               onClick={() => setPageNumber((prev) => Math.max(prev - 1, 1))}
             >
-              السابق
+              Önceki
             </button>
             <span className="rounded-md bg-slate-100 px-2.5 py-1 text-sm font-medium text-slate-700">
-              الصفحة {pageNumber}
+              Sayfa {pageNumber}
             </span>
             <button
               type="button"
@@ -564,7 +564,7 @@ function YarnsSection({ apiRequest, showNotice, isActive, currentUserName = '' }
                 )
               }
             >
-              التالي
+              Sonraki
             </button>
           </div>
         </footer>

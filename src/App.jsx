@@ -30,7 +30,7 @@ const OPERATION_LABELS = {
   orders: 'ادارة الطلبيات',
   depoHamFabric: 'HAM KUMAŞ DEPO',
   fasonHamEntry: 'FASON GİRİŞ KUMAŞI',
-  yarns: 'ادارة مخزون الخيط',
+  yarns: 'İPLİK STOK YÖNETİMİ',
   fabrics: 'GÜNLÜK ÜRETİM TAKİBİ',
   fabricEntry: 'KUMAŞ HAREKETİ EKLE',
   hamBoya: 'ادارة خام مرسل للمصابغ',
@@ -844,7 +844,7 @@ function App() {
                     className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'yarns' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
                     onClick={() => setActiveOperation('yarns')}
                   >
-                    ادارة مخزون الخيط
+                    İPLİK STOK YÖNETİMİ
                   </button>
                   <button
                     type="button"
@@ -875,7 +875,7 @@ function App() {
                     className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'yarns' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
                     onClick={() => setActiveOperation('yarns')}
                   >
-                    ادارة مخزون الخيط
+                    İPLİK STOK YÖNETİMİ
                   </button>
                   <button
                     type="button"
@@ -972,7 +972,7 @@ function App() {
                     className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'yarns' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
                     onClick={() => setActiveOperation('yarns')}
                   >
-                    ادارة مخزون الخيط
+                    İPLİK STOK YÖNETİMİ
                   </button>
                   <button
                     type="button"

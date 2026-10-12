@@ -40,14 +40,13 @@ function YarnModal({
         <section className="w-full max-h-[88vh] overflow-y-auto rounded-2xl bg-white shadow-[0_30px_60px_rgba(15,23,42,0.22)] ring-1 ring-slate-200 sm:max-w-5xl" dir="rtl">
           <header className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white/95 px-4 py-4 backdrop-blur-sm sm:px-6">
             <div className="text-right">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-500">الخيط</p>
-              <h4 className="mt-1 text-xl font-semibold text-slate-900">{form.id ? 'تعديل خيط' : 'إضافة خيط جديد'}</h4>
+                  <h4 className="mt-1 text-xl font-semibold text-slate-900">{form.id ? 'İpliği Düzenle' : 'Yeni İplik Ekle'}</h4>
             </div>
             <button
               type="button"
               className="text-2xl leading-none text-slate-400 transition hover:text-slate-600"
               onClick={onClose}
-              aria-label="إغلاق"
+                aria-label="Kapat"
             >
               ×
             </button>
@@ -56,7 +55,7 @@ function YarnModal({
           <div className="px-4 py-5 sm:px-6">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <div className="space-y-2 text-right">
-                <label htmlFor="yarnGender" className="block text-sm font-medium text-slate-700">نوع الخيط</label>
+                <label htmlFor="yarnGender" className="block text-sm font-medium text-slate-700">İplik türü</label>
                 <input
                   id="yarnGender"
                   type="text"
@@ -82,7 +81,7 @@ function YarnModal({
               </div>
 
               <div className="space-y-2 text-right">
-                <label htmlFor="count" className="block text-sm font-medium text-slate-700">العدد</label>
+                <label htmlFor="count" className="block text-sm font-medium text-slate-700">Adet</label>
                 <input
                   id="count"
                   type="number"
@@ -95,7 +94,7 @@ function YarnModal({
               </div>
 
               <div className="space-y-2 text-right">
-                <label htmlFor="yarnType" className="block text-sm font-medium text-slate-700">نوع الخيط</label>
+                <label htmlFor="yarnType" className="block text-sm font-medium text-slate-700">İplik tipi</label>
                 <input
                   id="yarnType"
                   type="number"
@@ -108,7 +107,7 @@ function YarnModal({
               </div>
 
               <div className="space-y-2 text-right">
-                <label htmlFor="netKg" className="block text-sm font-medium text-slate-700">الصافي KG</label>
+                <label htmlFor="netKg" className="block text-sm font-medium text-slate-700">Net KG</label>
                 <input
                   id="netKg"
                   type="number"
@@ -121,7 +120,7 @@ function YarnModal({
               </div>
 
               <div className="space-y-2 text-right">
-                <label htmlFor="brutKg" className="block text-sm font-medium text-slate-700">القائم KG</label>
+                <label htmlFor="brutKg" className="block text-sm font-medium text-slate-700">Brüt KG</label>
                 <input
                   id="brutKg"
                   type="number"
@@ -134,7 +133,7 @@ function YarnModal({
               </div>
 
               <div className="space-y-2 text-right">
-                <label htmlFor="loss" className="block text-sm font-medium text-slate-700">نسبة الخياس</label>
+                <label htmlFor="loss" className="block text-sm font-medium text-slate-700">Fire oranı</label>
                 <input
                   id="loss"
                   type="number"
@@ -162,7 +161,7 @@ function YarnModal({
               </div>
 
               <div className="space-y-2 text-right">
-                <label htmlFor="company" className="block text-sm font-medium text-slate-700">الشركة</label>
+                <label htmlFor="company" className="block text-sm font-medium text-slate-700">Firma</label>
                 <input
                   id="company"
                   type="text"
@@ -175,7 +174,7 @@ function YarnModal({
               </div>
 
               <div className="space-y-2 text-right">
-                <label htmlFor="price" className="block text-sm font-medium text-slate-700">السعر</label>
+                <label htmlFor="price" className="block text-sm font-medium text-slate-700">Fiyat</label>
                 <input
                   id="price"
                   type="number"
@@ -189,7 +188,7 @@ function YarnModal({
               </div>
 
               <div className="space-y-2 text-right">
-                <label htmlFor="faturaNo" className="block text-sm font-medium text-slate-700">رقم الفاتورة</label>
+                <label htmlFor="faturaNo" className="block text-sm font-medium text-slate-700">Fatura No</label>
                 <input
                   id="faturaNo"
                   type="text"
@@ -202,7 +201,7 @@ function YarnModal({
               </div>
 
               <div className="space-y-2 text-right">
-                <label htmlFor="incomDate" className="block text-sm font-medium text-slate-700">تاريخ الاستلام</label>
+                <label htmlFor="incomDate" className="block text-sm font-medium text-slate-700">Giriş tarihi</label>
                 <input
                   id="incomDate"
                   type="date"
@@ -221,9 +220,9 @@ function YarnModal({
           ) : null}
 
           <div className="sticky bottom-0 flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-4 py-4 sm:flex-row sm:justify-end sm:px-6">
-            <button type="button" className={buildButtonClasses('secondary')} onClick={onClose}>إلغاء</button>
+            <button type="button" className={buildButtonClasses('secondary')} onClick={onClose}>İptal</button>
             <button type="button" disabled={isSaving} className={buildButtonClasses('primary')} onClick={onSave}>
-              {isSaving ? 'جاري الحفظ...' : 'حفظ'}
+              {isSaving ? 'Kaydediliyor...' : 'Kaydet'}
             </button>
           </div>
         </section>
