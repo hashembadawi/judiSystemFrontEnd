@@ -71,6 +71,10 @@ const escapePrintHtml = (value) => String(value ?? '')
 
 const printSavedFabricRoll = (roll) => {
   const weight = roll?.weight ?? roll?.Weight ?? ''
+  const printedAt = new Intl.DateTimeFormat('tr-TR', {
+    dateStyle: 'short',
+    timeStyle: 'medium',
+  }).format(new Date())
   const barcodeElement = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
 
   JsBarcode(barcodeElement, String(weight), {
@@ -104,6 +108,7 @@ const printSavedFabricRoll = (roll) => {
           .info th { width: 38%; background: #f3f4f6; color: #4b5563; font-size: 12px; font-weight: 400; }
           .info td { font-size: 13px; font-weight: 700; overflow-wrap: anywhere; }
           .barcode { margin-top: 22px; width: 100%; }
+          .printed-at { margin-top: 10px; font-size: 12px; }
         </style>
       </head>
       <body>
@@ -120,6 +125,7 @@ const printSavedFabricRoll = (roll) => {
             </tbody>
           </table>
           <div class="barcode">${barcodeElement.outerHTML}</div>
+          <p class="printed-at">Yazdırma Tarihi / Saati: ${escapePrintHtml(printedAt)}</p>
         </main>
       </body>
     </html>`
