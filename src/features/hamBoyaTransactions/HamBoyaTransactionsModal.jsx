@@ -1,5 +1,9 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { buildButtonClasses, buildInputClasses } from '../../styles/designSystem'
+
+const getHamFabricLabel = (fabric) => (
+  `${fabric.fabricGender ?? ''} - Lot: ${fabric.fabricLOT ?? ''} - Gr: ${fabric.fabricGSM ?? ''} - Kg: ${fabric.weight ?? ''} - F: ${fabric.factoryName ?? ''}`
+)
 
 function HamBoyaTransactionsModal({
   isOpen,
@@ -17,7 +21,15 @@ function HamBoyaTransactionsModal({
   onClose,
   onSave,
 }) {
+  const [fabricSearchTexts, setFabricSearchTexts] = useState({})
+  const [activeFabricSearchIndex, setActiveFabricSearchIndex] = useState(null)
+
   useEffect(() => {
+    if (!isOpen) {
+      setFabricSearchTexts({})
+      setActiveFabricSearchIndex(null)
+    }
+
     const handleKeyDown = (event) => {
       if (event.key === 'Escape' && isOpen && !isSaving) {
         onClose()
@@ -158,19 +170,97 @@ function HamBoyaTransactionsModal({
                         {/* جنس القماش في سطر منفصل */}
                         <div className="space-y-2" dir="ltr">
                           <label htmlFor={`detail-fabric-${index}`} className="block text-sm font-medium text-slate-700 text-right">جنس القماش</label>
-                          <select
-                            id={`detail-fabric-${index}`}
-                            value={String(detail.HamFabricId ?? '')}
-                            onChange={(event) => onFabricSelect(index, event.target.value)}
-                            className={`${buildInputClasses(false)} w-full text-sm`}
-                          >
-                            <option value="">اختر القماش</option>
-                            {hamFabricsOptions.map((fabric, optionIndex) => (
-                              <option key={fabric.id ?? `${fabric.fabricGender}-${optionIndex}`} value={fabric.id}>
-                                {`${fabric.fabricGender ?? ''} - Lot: ${fabric.fabricLOT ?? ''} - Gr: ${fabric.fabricGSM ?? ''} - Kg: ${fabric.weight ?? ''} - F: ${fabric.factoryName ?? ''}`}
-                              </option>
-                            ))}
-                          </select>
+                          <div className="relative">
+                            <input
+                              id={`detail-fabric-${index}`}
+                              type="text"
+                              role="combobox"
+                              aria-autocomplete="list"
+                              aria-expanded={activeFabricSearchIndex === index}
+                              aria-controls={`detail-fabric-options-${index}`}
+                              value={fabricSearchTexts[index] ?? getHamFabricLabel(
+                                hamFabricsOptions.find((fabric) => String(fabric.id) === String(detail.HamFabricId)) || {},
+                              )}
+                              onFocus={(event) => {
+                                event.currentTarget.select()
+                                setActiveFabricSearchIndex(index)
+                                setFabricSearchTexts((previous) => ({ ...previous, [index]: '' }))
+                              }}
+                              onChange={(event) => {
+                                const value = event.target.value
+                                const matchingFabric = hamFabricsOptions.find(
+                                  (fabric) => getHamFabricLabel(fabric).toLocaleLowerCase() === value.trim().toLocaleLowerCase(),
+                                )
+                                onFabricSelect(index, matchingFabric ? String(matchingFabric.id) : '')
+                                setActiveFabricSearchIndex(index)
+                                setFabricSearchTexts((previous) => ({ ...previous, [index]: value }))
+                              }}
+                              onBlur={() => {
+                                setActiveFabricSearchIndex(null)
+                                const selectedFabric = hamFabricsOptions.find(
+                                  (fabric) => String(fabric.id) === String(detail.HamFabricId),
+                                )
+                                setFabricSearchTexts((previous) => ({
+                                  ...previous,
+                                  [index]: getHamFabricLabel(selectedFabric || {}),
+                                }))
+                              }}
+                              onKeyDown={(event) => {
+                                if (event.key === 'Escape') {
+                                  event.stopPropagation()
+                                  setActiveFabricSearchIndex(null)
+                                }
+                              }}
+                              className={`${buildInputClasses(false)} w-full text-sm`}
+                              placeholder="اختر القماش أو اكتب للبحث"
+                              autoComplete="off"
+                            />
+                            {activeFabricSearchIndex === index ? (() => {
+                              const searchText = (fabricSearchTexts[index] ?? '').trim().toLocaleLowerCase()
+                              const matchingFabrics = hamFabricsOptions.filter((fabric) => (
+                                getHamFabricLabel(fabric).toLocaleLowerCase().includes(searchText)
+                              ))
+                              const widestLabelLength = matchingFabrics.reduce(
+                                (widest, fabric) => Math.max(widest, getHamFabricLabel(fabric).length),
+                                0,
+                              )
+
+                              return (
+                                <div
+                                  id={`detail-fabric-options-${index}`}
+                                  role="listbox"
+                                  className="absolute left-0 top-full z-30 mt-1 max-h-60 overflow-auto rounded-md border border-slate-300 bg-white py-1 shadow-lg"
+                                  style={{
+                                    width: `max(100%, ${Math.max(widestLabelLength, 24)}ch)`,
+                                    maxWidth: 'calc(100vw - 2rem)',
+                                  }}
+                                >
+                                  {matchingFabrics.length ? matchingFabrics.map((fabric, optionIndex) => (
+                                    <button
+                                      key={fabric.id ?? `${fabric.fabricGender}-${optionIndex}`}
+                                      type="button"
+                                      role="option"
+                                      aria-selected={String(fabric.id) === String(detail.HamFabricId)}
+                                      onMouseDown={(event) => event.preventDefault()}
+                                      onClick={() => {
+                                        onFabricSelect(index, String(fabric.id))
+                                        setFabricSearchTexts((previous) => ({
+                                          ...previous,
+                                          [index]: getHamFabricLabel(fabric),
+                                        }))
+                                        setActiveFabricSearchIndex(null)
+                                      }}
+                                      className="block w-full whitespace-nowrap px-3 py-2 text-left text-sm text-slate-900 hover:bg-slate-100"
+                                    >
+                                      {getHamFabricLabel(fabric)}
+                                    </button>
+                                  )) : (
+                                    <p className="px-3 py-2 whitespace-nowrap text-sm text-slate-500">لا توجد نتائج مطابقة</p>
+                                  )}
+                                </div>
+                              )
+                            })() : null}
+                          </div>
                         </div>
 
                         <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-3" dir="rtl">
