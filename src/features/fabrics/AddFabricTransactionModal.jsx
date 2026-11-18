@@ -136,6 +136,21 @@ function AddFabricTransactionModal({
     }
   }, [details, isOpen, onDetailFieldChange, savingDetailIndex])
 
+  const handleWeightChange = useCallback((index, value) => {
+    const socket = weightSockets.current.get(index)
+    if (socket) {
+      weightSockets.current.delete(index)
+      socket.close()
+    }
+
+    setWeightReadStates((previous) => {
+      const next = { ...previous }
+      delete next[index]
+      return next
+    })
+    onDetailFieldChange(index, 'Weight', value)
+  }, [onDetailFieldChange])
+
   useEffect(() => {
     if (isOpen) {
       return undefined
@@ -237,7 +252,7 @@ function AddFabricTransactionModal({
                         </div>
                         <div className="space-y-1">
                           <label htmlFor={`fabricMovementWeight-${index}`} className="block text-xs font-medium text-slate-700">Ağırlık</label>
-                            <input id={`fabricMovementWeight-${index}`} type="number" min="0" step="0.01" value={detail.Weight ?? ''} onFocus={() => readWeight(index)} readOnly disabled={detail.isLocked || savingDetailIndex !== null} className={`${buildInputClasses(false)} w-full py-1.5 text-xs`} placeholder={weightReadStates[index] === 'loading' ? 'Terazi okunuyor...' : 'Tartım için odaklanın'} />
+                            <input id={`fabricMovementWeight-${index}`} type="number" min="0" step="0.01" value={detail.Weight ?? ''} onFocus={() => readWeight(index)} onChange={(event) => handleWeightChange(index, event.target.value)} disabled={detail.isLocked || savingDetailIndex !== null} className={`${buildInputClasses(false)} w-full py-1.5 text-xs`} placeholder={weightReadStates[index] === 'loading' ? 'Terazi okunuyor...' : 'Tartım için odaklanın'} />
                           {weightReadStates[index] && weightReadStates[index] !== 'loading' ? <p className="text-[11px] text-red-600">{weightReadStates[index]}</p> : null}
                         </div>
                         <div className="space-y-1">

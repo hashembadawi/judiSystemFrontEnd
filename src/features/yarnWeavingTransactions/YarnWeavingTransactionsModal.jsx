@@ -158,10 +158,11 @@ function YarnWeavingTransactionsModal({
                               const yarnId = yarn.id ?? yarn.yarnId
                               const yarnGender = yarn.yarnGender ?? yarn.YarnGender ?? yarn.name ?? yarnId
                               const yarnLot = yarn.yarnLot ?? yarn.lot ?? yarn.Lot ?? '-'
+                              const enterDate = yarn.enterDate ?? yarn.EnterDate ?? '-'
 
                               return (
                                 <option key={yarnId} value={yarnId}>
-                                  {yarnGender} - Lot : {yarnLot}
+                                  {yarnGender} - Lot : {yarnLot} - Date: {enterDate}
                                 </option>
                               )
                             })}

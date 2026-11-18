@@ -20,6 +20,7 @@ import WeavingOrdersSection from './features/weavingOrders/WeavingOrdersSection'
 import WeavingOrderPlanningSection from './features/weavingOrderPlanning/WeavingOrderPlanningSection'
 import FasonHamEntrySection from './features/fasonHamEntry/FasonHamEntrySection'
 import FasonHamEntryModal from './features/fasonHamEntry/FasonHamEntryModal'
+import YarnReturnOperationSection from './features/yarnReturnOperation/YarnReturnOperationSection'
 import { loginRequest, requestApi } from './services/api'
 
 const TOKEN_KEY = 'judi_auth_token'
@@ -30,6 +31,7 @@ const OPERATION_LABELS = {
   orders: 'ادارة الطلبيات',
   depoHamFabric: 'HAM KUMAŞ DEPO',
   fasonHamEntry: 'FASON GİRİŞ KUMAŞI',
+  yarnReturnOperation: 'خيط مرتجع من فاصون',
   yarns: 'İPLİK STOK YÖNETİMİ',
   fabrics: 'GÜNLÜK ÜRETİM TAKİBİ',
   fabricEntry: 'KUMAŞ HAREKETİ EKLE',
@@ -975,6 +977,13 @@ function App() {
                   </button>
                   <button
                     type="button"
+                    className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'yarnReturnOperation' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
+                    onClick={() => setActiveOperation('yarnReturnOperation')}
+                  >
+                    خيط مرتجع من فاصون
+                  </button>
+                  <button
+                    type="button"
                     className={`w-full rounded-xl border px-4 py-3 text-right text-sm font-medium transition ${activeOperation === 'yarns' ? 'border-slate-900 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100'}`}
                     onClick={() => setActiveOperation('yarns')}
                   >
@@ -1173,6 +1182,8 @@ function App() {
               <WeavingOrderPlanningSection apiRequest={apiRequest} showNotice={showNotice} isActive />
             ) : activeOperation === 'fasonHamEntry' ? (
               <FasonHamEntrySection apiRequest={apiRequest} showNotice={showNotice} isActive refreshKey={fasonHamEntryRefreshKey} onNewTransaction={openFasonHamEntryModal} onEditTransaction={openFasonHamEntryModal} onDeleteTransaction={deleteFasonHamEntry} />
+            ) : activeOperation === 'yarnReturnOperation' ? (
+              <YarnReturnOperationSection apiRequest={apiRequest} showNotice={showNotice} isActive />
             ) : activeOperation === 'yarns' ? (
               <YarnsSection
                 apiRequest={apiRequest}

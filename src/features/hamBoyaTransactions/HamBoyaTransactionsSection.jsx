@@ -643,7 +643,7 @@ function HamBoyaTransactionsSection({ apiRequest, showNotice, isActive, currentU
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50">
                 <th className="px-3 py-2 text-right"><span className="font-semibold text-slate-600">رقم الفاتورة</span></th>
-                <th className="px-3 py-2 text-right"><span className="font-semibold text-slate-600">المصنع</span></th>
+                <th className="px-3 py-2 text-right"><span className="font-semibold text-slate-600">المصبغة</span></th>
                 <th className="px-3 py-2 text-right"><span className="font-semibold text-slate-600">التاريخ</span></th>
                 <th className="px-3 py-2 text-right"><span className="font-semibold text-slate-600">الكاتب</span></th>
                 <th className="px-3 py-2 text-right"><span className="font-semibold text-slate-600">لوحة السيارة</span></th>
